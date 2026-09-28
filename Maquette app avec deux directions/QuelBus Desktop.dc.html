@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#FAF7F2; font-family:Archivo, Helvetica, sans-serif; color:#1A1613; }
+a { color:#CE5B22; text-decoration:none; }
+a:hover { color:#9E4014; text-decoration:underline; }
+input:focus { outline:2px solid #CE5B22; outline-offset:1px; }
+</style>
+</helmet>
+
+<div style="min-height:100vh; display:flex; flex-direction:column; background:#FAF7F2">
+
+  <header style="border-bottom:1px solid #E6DFD5; background:#FAF7F2">
+    <div style="max-width:1200px; margin:0 auto; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap">
+      <div onClick="{{ goAccueil }}" style="display:flex; align-items:center; gap:12px; cursor:pointer">
+        <div style="width:44px; display:flex; align-items:center">
+          <div style="width:15px; height:15px; border-radius:50%; border:4px solid #1A1613; box-sizing:border-box; flex:none"></div>
+          <div style="height:4px; background:#1A1613; flex:1"></div>
+          <div style="width:15px; height:15px; border-radius:50%; background:#CE5B22; flex:none"></div>
+        </div>
+        <div style="font-size:24px; font-weight:800; letter-spacing:-.02em">quelbus</div>
+      </div>
+      <nav style="display:flex; align-items:center; gap:6px">
+        <div onClick="{{ goAccueil }}" style="padding:10px 14px; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer" style-hover="background:#F1EBE1">Rechercher</div>
+        <div onClick="{{ goLignes }}" style="padding:10px 14px; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer" style-hover="background:#F1EBE1">Toutes les lignes</div>
+        <div onClick="{{ goLieu }}" style="padding:10px 14px; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer" style-hover="background:#F1EBE1">Lieux</div>
+        <div onClick="{{ goApropos }}" style="padding:10px 14px; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer" style-hover="background:#F1EBE1">À propos</div>
+      </nav>
+    </div>
+  </header>
+
+  <main style="flex:1">
+
+    <sc-if value="{{ isAccueil }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="D-01 Accueil" style="max-width:1200px; margin:0 auto; padding:64px 32px 72px; display:flex; flex-direction:column; gap:56px">
+        <div style="display:flex; flex-direction:column; gap:12px; max-width:760px">
+          <div style="font-size:60px; font-weight:800; line-height:1.02; letter-spacing:-.03em">Quel bus prendre&nbsp;?</div>
+          <div style="font-size:20px; color:#6B6259; text-wrap:pretty">Indiquez d'où vous partez et où vous allez&nbsp;: on vous montre les lignes SOTRA qui y vont directement, sans correspondance.</div>
+        </div>
+
+        <div style="background:#fff; border:1px solid #E6DFD5; border-radius:22px; padding:22px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:16px; align-items:end; box-shadow:0 24px 48px -32px rgba(26,22,19,.35)">
+          <label style="display:flex; flex-direction:column; gap:8px">
+            <span style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.06em">Où êtes-vous&nbsp;?</span>
+            <div style="display:flex; align-items:center; gap:12px; background:#F6F1E9; border:1px solid #E6DFD5; border-radius:14px; padding:0 14px; min-height:60px">
+              <div style="width:12px; height:12px; border-radius:50%; border:3px solid #1A1613; box-sizing:border-box; flex:none"></div>
+              <div style="font-size:18px; font-weight:600; flex:1">Angré 8e Tranche</div>
+              <div style="font-size:14px; font-weight:700; color:#CE5B22; white-space:nowrap">Ma position</div>
+            </div>
+          </label>
+          <label style="display:flex; flex-direction:column; gap:8px">
+            <span style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.06em">Où allez-vous&nbsp;?</span>
+            <div style="display:flex; align-items:center; gap:12px; background:#F6F1E9; border:1px solid #E6DFD5; border-radius:14px; padding:0 14px; min-height:60px">
+              <div style="width:12px; height:12px; border-radius:50%; background:#CE5B22; flex:none"></div>
+              <div style="font-size:18px; font-weight:600">Mosquée d'Adjamé</div>
+            </div>
+          </label>
+          <button onClick="{{ goResultats }}" style="border:none; background:#CE5B22; color:#fff; border-radius:14px; min-height:60px; padding:0 30px; font-size:19px; font-weight:800; font-family:Archivo,sans-serif; cursor:pointer" style-hover="background:#B84E1B">Trouver mon bus</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:48px">
+          <div style="display:flex; flex-direction:column; gap:16px">
+            <div style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.06em">Lieux populaires</div>
+            <div style="display:flex; flex-direction:column; border-top:1px solid #E6DFD5">
+              <sc-for list="{{ lieux }}" as="l" hint-placeholder-count="5">
+                <div onClick="{{ goLieu }}" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 4px; border-bottom:1px solid #E6DFD5; cursor:pointer" style-hover="background:#F4EEE4">
+                  <div style="display:flex; flex-direction:column; gap:2px">
+                    <div style="font-size:18px; font-weight:700">{{ l.nom }}</div>
+                    <div style="font-size:14px; color:#6B6259">{{ l.commune }}</div>
+                  </div>
+                  <div style="font-size:15px; font-weight:600; color:#6B6259; white-space:nowrap">{{ l.nb }} lignes →</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:16px">
+            <div style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.06em">Lignes populaires</div>
+            <div style="display:flex; flex-direction:column; border-top:1px solid #E6DFD5">
+              <sc-for list="{{ lignesPop }}" as="p" hint-placeholder-count="5">
+                <div onClick="{{ goLigne }}" style="display:flex; align-items:center; gap:16px; padding:12px 4px; border-bottom:1px solid #E6DFD5; cursor:pointer" style-hover="background:#F4EEE4">
+                  <div style="width:56px; height:46px; border-radius:10px; background:#1A1613; color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-size:21px; font-weight:800; flex:none">{{ p.ref }}</div>
+                  <div style="font-size:17px; font-weight:600">{{ p.trajet }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div onClick="{{ goLignes }}" style="font-size:16px; font-weight:700; color:#CE5B22; cursor:pointer">Voir les 70 lignes →</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isResultats }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="D-02 Résultats" style="display:flex; flex-direction:column">
+        <div style="border-bottom:1px solid #E6DFD5; background:#fff">
+          <div style="max-width:1200px; margin:0 auto; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap">
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+              <div style="font-size:22px; font-weight:800">Angré 8e Tranche → Mosquée d'Adjamé</div>
+              <div onClick="{{ goAccueil }}" style="font-size:15px; font-weight:700; color:#CE5B22; cursor:pointer">Modifier</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+              <div style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.06em">Marche max</div>
+              <div style="display:flex; border:1px solid #DCD3C6; border-radius:10px; overflow:hidden">
+                <sc-for list="{{ rayons }}" as="r" hint-placeholder-count="3">
+                  <div onClick="{{ r.pick }}" style="padding:10px 16px; font-size:15px; font-weight:700; cursor:pointer; background:{{ r.bg }}; color:{{ r.fg }}">{{ r.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="max-width:1200px; width:100%; box-sizing:border-box; margin:0 auto; padding:28px 32px 64px; display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:28px; align-items:start">
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div style="font-size:16px; font-weight:700; color:#6B6259">{{ nbResultats }} lignes directes · à moins de {{ rayon }} m</div>
+            <sc-for list="{{ resultats }}" as="res" hint-placeholder-count="3">
+              <div style="background:#fff; border:1px solid {{ res.border }}; border-radius:18px; padding:18px; display:flex; flex-direction:column; gap:14px; cursor:pointer" onClick="{{ res.select }}">
+                <div style="display:flex; gap:14px; align-items:center">
+                  <div style="width:68px; height:60px; border-radius:12px; background:{{ res.badge }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:800; flex:none">{{ res.ref }}</div>
+                  <div style="display:flex; flex-direction:column; gap:2px">
+                    <div style="font-size:17px; font-weight:700">{{ res.trajet }}</div>
+                    <div style="font-size:14px; color:#6B6259">{{ res.arrets }} arrêts entre montée et descente</div>
+                  </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+                  <div style="display:flex; gap:10px; align-items:flex-start">
+                    <div style="width:13px; height:13px; border-radius:50%; border:3px solid #1A1613; box-sizing:border-box; margin-top:4px; flex:none"></div>
+                    <div><div style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.05em">Montez à</div><div style="font-size:16px; font-weight:700">{{ res.montee }}</div><div style="font-size:14px; color:#6B6259">{{ res.mDist }} à pied</div></div>
+                  </div>
+                  <div style="display:flex; gap:10px; align-items:flex-start">
+                    <div style="width:13px; height:13px; border-radius:50%; background:#CE5B22; margin-top:4px; flex:none"></div>
+                    <div><div style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.05em">Descendez à</div><div style="font-size:16px; font-weight:700">{{ res.descente }}</div><div style="font-size:14px; color:#6B6259">{{ res.dDist }} à pied</div></div>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; border-top:1px solid #EFE9DF; padding-top:12px">
+                  <div onClick="{{ goLigne }}" style="font-size:15px; font-weight:700; color:#CE5B22">Fiche de la ligne {{ res.ref }} →</div>
+                  <div style="font-size:14px; color:#8A8175">Ce trajet est faux&nbsp;?</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="position:sticky; top:20px; height:560px; border-radius:20px; border:1px solid #E6DFD5; background-image:repeating-linear-gradient(135deg,#F1EBE1 0 10px,#FAF7F2 10px 20px); display:flex; flex-direction:column; justify-content:space-between; padding:18px; box-sizing:border-box">
+            <div style="align-self:flex-start; background:#fff; border:1px solid #E6DFD5; border-radius:10px; padding:10px 14px; font-size:15px; font-weight:700">Ligne {{ selRef }} · tracé, montée et descente</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8A8175; text-align:center">carte Leaflet · tuiles OSM</div>
+            <div style="align-self:flex-end; font-size:12px; color:#6B6259; background:#fff; padding:4px 8px; border-radius:6px">© OpenStreetMap</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLieu }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="D-03 Aller à" style="max-width:1200px; margin:0 auto; padding:36px 32px 72px; display:flex; flex-direction:column; gap:32px">
+        <div style="display:flex; gap:8px; font-size:14px; color:#6B6259"><span onClick="{{ goAccueil }}" style="cursor:pointer">Accueil</span><span>/</span><span>Lieux</span><span>/</span><span style="color:#1A1613; font-weight:600">Mosquée d'Adjamé</span></div>
+        <div style="display:flex; flex-direction:column; gap:10px; max-width:820px">
+          <div style="font-size:48px; font-weight:800; line-height:1.05; letter-spacing:-.025em">Quel bus pour aller à la Mosquée d'Adjamé&nbsp;?</div>
+          <div style="font-size:19px; color:#6B6259; text-wrap:pretty">6 lignes SOTRA s'arrêtent à moins de 300 m. Indiquez votre départ pour savoir laquelle prendre.</div>
+        </div>
+        <div style="background:#fff; border:1px solid #E6DFD5; border-radius:18px; padding:16px; display:flex; gap:12px; align-items:center; max-width:820px; box-sizing:border-box">
+          <div style="flex:1; display:flex; align-items:center; gap:12px; background:#F6F1E9; border:1px solid #E6DFD5; border-radius:12px; padding:0 14px; min-height:54px">
+            <div style="width:12px; height:12px; border-radius:50%; border:3px solid #1A1613; box-sizing:border-box"></div>
+            <div style="font-size:17px; color:#8A8175">Votre point de départ</div>
+          </div>
+          <button onClick="{{ goResultats }}" style="border:none; background:#CE5B22; color:#fff; border-radius:12px; min-height:54px; padding:0 24px; font-size:17px; font-weight:800; font-family:Archivo,sans-serif; cursor:pointer">Trouver mon bus</button>
+        </div>
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:32px; align-items:start">
+          <div style="display:flex; flex-direction:column; gap:28px">
+            <div style="display:flex; flex-direction:column; gap:14px">
+              <div style="font-size:22px; font-weight:800">Lignes qui passent à proximité</div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px">
+                <sc-for list="{{ lignesLieu }}" as="ll" hint-placeholder-count="6">
+                  <div onClick="{{ goLigne }}" style="background:#fff; border:1px solid #E6DFD5; border-radius:14px; padding:12px; display:flex; align-items:center; gap:12px; cursor:pointer" style-hover="border-color:#CE5B22">
+                    <div style="width:50px; height:44px; border-radius:10px; background:#1A1613; color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; flex:none">{{ ll.ref }}</div>
+                    <div style="font-size:14px; font-weight:600; color:#6B6259; line-height:1.3">{{ ll.dist }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <div style="font-size:22px; font-weight:800">Arrêts les plus proches</div>
+              <div style="display:flex; flex-direction:column; border-top:1px solid #E6DFD5">
+                <sc-for list="{{ arretsProches }}" as="a" hint-placeholder-count="3">
+                  <div style="display:flex; justify-content:space-between; gap:12px; padding:14px 2px; border-bottom:1px solid #E6DFD5">
+                    <div style="font-size:17px; font-weight:700">{{ a.nom }}</div>
+                    <div style="font-size:15px; color:#6B6259; white-space:nowrap">{{ a.dist }} · {{ a.lignes }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="height:440px; border-radius:20px; border:1px solid #E6DFD5; background-image:repeating-linear-gradient(135deg,#F1EBE1 0 10px,#FAF7F2 10px 20px); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8A8175">carte · lieu + arrêts dans un rayon de 300 m</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; max-width:820px">
+          <div style="font-size:22px; font-weight:800">Questions fréquentes</div>
+          <sc-for list="{{ faq }}" as="f" hint-placeholder-count="3">
+            <div style="border-top:1px solid #E6DFD5; padding:16px 0; display:flex; flex-direction:column; gap:6px">
+              <div style="font-size:17px; font-weight:700">{{ f.q }}</div>
+              <div style="font-size:16px; color:#6B6259; line-height:1.5">{{ f.r }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLignes }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="D-04 Index lignes" style="max-width:1200px; margin:0 auto; padding:48px 32px 72px; display:flex; flex-direction:column; gap:28px">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap">
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="font-size:48px; font-weight:800; letter-spacing:-.025em; line-height:1.05">Toutes les lignes SOTRA</div>
+            <div style="font-size:18px; color:#6B6259">{{ nbLignes }} lignes de bus à Abidjan</div>
+          </div>
+          <label style="display:flex; flex-direction:column; gap:8px; width:320px">
+            <span style="font-size:13px; font-weight:700; color:#6B6259; text-transform:uppercase; letter-spacing:.06em">Numéro ou terminus</span>
+            <input value="{{ q }}" onChange="{{ onQ }}" placeholder="ex. 81 ou Yopougon" style="font-family:Archivo,sans-serif; font-size:18px; font-weight:600; background:#fff; border:1px solid #DCD3C6; border-radius:12px; padding:0 14px; min-height:54px; color:#1A1613"></input>
+          </label>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px">
+          <sc-for list="{{ lignesFiltrees }}" as="lg" hint-placeholder-count="12">
+            <div onClick="{{ goLigne }}" style="background:#fff; border:1px solid #E6DFD5; border-radius:14px; padding:14px; display:flex; align-items:center; gap:14px; cursor:pointer" style-hover="border-color:#CE5B22">
+              <div style="width:60px; height:52px; border-radius:11px; background:#1A1613; color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; flex:none">{{ lg.ref }}</div>
+              <div style="font-size:15px; font-weight:600; line-height:1.3">{{ lg.trajet }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ aucuneLigne }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:18px; color:#6B6259">Aucune ligne ne correspond à « {{ q }} ».</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLigne }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="D-05 Fiche ligne" style="max-width:1200px; margin:0 auto; padding:36px 32px 72px; display:flex; flex-direction:column; gap:28px">
+        <div style="display:flex; gap:8px; font-size:14px; color:#6B6259"><span onClick="{{ goAccueil }}" style="cursor:pointer">Accueil</span><span>/</span><span onClick="{{ goLignes }}" style="cursor:pointer">Lignes</span><span>/</span><span style="color:#1A1613; font-weight:600">Ligne 81</span></div>
+        <div style="display:flex; align-items:center; gap:22px; flex-wrap:wrap">
+          <div style="width:104px; height:92px; border-radius:18px; background:#CE5B22; color:#fff; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:800">81</div>
+          <div style="display:flex; flex-direction:column; gap:6px">
+            <div style="font-size:40px; font-weight:800; letter-spacing:-.02em; line-height:1.1">{{ sensLabel }}</div>
+            <div style="display:flex; align-items:center; gap:16px; font-size:16px; color:#6B6259">
+              <span>31 arrêts</span>
+              <span onClick="{{ inverser }}" style="font-weight:700; color:#CE5B22; cursor:pointer">⇄ Inverser le sens</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:32px; align-items:start">
+          <div style="background:#fff; border:1px solid #E6DFD5; border-radius:20px; padding:12px 18px">
+            <sc-for list="{{ arrets }}" as="s" hint-placeholder-count="10">
+              <div style="display:flex; gap:14px; align-items:stretch">
+                <div style="width:22px; display:flex; flex-direction:column; align-items:center; flex:none">
+                  <div style="width:4px; flex:1; background:{{ s.lineTop }}"></div>
+                  <div style="width:{{ s.dot }}; height:{{ s.dot }}; border-radius:50%; background:{{ s.dotBg }}; border:3px solid {{ s.dotBorder }}; box-sizing:border-box; flex:none"></div>
+                  <div style="width:4px; flex:1; background:{{ s.lineBot }}"></div>
+                </div>
+                <div style="flex:1; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; margin:3px 0; border-radius:12px; background:{{ s.rowBg }}">
+                  <div style="display:flex; align-items:baseline; gap:12px">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8A8175">{{ s.num }}</span>
+                    <span style="font-size:17px; font-weight:{{ s.weight }}">{{ s.nom }}</span>
+                  </div>
+                  <span style="font-size:13px; font-weight:700; color:#CE5B22; text-transform:uppercase; letter-spacing:.05em">{{ s.tag }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="position:sticky; top:20px; display:flex; flex-direction:column; gap:14px">
+            <div style="height:480px; border-radius:20px; border:1px solid #E6DFD5; background-image:repeating-linear-gradient(135deg,#F1EBE1 0 10px,#FAF7F2 10px 20px); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8A8175">carte Leaflet · tracé ligne 81</div>
+            <div style="font-size:14px; color:#6B6259; line-height:1.5">Arrêts de montée et de descente mis en évidence depuis votre recherche. Pas d'horaires&nbsp;: QuelBus indique seulement quelle ligne prendre.</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isApropos }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="D-06 À propos" style="max-width:760px; margin:0 auto; padding:56px 32px 80px; display:flex; flex-direction:column; gap:28px">
+        <div style="font-size:48px; font-weight:800; letter-spacing:-.025em">À propos</div>
+        <div style="font-size:19px; line-height:1.6; text-wrap:pretty">QuelBus répond à une seule question&nbsp;: quelle ligne SOTRA me dépose près de ma destination, sans correspondance&nbsp;?</div>
+        <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid #E6DFD5; padding-top:20px">
+          <div style="font-size:20px; font-weight:800">Sources et licence</div>
+          <div style="font-size:17px; color:#6B6259; line-height:1.6">Lignes et arrêts issus d'OpenStreetMap, sous licence ODbL. Données © <a href="https://www.openstreetmap.org/copyright">contributeurs OpenStreetMap</a>.</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid #E6DFD5; padding-top:20px">
+          <div style="font-size:20px; font-weight:800">Avertissement</div>
+          <div style="font-size:17px; color:#6B6259; line-height:1.6">Les données peuvent être incomplètes ou dépassées. Vérifiez sur place avant de monter.</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid #E6DFD5; padding-top:20px">
+          <div style="font-size:20px; font-weight:800">Non-affiliation</div>
+          <div style="font-size:17px; color:#6B6259; line-height:1.6">Site indépendant, sans lien avec la SOTRA.</div>
+        </div>
+      </div>
+    </sc-if>
+
+  </main>
+
+  <footer style="border-top:1px solid #E6DFD5">
+    <div style="max-width:1200px; margin:0 auto; padding:22px 32px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:14px; color:#6B6259">
+      <div>Données © <a href="https://www.openstreetmap.org/copyright">contributeurs OpenStreetMap</a> · Site indépendant, non affilié à la SOTRA.</div>
+      <div onClick="{{ goApropos }}" style="cursor:pointer; font-weight:600">À propos</div>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;pageInitiale&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;accueil&quot;,&quot;resultats&quot;,&quot;lieu&quot;,&quot;lignes&quot;,&quot;ligne&quot;,&quot;apropos&quot;],&quot;default&quot;:&quot;accueil&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;surlignerArrets&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { page: null, rayon: 300, sel: 0, q: "", inverse: true };
+  go = (page) => () => { this.setState({ page }); window.scrollTo(0, 0); };
+  renderVals() {
+    const page = this.state.page ?? this.props.pageInitiale ?? "accueil";
+    const hl = this.props.surlignerArrets ?? true;
+    const tous = [
+      ["01","Plateau → Yopougon Siporex"],["04","Abobo → Plateau"],["06","Adjamé → Koumassi"],["08","Gare Sud → Port-Bouët"],
+      ["11","Adjamé → Abobo Baoulé"],["12","Plateau → Riviera 3"],["19","Treichville → Marcory"],["23","Adjamé → Williamsville"],
+      ["27","Adjamé Renault → Riviera 2"],["30","Yopougon → Plateau"],["34","Abobo → Yopougon"],["42","Plateau → Bingerville"],
+      ["49","Gare Nord → Cocody Danga"],["58","Koumassi → Angré"],["72","Adjamé → Anyama"],["81","Gare Nord → Terminus Angré"],
+      ["84","Yopougon Sicogi → Adjamé"],["206","Riviera → Yopougon"]
+    ].map(([ref, trajet]) => ({ ref, trajet }));
+    const q = this.state.q.trim().toLowerCase();
+    const lignesFiltrees = tous.filter(l => !q || l.ref.includes(q) || l.trajet.toLowerCase().includes(q));
+    const baseRes = [
+      { ref:"81", trajet:"Terminus Angré → Gare Nord", arrets:25, montee:"Pharmacie Angré", mDist:"120 m · 2 min", descente:"Mosquée Adjamé", dDist:"40 m · 1 min", r:300 },
+      { ref:"27", trajet:"Riviera 2 → Adjamé Renault", arrets:31, montee:"Carrefour Angré", mDist:"260 m · 4 min", descente:"Adjamé Renault", dDist:"180 m · 3 min", r:300 },
+      { ref:"04", trajet:"Abobo → Plateau", arrets:22, montee:"Angré Château", mDist:"290 m · 4 min", descente:"Adjamé Mosquée", dDist:"95 m · 2 min", r:300 },
+      { ref:"58", trajet:"Angré → Koumassi", arrets:28, montee:"Angré 7e Tranche", mDist:"430 m · 6 min", descente:"Adjamé Liberté", dDist:"350 m · 5 min", r:500 },
+      { ref:"23", trajet:"Williamsville → Adjamé", arrets:19, montee:"Djibi", mDist:"720 m · 10 min", descente:"Mosquée Adjamé", dDist:"60 m · 1 min", r:800 },
+    ];
+    const resList = baseRes.filter(r => r.r <= this.state.rayon);
+    const sel = Math.min(this.state.sel, resList.length - 1);
+    const resultats = resList.map((r, i) => ({ ...r, badge: i === sel ? "#CE5B22" : "#1A1613", border: i === sel ? "#CE5B22" : "#E6DFD5", select: () => this.setState({ sel: i }) }));
+    const noms = ["Gare Nord","Adjamé Liberté","Mosquée Adjamé","Adjamé 220 Logements","Williamsville","Abobo Gare","Dokui","Carrefour Angré","Pharmacie Angré","Angré 8e Tranche","Terminus Angré"];
+    const ordre = this.state.inverse ? [...noms].reverse() : noms;
+    const n = ordre.length;
+    const arrets = ordre.map((nom, i) => {
+      const montee = hl && nom === "Pharmacie Angré", descente = hl && nom === "Mosquée Adjamé";
+      const key = montee || descente;
+      return {
+        nom, num: String(i + 1).padStart(2, "0"),
+        tag: montee ? "Montée" : descente ? "Descente" : "",
+        weight: key ? 800 : 500, rowBg: key ? "#FFF3E9" : "transparent",
+        dot: key ? "18px" : "12px", dotBg: descente ? "#CE5B22" : "#fff", dotBorder: key ? (descente ? "#CE5B22" : "#1A1613") : "#B9AE9F",
+        lineTop: i === 0 ? "transparent" : "#DCD3C6", lineBot: i === n - 1 ? "transparent" : "#DCD3C6",
+      };
+    });
+    return {
+      isAccueil: page === "accueil", isResultats: page === "resultats", isLieu: page === "lieu",
+      isLignes: page === "lignes", isLigne: page === "ligne", isApropos: page === "apropos",
+      goAccueil: this.go("accueil"), goResultats: this.go("resultats"), goLieu: this.go("lieu"),
+      goLignes: this.go("lignes"), goLigne: this.go("ligne"), goApropos: this.go("apropos"),
+      lieux: [
+        { nom:"Mosquée d'Adjamé", commune:"Adjamé", nb:6 }, { nom:"Gare Nord", commune:"Adjamé", nb:9 },
+        { nom:"Marché de Cocody", commune:"Cocody", nb:4 }, { nom:"CHU de Treichville", commune:"Treichville", nb:5 },
+        { nom:"Université FHB", commune:"Cocody", nb:7 },
+      ],
+      lignesPop: tous.filter(l => ["81","27","04","42","12"].includes(l.ref)),
+      rayons: [300, 500, 800].map(v => ({ label: v + " m", bg: v === this.state.rayon ? "#1A1613" : "#fff", fg: v === this.state.rayon ? "#FAF7F2" : "#1A1613", pick: () => this.setState({ rayon: v, sel: 0 }) })),
+      rayon: this.state.rayon, resultats, nbResultats: resultats.length, selRef: resultats[sel]?.ref ?? "",
+      lignesLieu: [{ref:"81",dist:"40 m"},{ref:"04",dist:"95 m"},{ref:"23",dist:"60 m"},{ref:"11",dist:"150 m"},{ref:"84",dist:"210 m"},{ref:"06",dist:"280 m"}],
+      arretsProches: [{nom:"Mosquée Adjamé",dist:"40 m",lignes:"81, 23"},{nom:"Adjamé Mosquée",dist:"95 m",lignes:"04, 11"},{nom:"Adjamé Liberté",dist:"280 m",lignes:"06, 84"}],
+      faq: [
+        { q:"Quel bus va à la Mosquée d'Adjamé depuis Angré ?", r:"La ligne 81 : montez à Pharmacie Angré, descendez à Mosquée Adjamé (40 m)." },
+        { q:"Quel est l'arrêt le plus proche ?", r:"L'arrêt Mosquée Adjamé, à 40 m, desservi par les lignes 81 et 23." },
+        { q:"Et si aucune ligne ne part de chez moi ?", r:"Élargissez la marche à 500 ou 800 m. Les trajets avec correspondance ne sont pas encore calculés." },
+      ],
+      q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }),
+      lignesFiltrees, nbLignes: 70, aucuneLigne: lignesFiltrees.length === 0,
+      arrets, sensLabel: this.state.inverse ? "Terminus Angré → Gare Nord" : "Gare Nord → Terminus Angré",
+      inverser: () => this.setState(s => ({ inverse: !s.inverse })),
+    };
+  }
+}
+</script>
+</body>
+</html>
