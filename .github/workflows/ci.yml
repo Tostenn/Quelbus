@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  back:
+    name: Back (Laravel)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: back
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite
+          coverage: none
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Préparer l'environnement
+        run: cp .env.example .env && php artisan key:generate
+      - name: Style (Pint)
+        run: vendor/bin/pint --test
+      - name: Tests
+        run: php artisan test
+
+  front:
+    name: Front (React)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build

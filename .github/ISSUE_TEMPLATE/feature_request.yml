@@ -1,0 +1,28 @@
+name: Idée ou amélioration
+description: Proposer une nouvelle fonctionnalité ou une amélioration.
+title: "[Idée] "
+labels: ["amélioration"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Quel problème cela résout-il ?
+      description: Partez de la situation vécue. Ex. « Quand je suis à la gare de Bassam, je ne sais pas… »
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution envisagée
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Participation
+      options:
+        - label: Je peux aider à la réaliser

@@ -1,0 +1,39 @@
+name: Erreur de données (ligne ou arrêt)
+description: Une ligne, un arrêt ou un trajet proposé est faux ou manquant.
+title: "[Données] "
+labels: ["données"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Votre connaissance du terrain est précieuse. Les données viennent d'OpenStreetMap : si vous êtes à l'aise, vous pouvez aussi corriger directement sur [openstreetmap.org](https://www.openstreetmap.org).
+  - type: input
+    id: line
+    attributes:
+      label: Numéro de ligne concerné
+      placeholder: "ex. 81"
+  - type: input
+    id: stop
+    attributes:
+      label: Arrêt ou lieu concerné
+      placeholder: "ex. Pharmacie Angré"
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type d'erreur
+      options:
+        - Arrêt manquant
+        - Arrêt mal placé ou mal nommé
+        - Ordre des arrêts faux
+        - Ligne qui ne passe plus par là
+        - Ligne manquante
+        - Autre
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Détails
+      description: Qu'est-ce qui est faux, et quelle est la bonne information ? Depuis quand, si vous le savez ?
+    validations:
+      required: true
