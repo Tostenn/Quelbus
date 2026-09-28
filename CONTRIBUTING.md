@@ -20,11 +20,11 @@ Pas encore prêt à contribuer ? Inscrivez-vous sur la page contact du site pour
 
 - Cherchez dans les [issues](https://github.com/Tostenn/Quelbus/issues) si le sujet existe déjà.
 - Pour un changement important, ouvrez d'abord une issue pour en discuter. Cela évite de travailler sur quelque chose qui ne sera pas retenu.
-- Le périmètre du projet est décrit dans le [cahier des charges](Maquette%20app%20avec%20deux%20directions/uploads/quelbus-projet.md). Les horaires, le temps réel et les autres modes de transport sont hors du périmètre actuel.
+- Le périmètre du projet est décrit dans le [cahier des charges](Maquette/uploads/quelbus-projet.md). Les horaires, le temps réel et les autres modes de transport sont hors du périmètre actuel.
 
 ## Installer le projet
 
-Voir la section « Lancer le projet en local » du [README](README.md). En résumé : PHP 8.3+, Composer et Node 20+.
+Voir la section « Démarrage rapide » du [README](README.md#démarrage-rapide). En résumé : PHP 8.3+, Composer et Node 20+.
 
 ## Proposer une modification
 

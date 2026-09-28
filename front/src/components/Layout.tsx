@@ -23,7 +23,8 @@ export default function Layout() {
       <header className="site-header">
         <div className="container header-inner">
           <Link to="/" aria-label="QuelBus, accueil">
-            <Logo />
+            {/* La clé change à chaque page : le logo est recréé et son animation rejouée. */}
+            <Logo key={pathname} animated />
           </Link>
           <nav className="nav" aria-label="Navigation principale">
             <Link className="nav-link hide-sm" to="/#comment">

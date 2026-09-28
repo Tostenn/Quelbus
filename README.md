@@ -29,7 +29,7 @@ Le réseau SOTRA compte environ 70 lignes. Les itinéraires sont difficiles à r
 2. **Où allez-vous ?** Un lieu connu, un arrêt ou un quartier, avec autocomplétion.
 3. **Vos lignes directes.** Les lignes SOTRA qui passent à moins de 300 m de vous et de votre destination, **dans le bon sens**, avec l'arrêt de montée, l'arrêt de descente et la distance à pied.
 
-Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec correspondance, gbakas et wôrô-wôrôs. Le périmètre détaillé est dans le [cahier des charges](Maquette%20app%20avec%20deux%20directions/uploads/quelbus-projet.md).
+Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec correspondance, gbakas et wôrô-wôrôs. Le périmètre détaillé est dans le [cahier des charges](Maquette/uploads/quelbus-projet.md).
 
 ## Feuille de route
 
@@ -46,7 +46,7 @@ Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec corres
 |---|---|
 | [`front/`](front) | Landing page et page contact (React, TypeScript, Vite) |
 | [`back/`](back) | API Laravel : inscriptions, puis import des données et recherche |
-| [`Maquette app avec deux directions/`](Maquette%20app%20avec%20deux%20directions) | Maquettes de l'application et cahier des charges |
+| [`Maquette/`](Maquette) | Maquettes de l'application et cahier des charges |
 
 ## Démarrage rapide
 
