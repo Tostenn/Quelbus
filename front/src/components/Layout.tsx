@@ -2,7 +2,12 @@ import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { GithubLogo } from '@phosphor-icons/react'
 import Logo from './Logo'
-import { REPO_URL } from '../lib/config'
+import { REPO_URL, SITE_URL } from '../lib/config'
+
+const pageTitles: Record<string, string> = {
+  '/': 'Quel bus SOTRA prendre à Abidjan ? | QuelBus',
+  '/contact': 'Rejoindre le projet | QuelBus',
+}
 
 export default function Layout() {
   const { pathname, hash } = useLocation()
@@ -15,6 +20,12 @@ export default function Layout() {
       window.scrollTo(0, 0)
     }
   }, [pathname, hash])
+
+  // Titre de l'onglet et adresse canonique propres à chaque page.
+  useEffect(() => {
+    document.title = pageTitles[pathname] ?? pageTitles['/']
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', `${SITE_URL}${pathname}`)
+  }, [pathname])
 
   return (
     <div className="page">

@@ -1,4 +1,4 @@
-# QuelBus — back
+# Back de QuelBus
 
 API Laravel de [QuelBus](../README.md). Pour l'instant, elle enregistre les inscriptions au lancement ; elle accueillera ensuite l'import des lignes SOTRA depuis OpenStreetMap et le moteur de recherche.
 

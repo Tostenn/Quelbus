@@ -4,12 +4,14 @@
 
 **Quel bus SOTRA prendre à Abidjan ?**
 
-Vous êtes ici, vous voulez aller là-bas. QuelBus vous montre les lignes de bus qui y vont directement, où monter et où descendre.
+Indiquez d'où vous partez et où vous allez : QuelBus vous montre les lignes de bus qui y vont directement, où monter et où descendre.
 
 [![CI](https://github.com/Tostenn/Quelbus/actions/workflows/ci.yml/badge.svg)](https://github.com/Tostenn/Quelbus/actions/workflows/ci.yml)
 [![Licence : MIT](https://img.shields.io/badge/licence-MIT-CE5B22.svg)](LICENSE)
 [![Données : ODbL](https://img.shields.io/badge/donn%C3%A9es-OpenStreetMap%20ODbL-1A1613.svg)](https://www.openstreetmap.org/copyright)
 [![PR bienvenues](https://img.shields.io/badge/PR-bienvenues-2f7d4a.svg)](CONTRIBUTING.md)
+
+**[quelbus.monradar.ci](https://quelbus.monradar.ci)**
 
 [Contribuer](CONTRIBUTING.md) · [Signaler une erreur](https://github.com/Tostenn/Quelbus/issues/new/choose) · [Feuille de route](#feuille-de-route)
 
@@ -77,7 +79,7 @@ cp .env.example .env        # VITE_API_URL=http://localhost:8000
 npm run dev                 # http://localhost:5173
 ```
 
-`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS).
+`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.monradar.ci` en production.
 
 ### Inscriptions
 

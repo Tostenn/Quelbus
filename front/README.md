@@ -1,4 +1,4 @@
-# QuelBus — front
+# Front de QuelBus
 
 Landing page et page contact de [QuelBus](../README.md), en React + TypeScript + Vite.
 

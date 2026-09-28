@@ -70,7 +70,7 @@ export default function Home() {
               Quel bus prendre&nbsp;? <span className="accent">On vous le dit.</span>
             </h1>
             <p className="lead">
-              Vous êtes ici, vous voulez aller là-bas. QuelBus vous montre les lignes SOTRA qui y vont{' '}
+              Indiquez d’où vous partez et où vous allez&nbsp;: QuelBus vous montre les lignes SOTRA qui y vont{' '}
               <strong>directement</strong>, où monter et où descendre. Gratuit, libre, fait à Abidjan.
             </p>
             <div className="hero-actions">
@@ -152,7 +152,7 @@ export default function Home() {
             </p>
             <p>
               Les outils existants montrent les lignes une par une. Ils répondent mal à la question qu’on se pose
-              vraiment, tous les jours&nbsp;: <em>« pour aller là-bas depuis ici, je prends quoi&nbsp;? »</em>
+              vraiment, tous les jours&nbsp;: <em>« pour aller à Adjamé depuis Angré, je prends quelle ligne&nbsp;? »</em>
             </p>
           </div>
         </div>

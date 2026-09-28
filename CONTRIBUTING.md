@@ -1,6 +1,6 @@
 # Contribuer à QuelBus
 
-Merci de vouloir aider ! QuelBus répond à une question simple : « quel bus SOTRA prendre pour aller de là à là-bas ? ». Chaque contribution compte, qu'elle soit du code, du design, des données ou un simple signalement.
+Merci de vouloir aider ! QuelBus répond à une question simple : « quelle ligne SOTRA prendre pour aller d'Angré à Adjamé ? », et pour n'importe quel autre trajet à Abidjan. Chaque contribution compte, qu'elle soit du code, du design, des données ou un simple signalement.
 
 En participant, vous acceptez de respecter notre [code de conduite](CODE_OF_CONDUCT.md).
 
