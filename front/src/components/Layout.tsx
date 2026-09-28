@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { GithubLogo } from '@phosphor-icons/react'
 import Logo from './Logo'
 import { REPO_URL } from '../lib/config'
 
@@ -54,7 +55,8 @@ export default function Layout() {
             <Link to="/contact">Être prévenu du lancement</Link>
             <Link to="/contact?profil=contributeur">Contribuer</Link>
             {REPO_URL && (
-              <a href={REPO_URL} target="_blank" rel="noreferrer">
+              <a className="icon-link" href={REPO_URL} target="_blank" rel="noreferrer">
+                <GithubLogo size={18} />
                 Code source
               </a>
             )}

@@ -1,17 +1,32 @@
 import { Link } from 'react-router'
 import LineBadge from '../components/LineBadge'
+import {
+  ArrowRight,
+  Bell,
+  Bus,
+  Code,
+  Crosshair,
+  GithubLogo,
+  MapPin,
+  MapTrifold,
+  PersonSimpleWalk,
+  UsersThree,
+} from '@phosphor-icons/react'
 import { REPO_URL } from '../lib/config'
 
 const steps = [
   {
+    icon: Crosshair,
     title: 'Où êtes-vous ?',
     text: 'Votre position est détectée par le téléphone, ou vous la tapez vous-même : un quartier, un carrefour, un arrêt.',
   },
   {
+    icon: MapPin,
     title: 'Où allez-vous ?',
     text: 'Tapez un lieu connu : « Mosquée d’Adjamé », « Gare Nord », « Marché de Cocody »… La liste se complète toute seule.',
   },
   {
+    icon: Bus,
     title: 'Montez dans le bon bus',
     text: 'QuelBus affiche les lignes SOTRA directes qui passent à moins de 300 m de vous et de votre destination, dans le bon sens.',
   },
@@ -19,14 +34,17 @@ const steps = [
 
 const contributions = [
   {
+    icon: Bus,
     title: 'Vous prenez le bus tous les jours',
     text: 'Testez l’application, signalez une ligne fausse ou un arrêt manquant. Votre connaissance du terrain vaut de l’or.',
   },
   {
+    icon: Code,
     title: 'Vous êtes développeur ou designer',
     text: 'Laravel, React, cartes Leaflet, accessibilité, performance sur petits téléphones : il y a de quoi faire.',
   },
   {
+    icon: MapTrifold,
     title: 'Vous aimez les cartes',
     text: 'Les données viennent d’OpenStreetMap. Placer et nommer les arrêts SOTRA améliore QuelBus… et la carte de tous.',
   },
@@ -57,9 +75,11 @@ export default function Home() {
             </p>
             <div className="hero-actions">
               <Link className="btn btn-primary btn-lg" to="/contact">
+                <Bell />
                 Être prévenu du lancement
               </Link>
               <Link className="btn btn-ghost btn-lg" to="/contact?profil=contributeur">
+                <UsersThree />
                 Contribuer au projet
               </Link>
             </div>
@@ -97,7 +117,9 @@ export default function Home() {
                   <div>
                     <div className="field-label">Montez à</div>
                     <div className="demo-stop">Pharmacie Angré</div>
-                    <div className="muted">120 m à pied</div>
+                    <div className="muted walk">
+                      <PersonSimpleWalk size={16} /> 120 m à pied
+                    </div>
                   </div>
                 </div>
                 <div className="demo-leg">
@@ -105,7 +127,9 @@ export default function Home() {
                   <div>
                     <div className="field-label">Descendez à</div>
                     <div className="demo-stop">Mosquée Adjamé</div>
-                    <div className="muted">40 m à pied</div>
+                    <div className="muted walk">
+                      <PersonSimpleWalk size={16} /> 40 m à pied
+                    </div>
                   </div>
                 </div>
               </div>
@@ -141,7 +165,10 @@ export default function Home() {
           <ol className="steps">
             {steps.map((step, i) => (
               <li key={step.title} className="step">
-                <span className="step-number">{i + 1}</span>
+                <span className="step-icon" aria-hidden="true">
+                  <step.icon size={24} />
+                </span>
+                <span className="step-label">Étape {i + 1}</span>
                 <h3>{step.title}</h3>
                 <p>{step.text}</p>
               </li>
@@ -181,6 +208,7 @@ export default function Home() {
           <div className="cards">
             {contributions.map((c) => (
               <div key={c.title} className="card-dark">
+                <c.icon size={28} className="card-icon" aria-hidden="true" />
                 <h3>{c.title}</h3>
                 <p>{c.text}</p>
               </div>
@@ -189,9 +217,11 @@ export default function Home() {
           <div className="hero-actions">
             <Link className="btn btn-primary btn-lg" to="/contact?profil=contributeur">
               Je veux contribuer
+              <ArrowRight />
             </Link>
             {REPO_URL && (
               <a className="btn btn-ghost-light btn-lg" href={REPO_URL} target="_blank" rel="noreferrer">
+                <GithubLogo />
                 Voir le code source
               </a>
             )}
@@ -226,6 +256,7 @@ export default function Home() {
           </div>
           <Link className="btn btn-primary btn-lg" to="/contact">
             Je m’inscris
+            <ArrowRight />
           </Link>
         </div>
       </section>

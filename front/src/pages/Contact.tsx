@@ -1,11 +1,21 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import {
+  Bus,
+  Check,
+  CircleNotch,
+  Code,
+  PaperPlaneTilt,
+  UsersThree,
+  WarningCircle,
+  type Icon,
+} from '@phosphor-icons/react'
 import { submitSubscriber, type FieldErrors, type Profile, type SubscriberPayload } from '../lib/api'
 
-const profiles: { value: Profile; title: string; text: string }[] = [
-  { value: 'utilisateur', title: 'Je veux utiliser QuelBus', text: 'Prévenez-moi quand l’application est prête.' },
-  { value: 'contributeur', title: 'Je veux contribuer', text: 'Code, design, données, tests sur le terrain…' },
-  { value: 'les_deux', title: 'Les deux', text: 'Je veux l’utiliser et donner un coup de main.' },
+const profiles: { value: Profile; icon: Icon; title: string; text: string }[] = [
+  { value: 'utilisateur', icon: Bus, title: 'Je veux utiliser QuelBus', text: 'Prévenez-moi quand l’application est prête.' },
+  { value: 'contributeur', icon: Code, title: 'Je veux contribuer', text: 'Code, design, données, tests sur le terrain…' },
+  { value: 'les_deux', icon: UsersThree, title: 'Les deux', text: 'Je veux l’utiliser et donner un coup de main.' },
 ]
 
 const messagePlaceholders: Record<Profile, string> = {
@@ -55,7 +65,9 @@ export default function Contact() {
       <section className="section">
         <div className="container narrow">
           <div className="success" role="status">
-            <span className="success-mark" aria-hidden="true">✓</span>
+            <span className="success-mark" aria-hidden="true">
+              <Check size={30} />
+            </span>
             <h1>C’est noté, {form.first_name}&nbsp;!</h1>
             <p className="lead">{feedback}</p>
             {form.profile !== 'utilisateur' && (
@@ -112,10 +124,11 @@ export default function Contact() {
                   checked={form.profile === p.value}
                   onChange={() => update('profile', p.value)}
                 />
-                <span>
+                <span className="profile-body">
                   <span className="profile-title">{p.title}</span>
                   <span className="profile-text">{p.text}</span>
                 </span>
+                <p.icon size={26} className="profile-icon" aria-hidden="true" />
               </label>
             ))}
             {errors.profile && <p className="field-error">{errors.profile}</p>}
@@ -184,12 +197,23 @@ export default function Contact() {
 
           {status === 'error' && feedback && (
             <p className="form-alert" role="alert">
+              <WarningCircle size={22} aria-hidden="true" />
               {feedback}
             </p>
           )}
 
           <button className="btn btn-primary btn-lg btn-block" type="submit" disabled={status === 'sending'}>
-            {status === 'sending' ? 'Envoi…' : 'Je m’inscris'}
+            {status === 'sending' ? (
+              <>
+                <CircleNotch className="spin" aria-hidden="true" />
+                Envoi…
+              </>
+            ) : (
+              <>
+                <PaperPlaneTilt aria-hidden="true" />
+                Je m’inscris
+              </>
+            )}
           </button>
           <p className="form-note">
             En vous inscrivant, vous acceptez d’être contacté par email au sujet de QuelBus. Rien d’autre.
