@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Mail\SubscriptionConfirmed;
 use App\Models\Subscriber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class SubscriberTest extends TestCase
@@ -38,13 +40,38 @@ class SubscriberTest extends TestCase
         ]);
     }
 
+    public function test_a_confirmation_email_is_queued_for_new_subscribers(): void
+    {
+        Mail::fake();
+
+        $this->postJson('/api/subscribers', $this->payload())->assertCreated();
+
+        Mail::assertQueued(SubscriptionConfirmed::class, fn (SubscriptionConfirmed $mail) => $mail->hasTo('awa@example.com'));
+        Mail::assertNothingSent();
+    }
+
+    public function test_confirmation_email_content_depends_on_profile(): void
+    {
+        $contributor = new SubscriptionConfirmed(Subscriber::create($this->payload()));
+        $contributor->assertHasSubject('Merci de rejoindre les contributeurs de QuelBus');
+        $contributor->assertSeeInHtml('Bonjour Awa');
+        $contributor->assertSeeInHtml('Voir le projet sur GitHub');
+
+        $user = new SubscriptionConfirmed(Subscriber::create($this->payload(['email' => 'user@example.com', 'profile' => 'utilisateur'])));
+        $user->assertHasSubject('Votre inscription à QuelBus est confirmée');
+        $user->assertDontSeeInHtml('Voir le projet sur GitHub');
+    }
+
     public function test_email_is_normalised_and_not_duplicated(): void
     {
+        Mail::fake();
+
         $this->postJson('/api/subscribers', $this->payload(['email' => ' Awa@Example.com ']))->assertCreated();
         $this->postJson('/api/subscribers', $this->payload(['first_name' => 'Autre']))->assertOk();
 
         $this->assertSame(1, Subscriber::count());
         $this->assertSame('Awa', Subscriber::first()->first_name);
+        Mail::assertQueuedCount(1);
     }
 
     public function test_required_fields_are_validated_in_french(): void
@@ -64,10 +91,13 @@ class SubscriberTest extends TestCase
 
     public function test_honeypot_submissions_are_silently_ignored(): void
     {
+        Mail::fake();
+
         $this->postJson('/api/subscribers', $this->payload(['website' => 'http://spam.example']))
             ->assertCreated();
 
         $this->assertSame(0, Subscriber::count());
+        Mail::assertNothingQueued();
     }
 
     public function test_signups_can_be_exported_to_csv(): void

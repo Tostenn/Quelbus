@@ -54,6 +54,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Adresse publique du site (front), utilisée dans les emails. Première origine de FRONTEND_URL.
+    'frontend_url' => rtrim(explode(',', env('FRONTEND_URL', 'http://localhost:5173'))[0], '/'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
