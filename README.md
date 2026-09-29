@@ -87,6 +87,14 @@ npm run dev                 # http://localhost:5173
 - Une adresse n'est enregistrée qu'une fois ; 6 requêtes par minute et par IP au maximum ; un champ piège (`website`) écarte les robots.
 - Export : `php artisan subscribers:export` écrit `storage/app/subscribers.csv`.
 
+### Emails
+
+Chaque nouvelle inscription reçoit un email de confirmation, dont le texte dépend du profil choisi. **Tous les emails passent par la file d'attente** (`QUEUE_CONNECTION=database`) : sans worker, ils restent en attente dans la table `jobs`.
+
+- En local : `php artisan queue:work` dans un terminal à part. Avec `MAIL_MAILER=log`, les emails sont écrits dans `storage/logs/laravel.log`.
+- En production : garder `php artisan queue:work --tries=3` actif en permanence (Supervisor, systemd, ou le gestionnaire de processus de l'hébergeur), et renseigner `MAIL_MAILER`, `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD` et `MAIL_FROM_ADDRESS` avec un vrai serveur SMTP.
+- Les gabarits sont dans `back/resources/views/mail/` (contenu) et `back/resources/views/vendor/mail/` (couleurs et pied de page).
+
 ### Tests
 
 ```sh

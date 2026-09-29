@@ -14,7 +14,7 @@ export type SubscriberPayload = {
 export type FieldErrors = Partial<Record<keyof SubscriberPayload, string>>
 
 export type SubmitResult =
-  | { ok: true; message: string }
+  | { ok: true; message: string; created: boolean }
   | { ok: false; message: string; errors: FieldErrors }
 
 export async function submitSubscriber(payload: SubscriberPayload): Promise<SubmitResult> {
@@ -36,7 +36,8 @@ export async function submitSubscriber(payload: SubscriberPayload): Promise<Subm
   const data = await response.json().catch(() => ({}))
 
   if (response.ok) {
-    return { ok: true, message: data.message ?? 'Merci, votre inscription est enregistrée.' }
+    // 201 : nouvelle inscription (email de confirmation envoyé) ; 200 : adresse déjà inscrite.
+    return { ok: true, message: data.message ?? 'Merci, votre inscription est enregistrée.', created: response.status === 201 }
   }
 
   if (response.status === 422) {

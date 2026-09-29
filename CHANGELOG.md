@@ -14,6 +14,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Commande `php artisan subscribers:export` pour exporter les inscriptions en CSV.
 - Animation du logo à l'arrivée et à chaque changement de page (désactivée si l'appareil limite les animations).
 - Référencement et partage pour https://quelbus.monradar.ci : image d'aperçu 1200×630, balises Open Graph et Twitter, adresse canonique et titre par page, `robots.txt` et `sitemap.xml`.
+- Email de confirmation après inscription, adapté au profil (utilisateur, contributeur, les deux), aux couleurs du site et envoyé en file d'attente.
+- Boutons de partage après l'inscription (WhatsApp, Facebook, X, LinkedIn, Telegram, copier le lien, partage natif sur mobile), avec un texte et un message pré-rempli adaptés au profil.
 - Icônes [Phosphor](https://phosphoricons.com) sur les boutons, les étapes, les cartes contributeurs et le formulaire.
 - Fichiers communautaires : licence, code de conduite, guide de contribution, politique de sécurité, modèles d'issues et de pull request, intégration continue.
 

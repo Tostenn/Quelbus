@@ -10,6 +10,7 @@ import {
   WarningCircle,
   type Icon,
 } from '@phosphor-icons/react'
+import SharePanel from '../components/SharePanel'
 import { submitSubscriber, type FieldErrors, type Profile, type SubscriberPayload } from '../lib/api'
 
 const profiles: { value: Profile; icon: Icon; title: string; text: string }[] = [
@@ -41,6 +42,7 @@ export default function Contact() {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [feedback, setFeedback] = useState('')
+  const [created, setCreated] = useState(false)
 
   function update<K extends keyof SubscriberPayload>(field: K, value: SubscriberPayload[K]) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -53,6 +55,7 @@ export default function Contact() {
     const result = await submitSubscriber(form)
     setFeedback(result.message)
     if (result.ok) {
+      setCreated(result.created)
       setStatus('done')
     } else {
       setErrors(result.errors)
@@ -70,14 +73,13 @@ export default function Contact() {
             </span>
             <h1>C’est noté, {form.first_name}&nbsp;!</h1>
             <p className="lead">{feedback}</p>
-            {form.profile !== 'utilisateur' && (
-              <p>
-                Merci de vouloir contribuer. On revient vers vous à <strong>{form.email}</strong> avec les premières
-                pistes pour mettre la main à la pâte.
+            {created && (
+              <p className="muted">
+                Envoyé à <strong>{form.email}</strong>. Rien reçu d’ici quelques minutes&nbsp;? Jetez un œil aux spams.
               </p>
             )}
-            <p>Le meilleur coup de pouce&nbsp;: partagez QuelBus autour de vous.</p>
-            <Link className="btn btn-dark" to="/">
+            <SharePanel profile={form.profile} />
+            <Link className="btn btn-ghost" to="/">
               Retour à l’accueil
             </Link>
           </div>

@@ -1092,6 +1092,61 @@ main {
   font-size: clamp(2rem, 6vw, 2.8rem);
 }
 
+.share {
+  width: 100%;
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.share-title {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.share-text {
+  color: var(--muted);
+}
+
+.btn-whatsapp {
+  background: #25d366;
+  color: #0b3d20;
+}
+
+.btn-whatsapp:hover {
+  background: #1ebe5b;
+  color: #0b3d20;
+}
+
+.share-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.share-btn {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  min-height: 72px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 0.85rem/1.2 var(--sans);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-btn:hover {
+  background: var(--surface-soft);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
 .success-mark {
   width: 56px;
   height: 56px;
