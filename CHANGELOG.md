@@ -25,6 +25,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Base de données PostgreSQL : tables `lines`, `line_directions`, `stops`, `direction_stops`, et commande `php artisan transit:import` (relançable, transactionnelle, rapport d'anomalies, option `--prune`).
 - Moteur de recherche « quel bus prendre » : lignes directes à moins de 300 m du départ et de l'arrivée, dans le bon sens, avec arrêts de montée et de descente ; élargissement automatique à 500 puis 800 m ; boucles gérées.
 - Écran de recherche (`/recherche`) : départ par géolocalisation ou saisie, destination avec autocomplétion au clavier, résultats avec arrêts de montée et de descente, choix du rayon de marche et du type de transport, recherche partageable par lien. Formulaire de recherche en tête de la page d'accueil.
+- Suivi du trajet en direct : avec la localisation active, la carte et la liste des arrêts suivent votre position, un bandeau indique le prochain arrêt, et une fenêtre annonce l'arrivée.
+- Fiche ligne en deux colonnes sur ordinateur (carte fixe à droite) ; cartes de résultats entièrement cliquables.
+- Indicateurs sur l'accueil (lignes, arrêts ; recherches et visites au-delà de 1 000) et section « Derrière le projet ».
+- Tableau de bord privé (`/connexion`, `/admin`) : visites et recherches par jour, signalements, retours des inscrits. Connexion par jeton Laravel Sanctum, comptes créés avec `php artisan admin:create`.
+- Comptage anonyme des visites et des recherches par jour (`daily_stats`), sans cookie ni donnée personnelle.
 - Carte de la ligne (Leaflet, © OpenStreetMap contributors) : tracé, arrêts, et en venant d'une recherche votre position, l'arrêt de montée (vert) et de descente (orange), avec la marche en pointillés.
 - Signalement d'erreur sur les pages de ligne et d'arrêt (`POST /api/reports`, export `php artisan reports:export`) et page « À propos » (sources, licence, limites, non-affiliation).
 - Accueil : hero sombre avec le formulaire de recherche, sans l'écran d'exemple.

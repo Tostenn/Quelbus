@@ -103,6 +103,18 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 - `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
 - La logique est dans `app/Services/Transit/RouteSearchService.php`.
 
+### Tableau de bord
+
+Accès privé sur `/connexion` puis `/admin` : visites et recherches par jour, signalements d'erreurs, retours des inscrits.
+
+```sh
+cd back
+php artisan migrate                       # tables personal_access_tokens et daily_stats
+php artisan admin:create vous@exemple.com # mot de passe demandé (12 caractères minimum)
+```
+
+La connexion renvoie un jeton Laravel Sanctum valable 30 jours. Les visites (une par session de navigation) et les recherches sont comptées par jour, sans cookie ni donnée personnelle ; `GET /api/stats` expose les totaux publics.
+
 ### Inscriptions
 
 - `POST /api/subscribers` avec `first_name`, `last_name`, `email`, `profile` (`utilisateur`, `contributeur` ou `les_deux`) et `message` (facultatif).
