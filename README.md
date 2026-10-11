@@ -122,7 +122,9 @@ PAYSTACK_FALLBACK_EMAIL=contact@monradar.ci        # Paystack exige un email ; u
 php artisan migrate
 ```
 
-Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://quelbus-api.monradar.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`. Sans clé, la page affiche que les dons ne sont pas encore ouverts.
+Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://quelbus-api.monradar.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`.
+
+Côté front, les liens et le formulaire « Soutenir » n'apparaissent qu'avec `VITE_DONATIONS=on` au build (à activer une fois le compte Paystack validé, et ajouter alors `/soutenir` au sitemap). Sans clé Paystack, l'API refuse les dons (503).
 
 ### Référencement
 

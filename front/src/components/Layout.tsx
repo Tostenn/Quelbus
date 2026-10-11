@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { GithubLogo } from '@phosphor-icons/react'
 import Logo from './Logo'
-import { API_URL, REPO_URL } from '../lib/config'
+import { API_URL, DONATIONS_ENABLED, REPO_URL } from '../lib/config'
 
 export default function Layout() {
   const { pathname, hash } = useLocation()
@@ -72,7 +72,7 @@ export default function Layout() {
           <div className="footer-links">
             <Link to="/lignes">Toutes les lignes</Link>
             <Link to="/a-propos">À propos</Link>
-            <Link to="/soutenir">Soutenir</Link>
+            {DONATIONS_ENABLED && <Link to="/soutenir">Soutenir</Link>}
             <Link to="/contact">Être prévenu des nouveautés</Link>
             <Link to="/contact?profil=contributeur">Contribuer</Link>
             {REPO_URL && (

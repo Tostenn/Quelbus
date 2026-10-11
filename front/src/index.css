@@ -2482,6 +2482,8 @@ dialog.arrival h2 {
 }
 
 fieldset.amounts {
+  display: grid;
+  gap: 10px;
   border: 0;
   margin: 0;
   padding: 0;
@@ -2512,12 +2514,17 @@ fieldset.amounts legend {
 .amount-option strong {
   font-size: 1.3rem;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .amount-option span {
   font-size: 0.88rem;
   color: var(--muted);
   line-height: 1.3;
+}
+
+.amount-other {
+  grid-column: 1 / -1;
 }
 
 .amount-option.is-selected {
@@ -2742,7 +2749,11 @@ fieldset.amounts legend {
 
 @media (min-width: 720px) {
   fieldset.amounts {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .amount-other {
+    grid-column: span 2;
   }
 
   .donate-row {

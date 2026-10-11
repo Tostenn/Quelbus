@@ -13,7 +13,7 @@ import {
   MapTrifold,
   UsersThree,
 } from '@phosphor-icons/react'
-import { REPO_URL } from '../lib/config'
+import { DONATIONS_ENABLED, REPO_URL } from '../lib/config'
 import { usePageMeta } from '../lib/usePageMeta'
 
 const steps = [
@@ -213,13 +213,15 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <Creator />
-          <Link className="support-card" to="/soutenir">
-            <Heart size={26} weight="fill" aria-hidden="true" />
-            <span>
-              <strong>QuelBus vous a aidé&nbsp;?</strong> Offrez un garba à l’équipe, par Mobile Money ou carte.
-            </span>
-            <ArrowRight aria-hidden="true" />
-          </Link>
+          {DONATIONS_ENABLED && (
+            <Link className="support-card" to="/soutenir">
+              <Heart size={26} weight="fill" aria-hidden="true" />
+              <span>
+                <strong>QuelBus vous a aidé&nbsp;?</strong> Offrez un garba à l’équipe, par Mobile Money ou carte.
+              </span>
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          )}
         </div>
       </section>
 
