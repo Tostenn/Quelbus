@@ -25,6 +25,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Base de données PostgreSQL : tables `lines`, `line_directions`, `stops`, `direction_stops`, et commande `php artisan transit:import` (relançable, transactionnelle, rapport d'anomalies, option `--prune`).
 - Moteur de recherche « quel bus prendre » : lignes directes à moins de 300 m du départ et de l'arrivée, dans le bon sens, avec arrêts de montée et de descente ; élargissement automatique à 500 puis 800 m ; boucles gérées.
 - Écran de recherche (`/recherche`) : départ par géolocalisation ou saisie, destination avec autocomplétion au clavier, résultats avec arrêts de montée et de descente, choix du rayon de marche et du type de transport, recherche partageable par lien. Formulaire de recherche en tête de la page d'accueil.
+- Pages des lignes (`/lignes`, `/lignes/:slug`) et des arrêts (`/arrets/:slug`) : arrêts dans l'ordre pour chaque sens, trajet de la recherche surligné, lignes qui passent à un arrêt, arrêts proches. Titre et description propres à chaque page.
+- API `GET /api/lines`, `GET /api/lines/{slug}`, `GET /api/stops/{slug}` et commande `php artisan sitemap:generate`.
 - API `GET /api/search` (recherche) et `GET /api/suggest` (autocomplétion des arrêts, sans tenir compte des accents).
 - Fichiers communautaires : licence, code de conduite, guide de contribution, politique de sécurité, modèles d'issues et de pull request, intégration continue.
 

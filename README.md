@@ -39,7 +39,7 @@ Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec corres
 - [x] **Données** : import des lignes, sens et arrêts (SOTRA, gbaka, woro-woro), issus d'OpenStreetMap
 - [x] **Recherche** : moteur « quel bus prendre », testé sur des cas réels
 - [x] **Interface** : recherche sur mobile, avec ou sans géolocalisation
-- [ ] **Pages publiques** : une fiche par ligne, arrêt et lieu, optimisées pour le référencement
+- [x] **Pages publiques** : une fiche par ligne et par arrêt, avec titre et description propres
 - [ ] **Finitions** : cartes, signalement d'erreurs, mise en ligne
 
 ## Structure du dépôt
@@ -98,6 +98,8 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 
 - `GET /api/search?from_lat=&from_lng=&to_lat=&to_lng=` : lignes directes entre deux points. Options : `radius` (300, 500 ou 800 m ; élargi automatiquement si rien n'est trouvé) et `types[]` (`sotra`, `gbaka`, `woro-woro`). La réponse indique le rayon utilisé, si le trajet se fait à pied, et pour chaque ligne l'arrêt de montée, l'arrêt de descente, la marche et le nombre d'arrêts.
 - `GET /api/suggest?q=mosquee adjame` : arrêts correspondant à la saisie (accents ignorés, arrêts homonymes proches fusionnés).
+- `GET /api/lines`, `GET /api/lines/{slug}`, `GET /api/stops/{slug}` : index des lignes, fiche d'une ligne (sens et arrêts ordonnés), fiche d'un arrêt.
+- `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
 - La logique est dans `app/Services/Transit/RouteSearchService.php`.
 
 ### Inscriptions
