@@ -3,12 +3,14 @@ import { Link, useSearchParams } from 'react-router'
 import { ArrowClockwise, ArrowRight, Info, PencilSimple, PersonSimpleWalk, WarningCircle } from '@phosphor-icons/react'
 import SearchForm from '../components/SearchForm'
 import ResultCard from '../components/ResultCard'
+import { usePageMeta } from '../lib/usePageMeta'
 import { fetchSearch, type LineType, type SearchResponse } from '../lib/api'
 import { formatDistance, queryToSearch, RADII, searchToQuery, TYPE_FILTERS } from '../lib/search'
 
 type State = { key: string; data?: SearchResponse; error?: string }
 
 export default function Search() {
+  usePageMeta('Quel bus prendre ? Lignes directes à Abidjan | QuelBus')
   const [query, setQuery] = useSearchParams()
   const params = queryToSearch(query)
   const key = params ? searchToQuery(params) : ''
@@ -45,7 +47,6 @@ export default function Search() {
     )
   }
 
-  // La réponse affichée correspond-elle à la recherche en cours ?
   const loading = state.key !== key
   const data = loading ? undefined : state.data
   const error = loading ? undefined : state.error
@@ -196,10 +197,7 @@ function Results({ data, radius, filtered, onAllTypes }: { data: SearchResponse;
             !
           </span>
           <h2>Aucune ligne directe, même à {data.radius} m à pied.</h2>
-          <p className="muted">
-            Il existe peut-être un trajet avec une correspondance&nbsp;: QuelBus ne les calcule pas encore. On préfère vous
-            le dire franchement plutôt que d’inventer un itinéraire.
-          </p>
+          <p className="muted">Il faut peut-être changer de bus en route&nbsp;: QuelBus ne calcule pas encore les correspondances.</p>
           {filtered && (
             <button type="button" className="btn btn-primary" onClick={onAllTypes}>
               Chercher avec tous les transports

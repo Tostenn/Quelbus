@@ -1,4 +1,5 @@
-import { PersonSimpleWalk } from '@phosphor-icons/react'
+import { Link } from 'react-router'
+import { ArrowRight, PersonSimpleWalk } from '@phosphor-icons/react'
 import LineBadge from './LineBadge'
 import type { SearchResult } from '../lib/api'
 import { TYPE_LABELS, walkLabel } from '../lib/search'
@@ -43,6 +44,9 @@ export default function ResultCard({ result, best = false }: Props) {
           </div>
         </li>
       </ol>
+      <Link className="text-link" to={`/lignes/${line.slug}?sens=${direction.id}&montee=${board.id}&descente=${alight.id}`}>
+        Voir les arrêts du trajet <ArrowRight size={16} />
+      </Link>
     </article>
   )
 }

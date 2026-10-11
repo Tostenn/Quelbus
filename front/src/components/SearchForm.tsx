@@ -27,7 +27,6 @@ export default function SearchForm({ initialFrom = null, initialTo = null, radiu
   const [to, setTo] = useState<Place | null>(initialTo)
   const [geo, setGeo] = useState<GeoState>('idle')
   const [errors, setErrors] = useState<{ from?: string; to?: string }>({})
-  // Change à chaque inversion : les champs repartent des nouvelles valeurs
   const [swapKey, setSwapKey] = useState(0)
 
   function locate() {

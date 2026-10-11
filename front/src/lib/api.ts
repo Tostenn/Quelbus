@@ -55,11 +55,9 @@ export async function submitSubscriber(payload: SubscriberPayload): Promise<Subm
   return { ok: false, message: 'Une erreur est survenue. Réessayez dans un instant.', errors: {} }
 }
 
-// ---------------------------------------------------------------- Recherche
 
 export type LineType = 'sotra' | 'gbaka' | 'woro-woro' | 'autre'
 
-/** Un point choisi par l'utilisateur : une suggestion d'arrêt, ou sa position. */
 export type Place = { name: string; lat: number; lng: number }
 
 export type Suggestion = Place & { stops: number }
@@ -110,4 +108,26 @@ export async function fetchSearch({ from, to, radius, types }: SearchParams, sig
   if (response.status === 429) throw new Error('Trop de recherches. Patientez une minute puis réessayez.')
   if (!response.ok) throw new Error('La recherche a échoué. Réessayez dans un instant.')
   return response.json()
+}
+
+export type LineSummary = {
+  id: number
+  ref: string | null
+  name: string
+  slug: string
+  type: LineType
+  category: string | null
+  directions_count: number
+}
+
+export type StopSummary = { id: number; name: string; slug: string; lat: number; lng: number }
+
+export type LineDetail = Omit<LineSummary, 'directions_count'> & {
+  operator: string | null
+  directions: { id: number; name: string; is_loop: boolean; stops: StopSummary[] }[]
+}
+
+export type StopDetail = StopSummary & {
+  lines: { line: Pick<LineSummary, 'id' | 'ref' | 'name' | 'slug' | 'type'>; direction: { id: number; name: string } }[]
+  nearby: { id: number; name: string; slug: string; walk: number }[]
 }

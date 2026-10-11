@@ -44,7 +44,6 @@ ERRORS_FILE = DATA_DIR / "errors.json"
 log = logging.getLogger("scraper")
 
 
-# --------------------------------------------------------------------------- HTTP
 
 class Fetcher:
     def __init__(self, delay: float, retries: int = 5):
@@ -76,7 +75,6 @@ class Fetcher:
         raise RuntimeError(f"Échec après {self.retries} essais : {url}")
 
 
-# ------------------------------------------------------------------------ Parsing
 
 LIST_TOKEN = re.compile(
     r"<h3>(?P<h3>.*?)</h3>"
@@ -166,7 +164,6 @@ def parse_line_page(page: str) -> dict:
     return {"title": title, "stops": stops, "geometry": geometry}
 
 
-# ------------------------------------------------------------------------ Étapes
 
 def step_discover(f: Fetcher) -> dict:
     log.info("Découverte des lignes...")
@@ -274,7 +271,6 @@ def step_build(index: dict):
         log.warning("%d lignes pas encore téléchargées", len(missing))
 
 
-# ------------------------------------------------------------------------ Utils
 
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")

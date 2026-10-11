@@ -12,6 +12,7 @@ import {
 } from '@phosphor-icons/react'
 import SharePanel from '../components/SharePanel'
 import { submitSubscriber, type FieldErrors, type Profile, type SubscriberPayload } from '../lib/api'
+import { usePageMeta } from '../lib/usePageMeta'
 
 const profiles: { value: Profile; icon: Icon; title: string; text: string }[] = [
   { value: 'utilisateur', icon: Bus, title: 'Je veux utiliser QuelBus', text: 'Prévenez-moi quand l’application est prête.' },
@@ -30,6 +31,7 @@ function initialProfile(value: string | null): Profile {
 }
 
 export default function Contact() {
+  usePageMeta('Rejoindre le projet | QuelBus')
   const [searchParams] = useSearchParams()
   const [form, setForm] = useState<SubscriberPayload>({
     first_name: '',

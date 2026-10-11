@@ -1585,6 +1585,261 @@ main {
   font-weight: 700;
 }
 
+/* ---------- Lignes et arrêts ---------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.page-section {
+  padding-top: 28px;
+}
+
+.page-title {
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  margin: 32px 0 0;
+}
+
+.breadcrumb {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.breadcrumb a {
+  font-weight: 700;
+}
+
+.line-filters {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 8px;
+}
+
+.filter-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 0 14px;
+  color: var(--muted);
+}
+
+.filter-search:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.filter-search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 54px;
+  border: 0;
+  background: none;
+  font: 600 1.05rem/1.4 var(--sans);
+  color: var(--ink);
+  outline: none;
+}
+
+.line-group {
+  margin-top: 26px;
+}
+
+.line-group-title {
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+}
+
+.line-list {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.line-row:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+.line-row-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.line-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.line-title {
+  font-size: clamp(1.4rem, 4.5vw, 2rem);
+  overflow-wrap: anywhere;
+}
+
+.segmented.directions {
+  margin-bottom: 10px;
+}
+
+.segmented.directions svg {
+  color: var(--muted);
+}
+
+.segmented.directions button {
+  height: auto;
+  min-height: 42px;
+  padding: 8px 14px;
+  text-align: left;
+  line-height: 1.3;
+}
+
+.stop-list {
+  margin: 18px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 22px 1fr;
+  align-items: start;
+  gap: 8px;
+  padding: 9px 0;
+}
+
+/* Le trait vertical qui relie les arrêts */
+.stop-item::before {
+  content: '';
+  position: absolute;
+  left: 46px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--border-strong);
+}
+
+.stop-item:first-child::before {
+  top: 50%;
+}
+
+.stop-item:last-child::before {
+  bottom: 50%;
+}
+
+.stop-item.is-ride::before,
+.stop-item.is-key::before {
+  background: var(--accent);
+}
+
+.stop-number {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--faint);
+  padding-top: 3px;
+}
+
+.stop-dot {
+  position: relative;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  margin: 4px 0 0 1px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 3px solid var(--ink);
+}
+
+.stop-item.is-key .stop-dot {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0 -1px;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.stop-item.is-ride .stop-dot {
+  border-color: var(--accent);
+}
+
+.stop-item.is-off {
+  opacity: 0.55;
+}
+
+.stop-name {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.stop-name:hover {
+  color: var(--accent-ink);
+  text-decoration: underline;
+}
+
+.stop-item.is-key .stop-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.stop-role {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-ink);
+}
+
+.nearby-list {
+  display: grid;
+  gap: 4px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nearby-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.nearby-list a {
+  font-weight: 700;
+}
+
 @media (min-width: 720px) {
   .result-legs {
     grid-template-columns: 1fr 1fr;

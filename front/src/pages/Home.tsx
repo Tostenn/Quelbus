@@ -13,6 +13,7 @@ import {
   UsersThree,
 } from '@phosphor-icons/react'
 import { REPO_URL } from '../lib/config'
+import { usePageMeta } from '../lib/usePageMeta'
 
 const steps = [
   {
@@ -58,6 +59,8 @@ const roadmap = [
 ]
 
 export default function Home() {
+  usePageMeta('Quel bus prendre à Abidjan ? | QuelBus')
+
   return (
     <>
       <section className="hero">

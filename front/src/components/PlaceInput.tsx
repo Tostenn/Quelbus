@@ -9,14 +9,9 @@ type Props = {
   onChange: (place: Place | null) => void
   pin: 'from' | 'to'
   error?: string
-  /** Bouton affiché sous le champ (ex. « Utiliser ma position »). */
   action?: ReactNode
 }
 
-/**
- * Champ avec autocomplétion sur les arrêts (modèle « combobox » ARIA) :
- * flèches haut/bas pour parcourir, Entrée pour choisir, Échap pour fermer.
- */
 export default function PlaceInput({ label, placeholder, value, onChange, pin, error, action }: Props) {
   const id = useId()
   const [text, setText] = useState(value?.name ?? '')
@@ -27,7 +22,7 @@ export default function PlaceInput({ label, placeholder, value, onChange, pin, e
   const timer = useRef<number | undefined>(undefined)
   const request = useRef<AbortController | null>(null)
 
-  // Valeur fixée de l'extérieur (ex. « Ma position ») : le texte suit.
+  // « Ma position » choisie depuis le formulaire
   const [lastValue, setLastValue] = useState(value)
   if (value !== lastValue) {
     setLastValue(value)
@@ -127,7 +122,7 @@ export default function PlaceInput({ label, placeholder, value, onChange, pin, e
                 role="option"
                 aria-selected={i === active}
                 className={`place-option${i === active ? ' is-active' : ''}`}
-                // mousedown plutôt que click : le choix passe avant la perte de focus du champ
+                // mousedown : avant le blur du champ
                 onMouseDown={(e) => {
                   e.preventDefault()
                   choose(s)

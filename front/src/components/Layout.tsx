@@ -2,13 +2,7 @@ import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { GithubLogo } from '@phosphor-icons/react'
 import Logo from './Logo'
-import { REPO_URL, SITE_URL } from '../lib/config'
-
-const pageTitles: Record<string, string> = {
-  '/': 'Quel bus SOTRA prendre à Abidjan ? | QuelBus',
-  '/recherche': 'Quel bus prendre ? Lignes directes à Abidjan | QuelBus',
-  '/contact': 'Rejoindre le projet | QuelBus',
-}
+import { REPO_URL } from '../lib/config'
 
 export default function Layout() {
   const { pathname, hash } = useLocation()
@@ -21,12 +15,6 @@ export default function Layout() {
       window.scrollTo(0, 0)
     }
   }, [pathname, hash])
-
-  // Titre de l'onglet et adresse canonique propres à chaque page.
-  useEffect(() => {
-    document.title = pageTitles[pathname] ?? pageTitles['/']
-    document.querySelector('link[rel="canonical"]')?.setAttribute('href', `${SITE_URL}${pathname}`)
-  }, [pathname])
 
   return (
     <div className="page">
@@ -41,6 +29,9 @@ export default function Layout() {
           </Link>
           <nav className="nav" aria-label="Navigation principale">
 
+            <NavLink className="nav-link" to="/lignes">
+              Lignes
+            </NavLink>
             <Link className="nav-link hide-sm" to="/#comment">
               Comment ça marche
             </Link>
@@ -68,7 +59,8 @@ export default function Layout() {
             <p>Quel bus SOTRA prendre à Abidjan&nbsp;? Un projet libre, gratuit et ouvert aux contributions.</p>
           </div>
           <div className="footer-links">
-            <Link to="/contact">Être prévenu du lancement</Link>
+            <Link to="/lignes">Toutes les lignes</Link>
+            <Link to="/contact">Être prévenu des nouveautés</Link>
             <Link to="/contact?profil=contributeur">Contribuer</Link>
             {REPO_URL && (
               <a className="icon-link" href={REPO_URL} target="_blank" rel="noreferrer">

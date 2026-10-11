@@ -16,14 +16,14 @@ export const TYPE_LABELS: Record<LineType, string> = {
   autre: 'Autre',
 }
 
-/** Boîte englobante du Grand Abidjan, pour repérer une position GPS hors zone. */
+// Grand Abidjan
 const ABIDJAN = { minLat: 5.15, maxLat: 5.6, minLng: -4.3, maxLng: -3.7 }
 
 export function isInAbidjan({ lat, lng }: Place): boolean {
   return lat >= ABIDJAN.minLat && lat <= ABIDJAN.maxLat && lng >= ABIDJAN.minLng && lng <= ABIDJAN.maxLng
 }
 
-/** « 120 m à pied · 2 min » (environ 80 m par minute) ; la durée est omise pour quelques pas. */
+// 80 m par minute environ
 export function walkLabel(meters: number): string {
   return meters < 40 ? `${meters} m à pied` : `${meters} m à pied · ${Math.round(meters / 80) || 1} min`
 }
@@ -32,10 +32,6 @@ export function formatDistance(meters: number): string {
   return meters < 1000 ? `${meters} m` : `${(meters / 1000).toFixed(1).replace('.', ',')} km`
 }
 
-/**
- * La recherche vit dans l'URL (/recherche?depart=…&arrivee=…) : elle se partage
- * et survit à un rechargement de la page.
- */
 export function searchToQuery({ from, to, radius, types }: SearchParams): string {
   const query = new URLSearchParams({
     depart: from.name,
@@ -67,4 +63,15 @@ export function queryToSearch(query: URLSearchParams): SearchParams | null {
     .filter((t): t is LineType => t === 'sotra' || t === 'gbaka' || t === 'woro-woro')
 
   return { from, to, radius: (RADII as readonly number[]).includes(radius) ? radius : RADII[0], types }
+}
+
+export function normalize(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+export function lineTitle(line: { ref: string | null; type: LineType; name: string }): string {
+  return line.ref ? `Ligne ${line.ref}` : `${TYPE_LABELS[line.type]} ${line.name}`
 }
