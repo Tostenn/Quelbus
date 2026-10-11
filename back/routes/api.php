@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DonationController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\StatsController;
@@ -18,6 +19,10 @@ Route::post('/reports', [ReportController::class, 'store'])
     ->name('reports.store');
 
 Route::post('/visits', [StatsController::class, 'visit'])->middleware('throttle:30,1')->name('visits.store');
+Route::post('/donations', [DonationController::class, 'store'])->middleware('throttle:10,1')->name('donations.store');
+Route::get('/donations/{reference}', [DonationController::class, 'show'])->middleware('throttle:60,1')->name('donations.show');
+Route::post('/paystack/webhook', [DonationController::class, 'webhook'])->name('paystack.webhook');
+
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
 
 Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(function () {
@@ -26,6 +31,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(functi
     Route::get('/stats', [AdminController::class, 'stats'])->name('stats');
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::get('/subscribers', [AdminController::class, 'subscribers'])->name('subscribers');
+    Route::get('/donations', [AdminController::class, 'donations'])->name('donations');
 });
 
 Route::middleware('throttle:120,1')->group(function () {

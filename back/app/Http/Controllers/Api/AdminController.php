@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Donation;
 use App\Models\Line;
 use App\Models\Report;
 use App\Models\Stop;
@@ -35,6 +36,8 @@ class AdminController extends Controller
                 ...Stats::totals(),
                 'reports' => Report::count(),
                 'subscribers' => Subscriber::count(),
+                'donations' => Donation::where('status', 'success')->count(),
+                'donations_amount' => (int) Donation::where('status', 'success')->sum('amount'),
                 'lines' => Line::count(),
                 'stops' => Stop::count(),
             ],
@@ -60,6 +63,23 @@ class AdminController extends Controller
         ]);
 
         return response()->json($reports);
+    }
+
+    public function donations(): JsonResponse
+    {
+        $paid = Donation::where('status', 'success');
+
+        return response()->json([
+            'totals' => [
+                'amount' => (int) (clone $paid)->sum('amount'),
+                'count' => (clone $paid)->count(),
+                'pending' => Donation::where('status', 'pending')->count(),
+            ],
+            ...Donation::query()
+                ->orderByDesc('id')
+                ->paginate(20, ['id', 'reference', 'amount', 'currency', 'status', 'name', 'email', 'message', 'channel', 'paid_at', 'created_at'])
+                ->toArray(),
+        ]);
     }
 
     public function subscribers(): JsonResponse
