@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SubscriberController;
 use App\Http\Controllers\Api\TransitController;
@@ -8,6 +9,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/subscribers', [SubscriberController::class, 'store'])
     ->middleware('throttle:6,1')
     ->name('subscribers.store');
+
+Route::post('/reports', [ReportController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('reports.store');
 
 Route::middleware('throttle:120,1')->group(function () {
     Route::get('/search', [SearchController::class, 'search'])->name('search');

@@ -38,6 +38,7 @@ class TransitController extends Controller
                 'id' => $direction->id,
                 'name' => $direction->name,
                 'is_loop' => $direction->is_loop,
+                'geometry' => $direction->geometry ?? [],
                 'stops' => $direction->stops->map(fn ($stop) => $stop->only(['id', 'name', 'slug', 'lat', 'lng'])),
             ]),
         ]]);
