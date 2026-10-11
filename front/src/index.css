@@ -315,9 +315,21 @@ main {
 }
 
 .site-footer {
-  border-top: 1px solid var(--border);
-  padding: 40px 0 32px;
-  margin-top: 24px;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 48px 0 32px;
+}
+
+.site-footer .logo-from {
+  border-color: var(--bg);
+}
+
+.site-footer .logo-line {
+  background: var(--bg);
+}
+
+.site-footer .logo-word {
+  color: var(--bg);
 }
 
 .footer-inner {
@@ -329,7 +341,7 @@ main {
   display: grid;
   gap: 10px;
   max-width: 420px;
-  color: var(--muted);
+  color: #cfc6ba;
 }
 
 .footer-links {
@@ -340,14 +352,23 @@ main {
 }
 
 .footer-links a {
+  color: #f0a27a;
   text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #fff;
 }
 
 .footer-legal {
   font-size: 0.85rem;
-  color: var(--faint);
-  border-top: 1px solid var(--border);
+  color: #b9afa3;
+  border-top: 1px solid rgba(250, 247, 242, 0.16);
   padding-top: 20px;
+}
+
+.footer-legal a {
+  color: #f0a27a;
 }
 
 /* ---------- Boutons ---------- */
@@ -2121,6 +2142,7 @@ dialog.arrival h2 {
 
 .stats-icon {
   grid-area: icon;
+  align-self: start;
   display: grid;
   place-items: center;
   width: 46px;
