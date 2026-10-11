@@ -4,9 +4,9 @@
 @if ($subscriber->profile === 'contributeur')
 Merci de vouloir contribuer à QuelBus ! Votre inscription est bien enregistrée.
 
-On revient vers vous **très bientôt** avec les premières pistes pour mettre la main à la pâte : tester l'application, vérifier des lignes, coder, dessiner ou cartographier les arrêts SOTRA.
+QuelBus est déjà en ligne. On revient vers vous avec des pistes concrètes pour mettre la main à la pâte : vérifier des lignes sur le terrain, coder, dessiner ou cartographier les arrêts.
 
-En attendant, vous pouvez déjà jeter un œil au code et aux premières discussions :
+En attendant, le code et les discussions sont ouverts :
 
 <x-mail::button :url="$repoUrl">
 Voir le projet sur GitHub
@@ -14,7 +14,7 @@ Voir le projet sur GitHub
 @elseif ($subscriber->profile === 'les_deux')
 Merci de nous rejoindre ! Votre inscription est bien enregistrée.
 
-Vous serez parmi les premiers à tester QuelBus, et on revient vers vous **très bientôt** pour voir comment vous pouvez aider à le construire.
+QuelBus est déjà en ligne : essayez-le dès maintenant. On revient vers vous pour voir comment vous pouvez aider à l'améliorer.
 
 <x-mail::button :url="$repoUrl">
 Découvrir le projet sur GitHub
@@ -22,10 +22,14 @@ Découvrir le projet sur GitHub
 @else
 Merci pour votre inscription ! Elle est bien enregistrée.
 
-On vous écrit **très bientôt**, dès que QuelBus est prêt : vous saurez enfin quelle ligne SOTRA prendre, où monter et où descendre, pour aller où vous voulez à Abidjan.
+QuelBus est déjà en ligne : indiquez votre départ et votre destination, il vous dit quelle ligne prendre, où monter et où descendre. On vous écrira quand il y aura du nouveau : nouvelles lignes, correspondances, horaires.
+
+<x-mail::button :url="$siteUrl.'/recherche'">
+Trouver mon bus
+</x-mail::button>
 @endif
 
-Le meilleur coup de pouce en attendant : parlez de QuelBus autour de vous.
+Le meilleur coup de pouce : parlez de QuelBus autour de vous.
 
 <x-mail::button :url="$siteUrl" color="success">
 Partager QuelBus

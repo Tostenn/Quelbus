@@ -2,12 +2,7 @@ import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { GithubLogo } from '@phosphor-icons/react'
 import Logo from './Logo'
-import { REPO_URL, SITE_URL } from '../lib/config'
-
-const pageTitles: Record<string, string> = {
-  '/': 'Quel bus SOTRA prendre à Abidjan ? | QuelBus',
-  '/contact': 'Rejoindre le projet | QuelBus',
-}
+import { API_URL, DONATIONS_ENABLED, REPO_URL } from '../lib/config'
 
 export default function Layout() {
   const { pathname, hash } = useLocation()
@@ -21,11 +16,16 @@ export default function Layout() {
     }
   }, [pathname, hash])
 
-  // Titre de l'onglet et adresse canonique propres à chaque page.
+  // Une visite par session, comptée sans cookie ni donnée personnelle
   useEffect(() => {
-    document.title = pageTitles[pathname] ?? pageTitles['/']
-    document.querySelector('link[rel="canonical"]')?.setAttribute('href', `${SITE_URL}${pathname}`)
-  }, [pathname])
+    try {
+      if (sessionStorage.getItem('quelbus-visit')) return
+      sessionStorage.setItem('quelbus-visit', '1')
+    } catch {
+      return
+    }
+    fetch(`${API_URL}/api/visits`, { method: 'POST', keepalive: true }).catch(() => {})
+  }, [])
 
   return (
     <div className="page">
@@ -39,14 +39,21 @@ export default function Layout() {
             <Logo key={pathname} animated />
           </Link>
           <nav className="nav" aria-label="Navigation principale">
+
+            <NavLink className="nav-link" to="/lignes">
+              Lignes
+            </NavLink>
             <Link className="nav-link hide-sm" to="/#comment">
               Comment ça marche
             </Link>
             <Link className="nav-link hide-sm" to="/#open-source">
               Open source
             </Link>
-            <NavLink className="btn btn-dark btn-sm" to="/contact">
+            <NavLink className="nav-link hide-sm" to="/contact">
               Rejoindre
+            </NavLink>
+            <NavLink className="btn btn-dark btn-sm" to="/recherche">
+              Rechercher
             </NavLink>
           </nav>
         </div>
@@ -60,10 +67,13 @@ export default function Layout() {
         <div className="container footer-inner">
           <div className="footer-brand">
             <Logo />
-            <p>Quel bus SOTRA prendre à Abidjan&nbsp;? Un projet libre, gratuit et ouvert aux contributions.</p>
+            <p>Quel bus prendre à Abidjan&nbsp;? Un projet libre, gratuit et ouvert aux contributions.</p>
           </div>
           <div className="footer-links">
-            <Link to="/contact">Être prévenu du lancement</Link>
+            <Link to="/lignes">Toutes les lignes</Link>
+            <Link to="/a-propos">À propos</Link>
+            {DONATIONS_ENABLED && <Link to="/soutenir">Soutenir</Link>}
+            <Link to="/contact">Être prévenu des nouveautés</Link>
             <Link to="/contact?profil=contributeur">Contribuer</Link>
             {REPO_URL && (
               <a className="icon-link" href={REPO_URL} target="_blank" rel="noreferrer">

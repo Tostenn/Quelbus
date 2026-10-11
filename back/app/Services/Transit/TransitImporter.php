@@ -1,0 +1,262 @@
+<?php
+
+namespace App\Services\Transit;
+
+use App\Models\Line;
+use App\Models\LineDirection;
+use App\Models\Stop;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
+
+/**
+ * Importe le JSON de scraper/scrape.py. Chaque entrée de « lines » y est un sens (A → B) :
+ * les sens d'une même ligne sont regroupés (même numéro SOTRA, ou mêmes terminus pour gbaka et woro-woro).
+ */
+class TransitImporter
+{
+    /** @var array<string, true> */
+    private array $usedSlugs = [];
+
+    /**
+     * @param  array{stops: list<array>, lines: list<array>}  $data
+     */
+    public function import(array $data, bool $prune = false): ImportReport
+    {
+        if (! isset($data['stops'], $data['lines']) || ! is_array($data['stops']) || ! is_array($data['lines'])) {
+            throw new InvalidArgumentException('Format inattendu : les clés « stops » et « lines » sont obligatoires.');
+        }
+
+        $report = new ImportReport;
+
+        DB::transaction(function () use ($data, $prune, $report) {
+            $stopIds = $this->importStops($data['stops'], $report);
+            $this->importDirections($data['lines'], $stopIds, $report);
+
+            if ($prune) {
+                $this->prune($data['lines'], $report);
+            }
+        });
+
+        return $report;
+    }
+
+    /**
+     * @param  list<array>  $stops
+     * @return array<int, int> id de l'arrêt dans le fichier => id en base
+     */
+    private function importStops(array $stops, ImportReport $report): array
+    {
+        $existing = [];
+        foreach (Stop::query()->get(['id', 'name', 'lat', 'lng', 'slug']) as $stop) {
+            $existing[$this->stopKey($stop->name, $stop->lat, $stop->lng)] = $stop->id;
+            $this->usedSlugs['stop:'.$stop->slug] = true;
+        }
+
+        $now = now();
+        $toInsert = [];
+        foreach ($stops as $stop) {
+            $key = $this->stopKey($stop['name'], $stop['lat'], $stop['lon']);
+            if (isset($existing[$key]) || isset($toInsert[$key])) {
+                continue;
+            }
+            $toInsert[$key] = [
+                'name' => $stop['name'],
+                'search_name' => self::normalize($stop['name']),
+                'slug' => $this->uniqueSlug('stop', $stop['name']),
+                'lat' => round($stop['lat'], 6),
+                'lng' => round($stop['lon'], 6),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        foreach (array_chunk(array_values($toInsert), 500) as $chunk) {
+            Stop::query()->insert($chunk);
+        }
+        $report->stopsCreated = count($toInsert);
+
+        if ($toInsert) {
+            foreach (Stop::query()->get(['id', 'name', 'lat', 'lng']) as $stop) {
+                $existing[$this->stopKey($stop->name, $stop->lat, $stop->lng)] = $stop->id;
+            }
+        }
+
+        $map = [];
+        foreach ($stops as $stop) {
+            $map[$stop['id']] = $existing[$this->stopKey($stop['name'], $stop['lat'], $stop['lon'])];
+        }
+
+        return $map;
+    }
+
+    /**
+     * Écrit par lots : ligne par ligne, l'import prenait 45 min sur une base distante.
+     *
+     * @param  list<array>  $entries
+     * @param  array<int, int>  $stopIds
+     */
+    private function importDirections(array $entries, array $stopIds, ImportReport $report): void
+    {
+        $now = now();
+        $lineIds = Line::query()->pluck('id', 'key')->all();
+        foreach (Line::query()->pluck('slug') as $slug) {
+            $this->usedSlugs['line:'.$slug] = true;
+        }
+
+        $newLines = [];
+        foreach ($entries as $i => $entry) {
+            $type = in_array($entry['type'] ?? null, Line::TYPES, true) ? $entry['type'] : 'autre';
+            $key = $this->lineKey($type, $entry);
+            $entries[$i]['_type'] = $type;
+            $entries[$i]['_key'] = $key;
+
+            if (! isset($lineIds[$key]) && ! isset($newLines[$key])) {
+                $newLines[$key] = [
+                    'key' => $key,
+                    'type' => $type,
+                    'ref' => $entry['ref'] ?? null,
+                    'name' => $this->lineName($entry),
+                    'slug' => $this->uniqueSlug('line', $this->lineSlugSource($type, $entry)),
+                    'category' => $entry['category'] ?? null,
+                    'operator' => $entry['operator'] ?? null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
+        foreach (array_chunk(array_values($newLines), 500) as $chunk) {
+            Line::query()->insert($chunk);
+        }
+        $report->linesCreated = count($newLines);
+        if ($newLines) {
+            $lineIds = Line::query()->pluck('id', 'key')->all();
+        }
+
+        $existingDirections = array_flip(LineDirection::query()->pluck('osm_relation_id')->all());
+        $directions = [];
+        $sequences = [];
+        foreach ($entries as $entry) {
+            $sequence = [];
+            foreach ($entry['stops'] as $fileStopId) {
+                if (! isset($stopIds[$fileStopId])) {
+                    $report->anomaly("{$entry['name']} : arrêt {$fileStopId} absent de la liste des arrêts, ignoré.");
+
+                    continue;
+                }
+                $sequence[] = $stopIds[$fileStopId];
+            }
+
+            if (count($sequence) < 2) {
+                $report->anomaly("{$entry['name']} : moins de 2 arrêts, ce sens ne pourra pas servir à la recherche.");
+            }
+            if ($entry['_type'] === 'sotra' && empty($entry['ref'])) {
+                $report->anomaly("{$entry['name']} : ligne SOTRA sans numéro.");
+            }
+
+            isset($existingDirections[$entry['id']]) ? $report->directionsUpdated++ : $report->directionsCreated++;
+            $sequences[$entry['id']] = $sequence;
+            $directions[] = [
+                'osm_relation_id' => $entry['id'],
+                'line_id' => $lineIds[$entry['_key']],
+                'name' => $entry['from'] && $entry['to'] ? "{$entry['from']} → {$entry['to']}" : $entry['name'],
+                'origin_label' => $entry['from'] ?? null,
+                'destination_label' => $entry['to'] ?? null,
+                'is_loop' => count($sequence) > 1 && $sequence[0] === end($sequence),
+                'stops_count' => count($sequence),
+                'geometry' => isset($entry['geometry']) ? json_encode($entry['geometry']) : null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+        $columns = ['line_id', 'name', 'origin_label', 'destination_label', 'is_loop', 'stops_count', 'geometry', 'updated_at'];
+        foreach (array_chunk($directions, 200) as $chunk) {
+            LineDirection::query()->toBase()->upsert($chunk, ['osm_relation_id'], $columns);
+        }
+
+        $directionIds = LineDirection::query()
+            ->whereIn('osm_relation_id', array_keys($sequences))
+            ->pluck('id', 'osm_relation_id')
+            ->all();
+        foreach (array_chunk(array_values($directionIds), 1000) as $chunk) {
+            DB::table('direction_stops')->whereIn('line_direction_id', $chunk)->delete();
+        }
+        $rows = [];
+        foreach ($sequences as $osmId => $sequence) {
+            foreach ($sequence as $i => $stopId) {
+                $rows[] = ['line_direction_id' => $directionIds[$osmId], 'stop_id' => $stopId, 'sequence' => $i + 1];
+            }
+        }
+        foreach (array_chunk($rows, 1000) as $chunk) {
+            DB::table('direction_stops')->insert($chunk);
+        }
+    }
+
+    /**
+     * @param  list<array>  $entries
+     */
+    private function prune(array $entries, ImportReport $report): void
+    {
+        $report->directionsDeleted = LineDirection::query()
+            ->whereNotIn('osm_relation_id', array_column($entries, 'id'))
+            ->delete();
+        $report->linesDeleted = Line::query()->whereDoesntHave('directions')->delete();
+        $report->stopsDeleted = Stop::query()->whereDoesntHave('directions')->delete();
+    }
+
+    private function lineKey(string $type, array $entry): string
+    {
+        if ($type === 'sotra' && ! empty($entry['ref'])) {
+            return 'sotra:'.(ltrim(Str::lower($entry['ref']), '0') ?: '0');
+        }
+        if (in_array($type, ['gbaka', 'woro-woro'], true) && $entry['from'] && $entry['to']) {
+            $ends = [Str::slug($entry['from']), Str::slug($entry['to'])];
+            sort($ends);
+
+            return $type.':'.Str::slug($entry['category'] ?? '').':'.implode('|', $ends);
+        }
+
+        return $type.':osm:'.$entry['id'];
+    }
+
+    private function lineName(array $entry): string
+    {
+        return $entry['from'] && $entry['to'] ? "{$entry['from']} ↔ {$entry['to']}" : $entry['name'];
+    }
+
+    private function lineSlugSource(string $type, array $entry): string
+    {
+        $ends = $entry['from'] && $entry['to'] ? "{$entry['from']} {$entry['to']}" : $entry['name'];
+
+        return match ($type) {
+            'sotra' => trim(($entry['ref'] ?? '').' '.$ends),
+            'gbaka', 'woro-woro' => "{$type} {$ends}",
+            default => $entry['name'],
+        };
+    }
+
+    private function uniqueSlug(string $scope, string $source): string
+    {
+        $base = Str::slug($source) ?: $scope;
+        $slug = $base;
+        for ($i = 2; isset($this->usedSlugs[$scope.':'.$slug]); $i++) {
+            $slug = "{$base}-{$i}";
+        }
+        $this->usedSlugs[$scope.':'.$slug] = true;
+
+        return $slug;
+    }
+
+    /**
+     * « Mosquée d'Adjamé » -> « mosquee d adjame »
+     */
+    public static function normalize(string $text): string
+    {
+        return trim(preg_replace('/[^a-z0-9]+/', ' ', Str::lower(Str::ascii($text))));
+    }
+
+    private function stopKey(string $name, float|string $lat, float|string $lng): string
+    {
+        return sprintf('%s|%.6f|%.6f', $name, (float) $lat, (float) $lng);
+    }
+}

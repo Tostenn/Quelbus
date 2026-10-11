@@ -54,3 +54,164 @@ export async function submitSubscriber(payload: SubscriberPayload): Promise<Subm
 
   return { ok: false, message: 'Une erreur est survenue. Réessayez dans un instant.', errors: {} }
 }
+
+
+export type LineType = 'sotra' | 'gbaka' | 'woro-woro' | 'autre'
+
+export type Place = { name: string; lat: number; lng: number }
+
+export type Suggestion = Place & { stops: number }
+
+export type ResultStop = { id: number; name: string; slug: string; lat: number; lng: number; walk: number }
+
+export type SearchResult = {
+  line: { id: number; ref: string | null; name: string; slug: string; type: LineType }
+  direction: { id: number; name: string; origin_label: string | null; destination_label: string | null }
+  board: ResultStop
+  alight: ResultStop
+  stops: number
+  walk: number
+}
+
+export type SearchResponse = {
+  radius: number
+  requested_radius: number
+  expanded: boolean
+  walkable: boolean
+  distance: number
+  results: SearchResult[]
+}
+
+export type SearchParams = { from: Place; to: Place; radius: number; types: LineType[] }
+
+export async function fetchSuggestions(query: string, signal?: AbortSignal): Promise<Suggestion[]> {
+  const response = await fetch(`${API_URL}/api/suggest?${new URLSearchParams({ q: query })}`, {
+    headers: { Accept: 'application/json' },
+    signal,
+  })
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const data = await response.json()
+  return data.data ?? []
+}
+
+export async function fetchSearch({ from, to, radius, types }: SearchParams, signal?: AbortSignal): Promise<SearchResponse> {
+  const query = new URLSearchParams({
+    from_lat: String(from.lat),
+    from_lng: String(from.lng),
+    to_lat: String(to.lat),
+    to_lng: String(to.lng),
+    radius: String(radius),
+  })
+  types.forEach((type) => query.append('types[]', type))
+
+  const response = await fetch(`${API_URL}/api/search?${query}`, { headers: { Accept: 'application/json' }, signal })
+  if (response.status === 429) throw new Error('Trop de recherches. Patientez une minute puis réessayez.')
+  if (!response.ok) throw new Error('La recherche a échoué. Réessayez dans un instant.')
+  return response.json()
+}
+
+export type LineSummary = {
+  id: number
+  ref: string | null
+  name: string
+  slug: string
+  type: LineType
+  category: string | null
+  directions_count: number
+}
+
+export type StopSummary = { id: number; name: string; slug: string; lat: number; lng: number }
+
+export type LineDetail = Omit<LineSummary, 'directions_count'> & {
+  operator: string | null
+  directions: { id: number; name: string; is_loop: boolean; geometry?: [number, number][][]; stops: StopSummary[] }[]
+}
+
+export type StopDetail = StopSummary & {
+  lines: { line: Pick<LineSummary, 'id' | 'ref' | 'name' | 'slug' | 'type'>; direction: { id: number; name: string } }[]
+  nearby: { id: number; name: string; slug: string; walk: number }[]
+}
+
+export const REPORT_KINDS = {
+  arret_manquant: 'Arrêt manquant',
+  arret_mal_place: 'Arrêt mal placé ou mal nommé',
+  ordre_faux: 'Ordre des arrêts faux',
+  ligne_ne_passe_plus: 'La ligne ne passe plus par là',
+  ligne_manquante: 'Ligne manquante',
+  autre: 'Autre',
+} as const
+
+export type ReportPayload = {
+  page: string
+  line_id?: number
+  stop_id?: number
+  kind: keyof typeof REPORT_KINDS | ''
+  message: string
+  email: string
+  website: string
+}
+
+export type ReportResult = { ok: true; message: string } | { ok: false; message: string; errors: Record<string, string> }
+
+export async function submitReport(payload: ReportPayload): Promise<ReportResult> {
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}/api/reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch {
+    return { ok: false, message: 'Impossible de joindre le serveur. Vérifiez votre connexion.', errors: {} }
+  }
+
+  const data = await response.json().catch(() => ({}))
+  if (response.ok) return { ok: true, message: data.message ?? 'Merci !' }
+  if (response.status === 422) {
+    const errors: Record<string, string> = {}
+    for (const [field, messages] of Object.entries<string[]>(data.errors ?? {})) errors[field] = messages[0]
+    return { ok: false, message: 'Certains champs sont à corriger.', errors }
+  }
+  if (response.status === 429) return { ok: false, message: 'Trop d’envois. Patientez une minute.', errors: {} }
+  return { ok: false, message: 'Une erreur est survenue. Réessayez dans un instant.', errors: {} }
+}
+
+export type DonationPayload = { amount: number; name: string; email: string; message: string; website: string }
+
+export type DonationStatus = 'pending' | 'success' | 'failed' | 'abandoned'
+
+export type DonationInfo = { reference: string; status: DonationStatus; amount: number; currency: string; name: string | null }
+
+export async function startDonation(
+  payload: DonationPayload,
+): Promise<{ ok: true; url: string } | { ok: false; message: string; errors: Record<string, string> }> {
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}/api/donations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch {
+    return { ok: false, message: 'Impossible de joindre le serveur. Vérifiez votre connexion.', errors: {} }
+  }
+
+  const data = await response.json().catch(() => ({}))
+  if (response.ok && data.authorization_url) return { ok: true, url: data.authorization_url }
+  if (response.status === 422) {
+    const errors: Record<string, string> = {}
+    for (const [field, messages] of Object.entries<string[]>(data.errors ?? {})) errors[field] = messages[0]
+    return { ok: false, message: 'Certains champs sont à corriger.', errors }
+  }
+  if (response.status === 429) return { ok: false, message: 'Trop d’essais. Patientez une minute.', errors: {} }
+  return { ok: false, message: data.message ?? 'Le paiement est indisponible pour le moment.', errors: {} }
+}
+
+export async function fetchDonation(reference: string): Promise<DonationInfo | null> {
+  const response = await fetch(`${API_URL}/api/donations/${encodeURIComponent(reference)}`, {
+    headers: { Accept: 'application/json' },
+  })
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error('Vérification impossible pour le moment.')
+  return (await response.json()).data
+}

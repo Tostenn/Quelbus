@@ -1,0 +1,5 @@
+__pycache__/
+data/lines/
+data/*.log
+data/*.tmp
+data/errors.json

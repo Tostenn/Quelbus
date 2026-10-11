@@ -1,9 +1,17 @@
-type Props = { refNumber: string; accent?: boolean; size?: 'sm' | 'md' | 'lg' }
+import type { LineType } from '../lib/api'
 
-export default function LineBadge({ refNumber, accent = false, size = 'md' }: Props) {
+type Props = { refNumber: string | null; type?: LineType; accent?: boolean; size?: 'sm' | 'md' | 'lg' }
+
+const typeShort: Record<LineType, string> = { sotra: 'Bus', gbaka: 'Gbaka', 'woro-woro': 'Wôrô', autre: 'Bus' }
+
+export default function LineBadge({ refNumber, type = 'sotra', accent = false, size = 'md' }: Props) {
+  const label = refNumber ?? typeShort[type]
   return (
-    <span className={`badge badge-${size}${accent ? ' badge-accent' : ''}`} aria-label={`Ligne ${refNumber}`}>
-      {refNumber}
+    <span
+      className={`badge badge-${size}${accent ? ' badge-accent' : ''}${refNumber ? '' : ' badge-text'} badge-${type}`}
+      aria-label={refNumber ? `Ligne ${refNumber}` : typeShort[type]}
+    >
+      {label}
     </span>
   )
 }

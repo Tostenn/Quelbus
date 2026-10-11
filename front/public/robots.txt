@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /connexion
+Disallow: /soutenir/merci
 
 Sitemap: https://quelbus.monradar.ci/sitemap.xml

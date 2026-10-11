@@ -1,18 +1,20 @@
 import { Link } from 'react-router'
-import LineBadge from '../components/LineBadge'
+import Creator from '../components/Creator'
+import SearchForm from '../components/SearchForm'
+import StatsBand from '../components/StatsBand'
 import {
   ArrowRight,
-  Bell,
   Bus,
+  Heart,
   Code,
   Crosshair,
   GithubLogo,
   MapPin,
   MapTrifold,
-  PersonSimpleWalk,
   UsersThree,
 } from '@phosphor-icons/react'
-import { REPO_URL } from '../lib/config'
+import { DONATIONS_ENABLED, REPO_URL } from '../lib/config'
+import { usePageMeta } from '../lib/usePageMeta'
 
 const steps = [
   {
@@ -28,7 +30,7 @@ const steps = [
   {
     icon: Bus,
     title: 'Montez dans le bon bus',
-    text: 'QuelBus affiche les lignes SOTRA directes qui passent à moins de 300 m de vous et de votre destination, dans le bon sens.',
+    text: 'QuelBus affiche les lignes directes (SOTRA, gbakas, wôrô-wôrôs) qui passent à moins de 300 m de vous et de votre destination, dans le bon sens.',
   },
 ]
 
@@ -51,93 +53,53 @@ const contributions = [
 ]
 
 const roadmap = [
-  { label: 'Maintenant', title: 'On rassemble la communauté', text: 'Page de présentation, inscriptions, premiers contributeurs.' },
-  { label: 'Ensuite', title: 'Import des lignes SOTRA', text: 'Lignes, sens et arrêts récupérés depuis OpenStreetMap, vérifiés ligne par ligne.' },
-  { label: 'Puis', title: 'Recherche « quel bus prendre »', text: 'Départ, destination, lignes directes. Une version publique à tester.' },
+  { label: 'Fait', title: 'On rassemble la communauté', text: 'Page de présentation, inscriptions, premiers contributeurs.' },
+  { label: 'Fait', title: 'Import des lignes', text: '606 lignes SOTRA, gbakas et wôrô-wôrôs, 6 400 arrêts, issus d’OpenStreetMap.' },
+  { label: 'Maintenant', title: 'Recherche « quel bus prendre »', text: 'Départ, destination, lignes directes. Une première version à tester.' },
   { label: 'Après', title: 'Pages lignes, arrêts et lieux', text: 'Une fiche par ligne et par lieu, cartes, signalement d’erreurs.' },
 ]
 
 export default function Home() {
+  usePageMeta('Quel bus prendre à Abidjan ? | QuelBus')
+
   return (
     <>
-      <section className="hero">
+      <section className="hero section-dark">
         <div className="container hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">
-              <span className="dot-live" aria-hidden="true" /> Projet open source · Abidjan
+              <span className="eyebrow-mark" aria-hidden="true">
+                <span className="em-from" />
+                <span className="em-line" />
+                <span className="em-to" />
+                <span className="em-bus" />
+              </span>
+              Projet open source · Abidjan
             </p>
             <h1>
               Quel bus prendre&nbsp;? <span className="accent">On vous le dit.</span>
             </h1>
             <p className="lead">
-              Indiquez d’où vous partez et où vous allez&nbsp;: QuelBus vous montre les lignes SOTRA qui y vont{' '}
+              Indiquez d’où vous partez et où vous allez&nbsp;: QuelBus vous montre les lignes qui y vont{' '}
               <strong>directement</strong>, où monter et où descendre. Gratuit, libre, fait à Abidjan.
             </p>
-            <div className="hero-actions">
-              <Link className="btn btn-primary btn-lg" to="/contact">
-                <Bell />
-                Être prévenu du lancement
-              </Link>
-              <Link className="btn btn-ghost btn-lg" to="/contact?profil=contributeur">
-                <UsersThree />
-                Contribuer au projet
-              </Link>
-            </div>
-            <p className="hero-note">En préparation. Laissez votre email, on vous écrit quand c’est prêt.</p>
           </div>
 
-          <div className="hero-demo" aria-label="Exemple de résultat dans QuelBus">
-            <div className="demo-query">
-              <div className="demo-field">
-                <span className="pin pin-from" aria-hidden="true" />
-                <span>
-                  <span className="field-label">Départ</span>
-                  Angré 8e Tranche
-                </span>
-              </div>
-              <div className="demo-field">
-                <span className="pin pin-to" aria-hidden="true" />
-                <span>
-                  <span className="field-label">Destination</span>
-                  Mosquée d’Adjamé
-                </span>
-              </div>
+          <div className="hero-search">
+            <div className="search-card">
+              <SearchForm />
             </div>
-            <div className="demo-result">
-              <div className="demo-result-head">
-                <LineBadge refNumber="81" accent size="lg" />
-                <div>
-                  <div className="demo-direction">Terminus Angré → Gare Nord</div>
-                  <div className="muted">25 arrêts entre montée et descente</div>
-                </div>
-              </div>
-              <div className="demo-legs">
-                <div className="demo-leg">
-                  <span className="pin pin-from" aria-hidden="true" />
-                  <div>
-                    <div className="field-label">Montez à</div>
-                    <div className="demo-stop">Pharmacie Angré</div>
-                    <div className="muted walk">
-                      <PersonSimpleWalk size={16} /> 120 m à pied
-                    </div>
-                  </div>
-                </div>
-                <div className="demo-leg">
-                  <span className="pin pin-to" aria-hidden="true" />
-                  <div>
-                    <div className="field-label">Descendez à</div>
-                    <div className="demo-stop">Mosquée Adjamé</div>
-                    <div className="muted walk">
-                      <PersonSimpleWalk size={16} /> 40 m à pied
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p className="demo-caption">Exemple d’écran. Données illustratives.</p>
+            <p className="hero-note">
+              Première version, en test. Une ligne fausse ou manquante&nbsp;?{' '}
+              <Link to="/contact?profil=contributeur">
+                <UsersThree size={16} /> Aidez-nous à corriger
+              </Link>
+            </p>
           </div>
         </div>
       </section>
+
+      <StatsBand />
 
       <section className="section section-problem">
         <div className="container problem-grid">
@@ -179,7 +141,7 @@ export default function Home() {
             <div>
               <h3>Ce que QuelBus fait</h3>
               <ul className="check-list">
-                <li>Les lignes SOTRA directes, sans correspondance</li>
+                <li>Les lignes directes, sans correspondance&nbsp;: SOTRA, gbakas, wôrô-wôrôs</li>
                 <li>Où monter, où descendre, et combien marcher</li>
                 <li>Le bon sens de la ligne, pas l’inverse</li>
                 <li>Fonctionne sur les petits téléphones et en 3G</li>
@@ -189,7 +151,7 @@ export default function Home() {
               <h3>Ce qu’il ne fait pas (encore)</h3>
               <ul className="cross-list">
                 <li>Les horaires et le temps réel</li>
-                <li>Les gbakas, wôrô-wôrôs et bateaux-bus</li>
+                <li>Les bateaux-bus et le métro</li>
                 <li>Les trajets avec correspondance</li>
               </ul>
             </div>
@@ -235,7 +197,7 @@ export default function Home() {
           <h2>Où en est le projet.</h2>
           <ol className="roadmap">
             {roadmap.map((r, i) => (
-              <li key={r.title} className={`roadmap-item${i === 0 ? ' is-current' : ''}`}>
+              <li key={r.title} className={`roadmap-item${i === 2 ? ' is-current' : ''}`}>
                 <span className="roadmap-stop" aria-hidden="true" />
                 <div>
                   <span className="roadmap-label">{r.label}</span>
@@ -248,14 +210,31 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section">
+        <div className="container">
+          <Creator />
+          {DONATIONS_ENABLED && (
+            <Link className="support-card" to="/soutenir">
+              <Heart size={26} weight="fill" aria-hidden="true" />
+              <span>
+                <strong>QuelBus vous a aidé&nbsp;?</strong> Offrez un garba à l’équipe, par Mobile Money ou carte.
+              </span>
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          )}
+        </div>
+      </section>
+
       <section className="section section-cta">
         <div className="container cta-box">
           <div>
-            <h2>Soyez parmi les premiers.</h2>
-            <p className="lead">Prénom, nom, email. On vous écrit au lancement, pas avant, et jamais pour autre chose.</p>
+            <h2>Restez dans la boucle.</h2>
+            <p className="lead">
+              Nouvelles lignes, correspondances, horaires&nbsp;: un email quand il y a du nouveau, jamais pour autre chose.
+            </p>
           </div>
           <Link className="btn btn-primary btn-lg" to="/contact">
-            Je m’inscris
+            Être informé
             <ArrowRight />
           </Link>
         </div>

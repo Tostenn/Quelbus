@@ -36,11 +36,11 @@ Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec corres
 ## Feuille de route
 
 - [x] **Présentation** : page d'accueil et inscriptions au lancement
-- [ ] **Données** : import des lignes, sens et arrêts SOTRA depuis OpenStreetMap
-- [ ] **Recherche** : moteur « quel bus prendre », testé sur des cas réels
-- [ ] **Interface** : recherche sur mobile, avec ou sans géolocalisation
-- [ ] **Pages publiques** : une fiche par ligne, arrêt et lieu, optimisées pour le référencement
-- [ ] **Finitions** : cartes, signalement d'erreurs, mise en ligne
+- [x] **Données** : import des lignes, sens et arrêts (SOTRA, gbaka, woro-woro), issus d'OpenStreetMap
+- [x] **Recherche** : moteur « quel bus prendre », testé sur des cas réels
+- [x] **Interface** : recherche sur mobile, avec ou sans géolocalisation
+- [x] **Pages publiques** : une fiche par ligne et par arrêt, avec titre et description propres
+- [x] **Finitions** : cartes, signalement d'erreurs, page « À propos »
 
 ## Structure du dépôt
 
@@ -52,7 +52,7 @@ Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec corres
 
 ## Démarrage rapide
 
-Prérequis : PHP 8.3+, Composer, Node 20+.
+Prérequis : PHP 8.3+ (extension `pdo_pgsql`), Composer, Node 20+, une base PostgreSQL.
 
 ```sh
 git clone https://github.com/Tostenn/Quelbus.git
@@ -64,7 +64,7 @@ cd Quelbus
 ```sh
 cd back
 composer install
-cp .env.example .env        # régler DB_* (MySQL par défaut, ou DB_CONNECTION=sqlite)
+cp .env.example .env        # régler DB_* (PostgreSQL)
 php artisan key:generate
 php artisan migrate
 php artisan serve           # http://localhost:8000
@@ -81,6 +81,69 @@ npm run dev                 # http://localhost:5173
 
 `FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.monradar.ci` en production.
 
+### Données de transport
+
+Les lignes viennent du [scraper](scraper/README.md) (SOTRA, gbaka, woro-woro d'Abidjan). Pour les charger en base :
+
+```sh
+cd back
+php artisan transit:import ../scraper/data/abidjan_bus.json
+```
+
+Sans argument, la commande lit `storage/app/transit/abidjan_bus.json` (emplacement à utiliser en production). Elle peut être relancée sans créer de doublons, s'exécute dans une transaction et affiche un rapport d'anomalies. `--prune` supprime en plus ce qui a disparu du fichier (refusé si le fichier est incomplet).
+
+Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation OpenStreetMap) → `direction_stops` (arrêts ordonnés) ← `stops`.
+
+### Recherche
+
+- `GET /api/search?from_lat=&from_lng=&to_lat=&to_lng=` : lignes directes entre deux points. Options : `radius` (300, 500 ou 800 m ; élargi automatiquement si rien n'est trouvé) et `types[]` (`sotra`, `gbaka`, `woro-woro`). La réponse indique le rayon utilisé, si le trajet se fait à pied, et pour chaque ligne l'arrêt de montée, l'arrêt de descente, la marche et le nombre d'arrêts.
+- `GET /api/suggest?q=mosquee adjame` : arrêts correspondant à la saisie (accents ignorés, arrêts homonymes proches fusionnés).
+- `GET /api/lines`, `GET /api/lines/{slug}`, `GET /api/stops/{slug}` : index des lignes, fiche d'une ligne (sens et arrêts ordonnés), fiche d'un arrêt.
+- `POST /api/reports` : signalement d'erreur (`page`, `kind`, `message`, `email` facultatif, `line_id` ou `stop_id`). Lecture : `php artisan reports:export` écrit `storage/app/reports.csv`.
+- `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
+- La logique est dans `app/Services/Transit/RouteSearchService.php`.
+
+### Dons (Paystack)
+
+La page `/soutenir` encaisse les dons par [Paystack](https://paystack.com) : Wave, Orange Money, MTN et carte bancaire, en francs CFA.
+
+1. Le donateur choisit un montant (200 F minimum) ; `POST /api/donations` crée le don « en attente » et renvoie la page de paiement Paystack.
+2. Après le paiement, Paystack le renvoie sur `/soutenir/merci?reference=…`. Le front interroge `GET /api/donations/{reference}`, qui **vérifie le paiement auprès de Paystack** (statut, montant et devise) : l'URL de retour ne suffit jamais à confirmer un don.
+3. En parallèle, le webhook `POST /api/paystack/webhook` (signature HMAC-SHA512 vérifiée) confirme le don même si le donateur ferme la page.
+4. Les dons se suivent dans le tableau de bord, onglet « Dons ».
+
+Mise en place :
+
+```sh
+# back/.env
+PAYSTACK_SECRET_KEY=sk_live_…                      # Paystack > Settings > API Keys & Webhooks
+PAYSTACK_CALLBACK_URL=https://quelbus.monradar.ci/soutenir/merci
+PAYSTACK_FALLBACK_EMAIL=contact@monradar.ci        # Paystack exige un email ; utilisé si le donateur n'en donne pas
+php artisan migrate
+```
+
+Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://quelbus-api.monradar.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`.
+
+Côté front, les liens et le formulaire « Soutenir » n'apparaissent qu'avec `VITE_DONATIONS=on` au build (à activer une fois le compte Paystack validé, et ajouter alors `/soutenir` au sitemap). Sans clé Paystack, l'API refuse les dons (503).
+
+### Référencement
+
+Chaque page met à jour son titre, sa description, son adresse canonique et ses balises Open Graph. `index.html` contient les données structurées du site ; les fiches ligne et arrêt ajoutent les leurs. L'image de partage `front/public/og-image.png` se régénère depuis `Maquette/og-image.html` (capture 1200×630).
+
+Limite : le front est une application monopage, donc les aperçus WhatsApp ou Facebook d'une fiche ligne montrent les balises par défaut (ces robots n'exécutent pas le JavaScript). Google, lui, lit les balises de chaque page.
+
+### Tableau de bord
+
+Accès privé sur `/connexion` puis `/admin` : visites et recherches par jour, signalements d'erreurs, retours des inscrits.
+
+```sh
+cd back
+php artisan migrate                       # tables personal_access_tokens et daily_stats
+php artisan admin:create vous@exemple.com # mot de passe demandé (12 caractères minimum)
+```
+
+La connexion renvoie un jeton Laravel Sanctum valable 30 jours. Les visites (une par session de navigation) et les recherches sont comptées par jour, sans cookie ni donnée personnelle ; `GET /api/stats` expose les totaux publics.
+
 ### Inscriptions
 
 - `POST /api/subscribers` avec `first_name`, `last_name`, `email`, `profile` (`utilisateur`, `contributeur` ou `les_deux`) et `message` (facultatif).
@@ -96,6 +159,8 @@ Chaque nouvelle inscription reçoit un email de confirmation, dont le texte dép
 - Les gabarits sont dans `back/resources/views/mail/` (contenu) et `back/resources/views/vendor/mail/` (couleurs et pied de page).
 
 ### Tests
+
+Les tests vident la base à chaque lancement : ils utilisent une **base dédiée**, jamais celle de l'application. En local, créer `back/.env.testing` (copie de `.env` avec `APP_ENV=testing` et `DB_DATABASE=quelbus_test`, ignoré par git). La CI lance son propre PostgreSQL.
 
 ```sh
 cd back && php artisan test && vendor/bin/pint --test
