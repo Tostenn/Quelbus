@@ -12,43 +12,46 @@ export default function ResultCard({ result, from, best = false }: Props) {
   const here = from.name === 'Ma position' ? `&ici=${from.lat.toFixed(6)},${from.lng.toFixed(6)}` : ''
 
   return (
-    <article className={`result-card${best ? ' is-best' : ''}`}>
-      <header className="result-head">
+    <Link
+      className={`result-card${best ? ' is-best' : ''}`}
+      to={`/lignes/${line.slug}?sens=${direction.id}&montee=${board.id}&descente=${alight.id}${here}`}
+    >
+      <span className="result-head">
         <LineBadge refNumber={line.ref} type={line.type} accent={best} size="lg" />
-        <div>
-          <h3 className="result-direction">{direction.name}</h3>
-          <p className="muted">
+        <span>
+          <span className="result-direction">{direction.name}</span>
+          <span className="muted">
             {TYPE_LABELS[line.type]} · {stops} arrêt{stops > 1 ? 's' : ''} entre montée et descente
-          </p>
-        </div>
-      </header>
-      <ol className="result-legs">
-        <li className="result-leg">
-          <span className="pin pin-from" aria-hidden="true" />
-          <div>
+          </span>
+        </span>
+      </span>
+      <span className="result-legs">
+        <span className="result-leg">
+          <span className="pin pin-board" aria-hidden="true" />
+          <span>
             <span className="field-label">Montez à</span>
             <span className="result-stop">{board.name}</span>
             <span className="muted walk">
               <PersonSimpleWalk size={16} aria-hidden="true" />
               {walkLabel(board.walk)}
             </span>
-          </div>
-        </li>
-        <li className="result-leg">
+          </span>
+        </span>
+        <span className="result-leg">
           <span className="pin pin-to" aria-hidden="true" />
-          <div>
+          <span>
             <span className="field-label">Descendez à</span>
             <span className="result-stop">{alight.name}</span>
             <span className="muted walk">
               <PersonSimpleWalk size={16} aria-hidden="true" />
               {walkLabel(alight.walk)}
             </span>
-          </div>
-        </li>
-      </ol>
-      <Link className="text-link" to={`/lignes/${line.slug}?sens=${direction.id}&montee=${board.id}&descente=${alight.id}${here}`}>
-        Voir le trajet sur la carte <ArrowRight size={16} />
-      </Link>
-    </article>
+          </span>
+        </span>
+      </span>
+      <span className="result-more">
+        Voir le trajet sur la carte <ArrowRight size={16} aria-hidden="true" />
+      </span>
+    </Link>
   )
 }

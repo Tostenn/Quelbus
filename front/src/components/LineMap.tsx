@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { StopSummary } from '../lib/api'
@@ -10,6 +10,9 @@ type Props = {
   alight?: number
   userLat?: number
   userLng?: number
+  /** Suivi en direct : la carte suit l'utilisateur et la marche vers l'arrêt disparaît une fois à bord. */
+  follow?: boolean
+  onBoard?: boolean
 }
 
 const COLORS = { line: '#8a8175', ride: '#ce5b22', user: '#1f6fd1' }
@@ -21,13 +24,20 @@ function pin(className: string, html = '', size = 32) {
   return L.divIcon({ className: `map-pin ${className}`, html, iconSize: [size, size], iconAnchor: [size / 2, size / 2] })
 }
 
-export default function LineMap({ stops, geometry, board = -1, alight = -1, userLat, userLng }: Props) {
+export default function LineMap({ stops, geometry, board = -1, alight = -1, userLat, userLng, follow = false, onBoard = false }: Props) {
   const container = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<L.Map | null>(null)
+  const userRef = useRef<{ marker: L.Marker; walk: L.Polyline } | null>(null)
+  // Position au chargement : sert seulement à cadrer la carte
+  const [firstUser] = useState<[number, number] | null>(() =>
+    userLat !== undefined && userLng !== undefined ? [userLat, userLng] : null,
+  )
 
   useEffect(() => {
     if (!container.current || !stops.length) return
 
-    const map = L.map(container.current, { scrollWheelZoom: false, zoomControl: true })
+    const map = L.map(container.current, { scrollWheelZoom: false })
+    mapRef.current = map
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
@@ -52,49 +62,50 @@ export default function LineMap({ stops, geometry, board = -1, alight = -1, user
     })
 
     const focus: L.LatLngExpression[] = []
-
+    if (board >= 0) {
+      const b = stops[board]
+      L.marker([b.lat, b.lng], { icon: pin('map-pin-board', BUS), zIndexOffset: 1000 })
+        .bindTooltip(`Montez à ${b.name}`, { direction: 'top', offset: [0, -14] })
+        .addTo(map)
+      focus.push([b.lat, b.lng])
+    }
     if (trip) {
       const ride = stops.slice(board, alight + 1).map((s) => [s.lat, s.lng] as [number, number])
       L.polyline(ride, { color: COLORS.ride, weight: 6 }).addTo(map)
       focus.push(...ride)
-
-      const b = stops[board]
       const a = stops[alight]
-      L.marker([b.lat, b.lng], { icon: pin('map-pin-board', BUS), zIndexOffset: 1000 })
-        .bindTooltip(`Montez à ${b.name}`, { direction: 'top', offset: [0, -14] })
-        .addTo(map)
       L.marker([a.lat, a.lng], { icon: pin('map-pin-alight', FLAG), zIndexOffset: 1000 })
         .bindTooltip(`Descendez à ${a.name}`, { direction: 'top', offset: [0, -14] })
         .addTo(map)
-    } else if (board >= 0) {
-      const b = stops[board]
-      L.marker([b.lat, b.lng], { icon: pin('map-pin-board', BUS), zIndexOffset: 1000 }).bindTooltip(b.name).addTo(map)
-      focus.push([b.lat, b.lng])
     }
+    if (firstUser) focus.push(firstUser)
 
-    if (userLat !== undefined && userLng !== undefined) {
-      L.marker([userLat, userLng], { icon: pin('map-pin-user', '', 20), zIndexOffset: 2000 })
-        .bindTooltip('Vous êtes ici', { direction: 'top', offset: [0, -10] })
-        .addTo(map)
-      focus.push([userLat, userLng])
-      if (board >= 0) {
-        L.polyline(
-          [
-            [userLat, userLng],
-            [stops[board].lat, stops[board].lng],
-          ],
-          { color: COLORS.user, weight: 4, dashArray: '2 8', lineCap: 'round' },
-        ).addTo(map)
-      }
-    }
-
-    const bounds = L.latLngBounds(focus.length > 1 ? focus : route.flat())
-    map.fitBounds(bounds, { padding: [28, 28], maxZoom: 17 })
+    map.fitBounds(L.latLngBounds(focus.length > 1 ? focus : route.flat()), { padding: [28, 28], maxZoom: 17 })
 
     return () => {
       map.remove()
+      mapRef.current = null
+      userRef.current = null
     }
-  }, [stops, geometry, board, alight, userLat, userLng])
+  }, [stops, geometry, board, alight, firstUser])
+
+  // Position de l'utilisateur : déplacée sans reconstruire la carte
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || userLat === undefined || userLng === undefined) return
+
+    const here: [number, number] = [userLat, userLng]
+    if (!userRef.current) {
+      const marker = L.marker(here, { icon: pin('map-pin-user', '', 20), zIndexOffset: 2000 })
+        .bindTooltip('Vous êtes ici', { direction: 'top', offset: [0, -10] })
+        .addTo(map)
+      const walk = L.polyline([], { color: COLORS.user, weight: 4, dashArray: '2 8', lineCap: 'round' }).addTo(map)
+      userRef.current = { marker, walk }
+    }
+    userRef.current.marker.setLatLng(here)
+    userRef.current.walk.setLatLngs(board >= 0 && !onBoard ? [here, [stops[board].lat, stops[board].lng]] : [])
+    if (follow) map.panTo(here, { animate: true })
+  }, [userLat, userLng, board, stops, follow, onBoard])
 
   return <div ref={container} className="line-map" role="img" aria-label="Carte de la ligne et de ses arrêts" />
 }
