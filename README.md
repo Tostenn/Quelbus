@@ -36,9 +36,9 @@ Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec corres
 ## Feuille de route
 
 - [x] **Présentation** : page d'accueil et inscriptions au lancement
-- [ ] **Données** : import des lignes, sens et arrêts SOTRA depuis OpenStreetMap
-- [ ] **Recherche** : moteur « quel bus prendre », testé sur des cas réels
-- [ ] **Interface** : recherche sur mobile, avec ou sans géolocalisation
+- [x] **Données** : import des lignes, sens et arrêts (SOTRA, gbaka, woro-woro), issus d'OpenStreetMap
+- [x] **Recherche** : moteur « quel bus prendre », testé sur des cas réels
+- [x] **Interface** : recherche sur mobile, avec ou sans géolocalisation
 - [ ] **Pages publiques** : une fiche par ligne, arrêt et lieu, optimisées pour le référencement
 - [ ] **Finitions** : cartes, signalement d'erreurs, mise en ligne
 
@@ -93,6 +93,12 @@ php artisan transit:import ../scraper/data/abidjan_bus.json
 Sans argument, la commande lit `storage/app/transit/abidjan_bus.json` (emplacement à utiliser en production). Elle peut être relancée sans créer de doublons, s'exécute dans une transaction et affiche un rapport d'anomalies. `--prune` supprime en plus ce qui a disparu du fichier (refusé si le fichier est incomplet).
 
 Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation OpenStreetMap) → `direction_stops` (arrêts ordonnés) ← `stops`.
+
+### Recherche
+
+- `GET /api/search?from_lat=&from_lng=&to_lat=&to_lng=` : lignes directes entre deux points. Options : `radius` (300, 500 ou 800 m ; élargi automatiquement si rien n'est trouvé) et `types[]` (`sotra`, `gbaka`, `woro-woro`). La réponse indique le rayon utilisé, si le trajet se fait à pied, et pour chaque ligne l'arrêt de montée, l'arrêt de descente, la marche et le nombre d'arrêts.
+- `GET /api/suggest?q=mosquee adjame` : arrêts correspondant à la saisie (accents ignorés, arrêts homonymes proches fusionnés).
+- La logique est dans `app/Services/Transit/RouteSearchService.php`.
 
 ### Inscriptions
 

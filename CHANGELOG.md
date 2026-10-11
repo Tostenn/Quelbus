@@ -6,6 +6,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Modifié
+
+- La base de données passe de MySQL à PostgreSQL ; les tests utilisent une base PostgreSQL dédiée.
+
 ### Ajouté
 
 - Page d'accueil de présentation du projet (`front/`) : le problème, le fonctionnement, ce que QuelBus fait et ne fait pas, l'appel aux contributeurs et la feuille de route.
@@ -17,6 +21,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Email de confirmation après inscription, adapté au profil (utilisateur, contributeur, les deux), aux couleurs du site et envoyé en file d'attente.
 - Boutons de partage après l'inscription (WhatsApp, Facebook, X, LinkedIn, Telegram, copier le lien, partage natif sur mobile), avec un texte et un message pré-rempli adaptés au profil.
 - Icônes [Phosphor](https://phosphoricons.com) sur les boutons, les étapes, les cartes contributeurs et le formulaire.
+- Scraper des lignes de bus d'Abidjan (`scraper/`) : 1234 sens de circulation SOTRA, gbaka et woro-woro, 6423 arrêts avec coordonnées et tracés.
+- Base de données PostgreSQL : tables `lines`, `line_directions`, `stops`, `direction_stops`, et commande `php artisan transit:import` (relançable, transactionnelle, rapport d'anomalies, option `--prune`).
+- Moteur de recherche « quel bus prendre » : lignes directes à moins de 300 m du départ et de l'arrivée, dans le bon sens, avec arrêts de montée et de descente ; élargissement automatique à 500 puis 800 m ; boucles gérées.
+- Écran de recherche (`/recherche`) : départ par géolocalisation ou saisie, destination avec autocomplétion au clavier, résultats avec arrêts de montée et de descente, choix du rayon de marche et du type de transport, recherche partageable par lien. Formulaire de recherche en tête de la page d'accueil.
+- API `GET /api/search` (recherche) et `GET /api/suggest` (autocomplétion des arrêts, sans tenir compte des accents).
 - Fichiers communautaires : licence, code de conduite, guide de contribution, politique de sécurité, modèles d'issues et de pull request, intégration continue.
 
 [Non publié]: https://github.com/Tostenn/Quelbus/commits/main

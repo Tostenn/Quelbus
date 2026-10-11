@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'slug', 'lat', 'lng', 'commune'])]
+#[Fillable(['name', 'search_name', 'slug', 'lat', 'lng', 'commune'])]
 class Stop extends Model
 {
     protected function casts(): array

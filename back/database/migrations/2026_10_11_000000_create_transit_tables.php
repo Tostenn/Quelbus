@@ -41,6 +41,7 @@ return new class extends Migration
         Schema::create('stops', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('search_name')->index(); // nom en minuscules sans accents, pour l'autocomplétion
             $table->string('slug')->unique();
             $table->decimal('lat', 9, 6);
             $table->decimal('lng', 9, 6);
