@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { ArrowsLeftRight, Crosshair, NavigationArrow } from '@phosphor-icons/react'
 import ArrivalDialog from '../components/ArrivalDialog'
+import JsonLd from '../components/JsonLd'
 import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
 import NotFound from '../components/NotFound'
@@ -9,6 +10,7 @@ import ReportForm from '../components/ReportForm'
 import type { LineDetail } from '../lib/api'
 import { distance } from '../lib/geo'
 import { lineTitle, TYPE_LABELS } from '../lib/search'
+import { breadcrumb } from '../lib/seo'
 import { useApi } from '../lib/useApi'
 import { useLiveLocation } from '../lib/useLiveLocation'
 import { usePageMeta } from '../lib/usePageMeta'
@@ -86,6 +88,12 @@ export default function Line() {
 
         {line && direction && (
           <div className={`line-layout${tracking ? ' is-tracking' : ''}`}>
+            <JsonLd
+              data={breadcrumb([
+                { name: 'Lignes', path: '/lignes' },
+                { name: `${lineTitle(line)} : ${line.name}`, path: `/lignes/${line.slug}` },
+              ])}
+            />
             <div className="line-head">
               <header className="line-header">
                 <LineBadge refNumber={line.ref} type={line.type} accent size="lg" />

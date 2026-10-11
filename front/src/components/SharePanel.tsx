@@ -18,23 +18,23 @@ type ShareCopy = { title: string; text: string; message: string; url: string }
 const copies: Record<Profile, ShareCopy> = {
   utilisateur: {
     title: 'Faites passer le mot',
-    text: 'Vous connaissez quelqu’un qui se perd dans les lignes SOTRA ? Envoyez-lui QuelBus : plus on sera nombreux au lancement, plus vite l’appli sera utile à tout le monde.',
+    text: 'Vous connaissez quelqu’un qui se perd dans les lignes ? Envoyez-lui QuelBus : c’est gratuit et ça marche déjà.',
     message:
-      'Je viens de m’inscrire sur QuelBus, une appli gratuite qui dit quel bus SOTRA prendre à Abidjan. Inscris-toi aussi pour être prévenu du lancement 👉',
+      'J’utilise QuelBus, une appli gratuite qui dit quel bus prendre à Abidjan (SOTRA, gbaka, wôrô-wôrô), où monter et où descendre. Essaie 👉',
     url: `${SITE_URL}/`,
   },
   contributeur: {
     title: 'Aidez-nous à trouver d’autres contributeurs',
     text: 'Un projet open source avance plus vite à plusieurs. Partagez-le avec les développeurs, designers et passionnés de cartes autour de vous.',
     message:
-      'Je contribue à QuelBus, un projet open source pour savoir quel bus SOTRA prendre à Abidjan. On cherche des devs, des designers et des gens qui connaissent bien les lignes. Rejoins-nous 👉',
+      'Je contribue à QuelBus, un projet open source pour savoir quel bus prendre à Abidjan. On cherche des devs, des designers et des gens qui connaissent bien les lignes. Rejoins-nous 👉',
     url: `${SITE_URL}/contact?profil=contributeur`,
   },
   les_deux: {
     title: 'Embarquez vos proches',
     text: 'Vous allez l’utiliser et aider à le construire, merci ! Invitez vos proches à s’inscrire, et vos amis développeurs ou cartographes à nous rejoindre.',
     message:
-      'Je rejoins QuelBus, une appli gratuite et open source pour savoir quel bus SOTRA prendre à Abidjan. Inscris-toi pour le lancement, ou viens nous aider à la construire 👉',
+      'J’utilise et je soutiens QuelBus, une appli gratuite et open source pour savoir quel bus prendre à Abidjan. Essaie-la, ou viens nous aider 👉',
     url: `${SITE_URL}/`,
   },
 }

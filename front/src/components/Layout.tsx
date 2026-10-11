@@ -67,11 +67,12 @@ export default function Layout() {
         <div className="container footer-inner">
           <div className="footer-brand">
             <Logo />
-            <p>Quel bus SOTRA prendre à Abidjan&nbsp;? Un projet libre, gratuit et ouvert aux contributions.</p>
+            <p>Quel bus prendre à Abidjan&nbsp;? Un projet libre, gratuit et ouvert aux contributions.</p>
           </div>
           <div className="footer-links">
             <Link to="/lignes">Toutes les lignes</Link>
             <Link to="/a-propos">À propos</Link>
+            <Link to="/soutenir">Soutenir</Link>
             <Link to="/contact">Être prévenu des nouveautés</Link>
             <Link to="/contact?profil=contributeur">Contribuer</Link>
             {REPO_URL && (

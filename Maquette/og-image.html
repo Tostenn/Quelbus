@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; margin: 0; }
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        font-family: Archivo, Helvetica, Arial, sans-serif;
+        background: #1a1613;
+        color: #faf7f2;
+        position: relative;
+      }
+      .stripes {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(-12deg, transparent 0 58px, rgba(255, 255, 255, 0.035) 58px 63px);
+      }
+      .wrap {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 470px;
+        gap: 56px;
+        align-items: center;
+        height: 100%;
+        padding: 0 72px;
+      }
+      .logo { display: flex; align-items: center; gap: 14px; margin-bottom: 42px; }
+      .mark { display: flex; align-items: center; width: 62px; }
+      .from { width: 22px; height: 22px; border-radius: 50%; border: 6px solid #faf7f2; flex: none; }
+      .line { flex: 1; height: 6px; background: #faf7f2; }
+      .to { width: 22px; height: 22px; border-radius: 50%; background: #ce5b22; flex: none; }
+      .word { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; }
+      h1 { font-size: 76px; line-height: 1.02; font-weight: 800; letter-spacing: -0.035em; }
+      h1 span { color: #ce5b22; display: block; }
+      .sub { margin-top: 26px; font-size: 27px; font-weight: 600; color: #cfc6ba; line-height: 1.35; }
+      .url { margin-top: 34px; font-size: 24px; font-weight: 700; color: #f0a27a; }
+      .card {
+        background: #fff;
+        color: #1a1613;
+        border-radius: 26px;
+        padding: 30px;
+        border: 4px solid #ce5b22;
+        box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+      }
+      .head { display: flex; gap: 18px; align-items: center; }
+      .badge {
+        display: grid; place-items: center; width: 92px; height: 80px; border-radius: 16px;
+        background: #ce5b22; color: #fff; font-size: 46px; font-weight: 800; flex: none;
+      }
+      .dir { font-size: 27px; font-weight: 800; line-height: 1.2; }
+      .muted { color: #6b6259; font-size: 19px; font-weight: 500; margin-top: 4px; }
+      .legs { margin-top: 24px; padding-top: 22px; border-top: 2px solid #efe9df; display: grid; gap: 18px; }
+      .leg { display: flex; gap: 16px; align-items: flex-start; }
+      .pin { width: 20px; height: 20px; border-radius: 50%; margin-top: 6px; flex: none; }
+      .board { background: #2f7d4a; }
+      .alight { background: #ce5b22; }
+      .label { font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #6b6259; }
+      .stop { font-size: 27px; font-weight: 800; }
+    </style>
+  </head>
+  <body>
+    <div class="stripes"></div>
+    <div class="wrap">
+      <div>
+        <div class="logo">
+          <div class="mark"><span class="from"></span><span class="line"></span><span class="to"></span></div>
+          <span class="word">quelbus</span>
+        </div>
+        <h1>Quel bus prendre&nbsp;? <span>On vous le dit.</span></h1>
+        <p class="sub">606 lignes à Abidjan&nbsp;: SOTRA, gbaka, wôrô-wôrô.<br />Où monter, où descendre.</p>
+        <p class="url">quelbus.monradar.ci</p>
+      </div>
+      <div class="card">
+        <div class="head">
+          <span class="badge">81</span>
+          <div>
+            <div class="dir">Gare Nord → Terminus Angré</div>
+            <div class="muted">Bus SOTRA · 1 arrêt</div>
+          </div>
+        </div>
+        <div class="legs">
+          <div class="leg">
+            <span class="pin board"></span>
+            <div><div class="label">Montez à</div><div class="stop">Gare Nord</div><div class="muted">28 m à pied</div></div>
+          </div>
+          <div class="leg">
+            <span class="pin alight"></span>
+            <div><div class="label">Descendez à</div><div class="stop">Mosquée Adjamé</div><div class="muted">15 m à pied</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

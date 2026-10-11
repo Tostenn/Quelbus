@@ -1,11 +1,13 @@
 import { Link, useParams } from 'react-router'
 import { PersonSimpleWalk } from '@phosphor-icons/react'
+import JsonLd from '../components/JsonLd'
 import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
 import NotFound from '../components/NotFound'
 import ReportForm from '../components/ReportForm'
 import SearchForm from '../components/SearchForm'
 import type { StopDetail } from '../lib/api'
+import { breadcrumb } from '../lib/seo'
 import { useApi } from '../lib/useApi'
 import { usePageMeta } from '../lib/usePageMeta'
 
@@ -35,6 +37,21 @@ export default function Stop() {
 
         {stop && (
           <>
+            <JsonLd
+              data={[
+                {
+                  '@context': 'https://schema.org',
+                  '@type': 'BusStop',
+                  name: stop.name,
+                  geo: { '@type': 'GeoCoordinates', latitude: stop.lat, longitude: stop.lng },
+                  address: { '@type': 'PostalAddress', addressLocality: 'Abidjan', addressCountry: 'CI' },
+                },
+                breadcrumb([
+                  { name: 'Lignes', path: '/lignes' },
+                  { name: `Arrêt ${stop.name}`, path: `/arrets/${stop.slug}` },
+                ]),
+              ]}
+            />
             <h1 className="page-title">{stop.name}</h1>
             <p className="lead">
               {stop.lines.length} ligne{stop.lines.length > 1 ? 's' : ''} s’arrête{stop.lines.length > 1 ? 'nt' : ''} ici.

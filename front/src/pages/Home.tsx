@@ -5,6 +5,7 @@ import StatsBand from '../components/StatsBand'
 import {
   ArrowRight,
   Bus,
+  Heart,
   Code,
   Crosshair,
   GithubLogo,
@@ -67,7 +68,13 @@ export default function Home() {
         <div className="container hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">
-              <span className="dot-live" aria-hidden="true" /> Projet open source · Abidjan
+              <span className="eyebrow-mark" aria-hidden="true">
+                <span className="em-from" />
+                <span className="em-line" />
+                <span className="em-to" />
+                <span className="em-bus" />
+              </span>
+              Projet open source · Abidjan
             </p>
             <h1>
               Quel bus prendre&nbsp;? <span className="accent">On vous le dit.</span>
@@ -206,17 +213,26 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <Creator />
+          <Link className="support-card" to="/soutenir">
+            <Heart size={26} weight="fill" aria-hidden="true" />
+            <span>
+              <strong>QuelBus vous a aidé&nbsp;?</strong> Offrez un garba à l’équipe, par Mobile Money ou carte.
+            </span>
+            <ArrowRight aria-hidden="true" />
+          </Link>
         </div>
       </section>
 
       <section className="section section-cta">
         <div className="container cta-box">
           <div>
-            <h2>Soyez parmi les premiers.</h2>
-            <p className="lead">Prénom, nom, email. On vous écrit au lancement, pas avant, et jamais pour autre chose.</p>
+            <h2>Restez dans la boucle.</h2>
+            <p className="lead">
+              Nouvelles lignes, correspondances, horaires&nbsp;: un email quand il y a du nouveau, jamais pour autre chose.
+            </p>
           </div>
           <Link className="btn btn-primary btn-lg" to="/contact">
-            Je m’inscris
+            Être informé
             <ArrowRight />
           </Link>
         </div>

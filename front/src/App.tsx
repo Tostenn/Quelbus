@@ -7,6 +7,7 @@ import Lines from './pages/Lines'
 import Line from './pages/Line'
 import Stop from './pages/Stop'
 import About from './pages/About'
+import Support from './pages/Support'
 import Login from './pages/Login'
 import Admin from './pages/Admin'
 import NotFound from './components/NotFound'
@@ -21,6 +22,7 @@ function App() {
         <Route path="lignes/:slug" element={<Line />} />
         <Route path="arrets/:slug" element={<Stop />} />
         <Route path="a-propos" element={<About />} />
+        <Route path="soutenir" element={<Support />} />
         <Route path="contact" element={<Contact />} />
         <Route path="connexion" element={<Login />} />
         <Route path="admin" element={<Admin />} />

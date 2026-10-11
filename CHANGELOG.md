@@ -8,6 +8,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Modifié
 
+- Les textes d'inscription, de partage et l'email de confirmation parlent d'une application déjà en ligne : on s'inscrit pour les nouveautés, pour contribuer ou pour soutenir.
 - La base de données passe de MySQL à PostgreSQL ; les tests utilisent une base PostgreSQL dédiée.
 
 ### Ajouté
@@ -25,6 +26,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Base de données PostgreSQL : tables `lines`, `line_directions`, `stops`, `direction_stops`, et commande `php artisan transit:import` (relançable, transactionnelle, rapport d'anomalies, option `--prune`).
 - Moteur de recherche « quel bus prendre » : lignes directes à moins de 300 m du départ et de l'arrivée, dans le bon sens, avec arrêts de montée et de descente ; élargissement automatique à 500 puis 800 m ; boucles gérées.
 - Écran de recherche (`/recherche`) : départ par géolocalisation ou saisie, destination avec autocomplétion au clavier, résultats avec arrêts de montée et de descente, choix du rayon de marche et du type de transport, recherche partageable par lien. Formulaire de recherche en tête de la page d'accueil.
+- Page « Soutenir » (`/soutenir`) : « Offrez un garba à l'équipe », dons par Mobile Money ou carte via un lien de paiement configurable (`VITE_DONATE_URL`, `VITE_DONATE_WAVE_URL`).
+- Référencement : balises Open Graph et Twitter mises à jour sur chaque page, données structurées (WebSite, Organization, BreadcrumbList, BusStop), nouvelle image de partage.
+- Bandeau des chiffres refait (cartes, icônes, compteurs animés) et icône du projet animée dans le hero.
 - Suivi du trajet en direct : avec la localisation active, la carte et la liste des arrêts suivent votre position, un bandeau indique le prochain arrêt, et une fenêtre annonce l'arrivée.
 - Fiche ligne en deux colonnes sur ordinateur (carte fixe à droite) ; cartes de résultats entièrement cliquables.
 - Indicateurs sur l'accueil (lignes, arrêts ; recherches et visites au-delà de 1 000) et section « Derrière le projet ».

@@ -15,13 +15,13 @@ import { submitSubscriber, type FieldErrors, type Profile, type SubscriberPayloa
 import { usePageMeta } from '../lib/usePageMeta'
 
 const profiles: { value: Profile; icon: Icon; title: string; text: string }[] = [
-  { value: 'utilisateur', icon: Bus, title: 'Je veux utiliser QuelBus', text: 'Prévenez-moi quand l’application est prête.' },
-  { value: 'contributeur', icon: Code, title: 'Je veux contribuer', text: 'Code, design, données, tests sur le terrain…' },
-  { value: 'les_deux', icon: UsersThree, title: 'Les deux', text: 'Je veux l’utiliser et donner un coup de main.' },
+  { value: 'utilisateur', icon: Bus, title: 'Je l’utilise', text: 'Prévenez-moi des nouveautés : lignes, correspondances, horaires…' },
+  { value: 'contributeur', icon: Code, title: 'Je veux contribuer', text: 'Code, design, vérification des lignes sur le terrain…' },
+  { value: 'les_deux', icon: UsersThree, title: 'Les deux', text: 'Je l’utilise et je veux donner un coup de main.' },
 ]
 
 const messagePlaceholders: Record<Profile, string> = {
-  utilisateur: 'Ex. : je vais souvent d’Abobo au Plateau, j’aimerais savoir quelle ligne prendre.',
+  utilisateur: 'Ex. : je fais souvent Abobo – Plateau, ce serait bien d’avoir les correspondances.',
   contributeur: 'Ex. : je suis développeur React, ou je connais bien les lignes de Yopougon.',
   les_deux: 'Ex. : je prends la 81 tous les jours et je peux aider à vérifier les arrêts.',
 }
@@ -31,7 +31,10 @@ function initialProfile(value: string | null): Profile {
 }
 
 export default function Contact() {
-  usePageMeta('Rejoindre le projet | QuelBus')
+  usePageMeta(
+    'Rester informé ou contribuer | QuelBus',
+    'Recevez les nouveautés de QuelBus ou aidez à améliorer les lignes de bus d’Abidjan : code, design, vérification sur le terrain.',
+  )
   const [searchParams] = useSearchParams()
   const [form, setForm] = useState<SubscriberPayload>({
     first_name: '',
@@ -104,13 +107,13 @@ export default function Contact() {
       <div className="container contact-grid">
         <div className="contact-intro">
           <p className="eyebrow">Rejoindre QuelBus</p>
-          <h1>Soyez prévenu du lancement, ou aidez-nous à le construire.</h1>
+          <h1>Restez au courant, ou aidez-nous à aller plus loin.</h1>
           <p className="lead">
-            QuelBus est un projet open source, en cours de construction. Laissez vos coordonnées&nbsp;: on vous écrit
-            quand la plateforme est en ligne.
+            QuelBus marche déjà&nbsp;: <Link to="/recherche">cherchez votre bus</Link>. Laissez vos coordonnées pour
+            savoir quand arrivent les nouveautés, ou pour donner un coup de main.
           </p>
           <ul className="check-list">
-            <li>Un email au lancement, pas de spam</li>
+            <li>Un email quand il y a du nouveau, pas de spam</li>
             <li>Vos données ne sont ni vendues ni partagées</li>
             <li>Un simple message pour être retiré de la liste</li>
           </ul>

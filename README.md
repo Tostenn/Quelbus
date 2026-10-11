@@ -103,6 +103,18 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 - `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
 - La logique est dans `app/Services/Transit/RouteSearchService.php`.
 
+### Dons
+
+La page `/soutenir` affiche un bouton de don dès que `VITE_DONATE_URL` est renseigné au build du front (et `VITE_DONATE_WAVE_URL` pour un lien Wave direct). Sans ces variables, elle indique que les dons ouvrent bientôt.
+
+Solution conseillée : une **page de paiement [Paystack](https://paystack.com)** (disponible en Côte d'Ivoire : Wave, Orange Money, MTN, Visa, Mastercard ; le donateur choisit le montant). Alternative ivoirienne : un **lien de paiement [CinetPay](https://cinetpay.com)**. Buy Me a Coffee n'est pas utilisable : ses versements passent par Stripe, qui ne couvre pas la Côte d'Ivoire.
+
+### Référencement
+
+Chaque page met à jour son titre, sa description, son adresse canonique et ses balises Open Graph. `index.html` contient les données structurées du site ; les fiches ligne et arrêt ajoutent les leurs. L'image de partage `front/public/og-image.png` se régénère depuis `Maquette/og-image.html` (capture 1200×630).
+
+Limite : le front est une application monopage, donc les aperçus WhatsApp ou Facebook d'une fiche ligne montrent les balises par défaut (ces robots n'exécutent pas le JavaScript). Google, lui, lit les balises de chaque page.
+
 ### Tableau de bord
 
 Accès privé sur `/connexion` puis `/admin` : visites et recherches par jour, signalements d'erreurs, retours des inscrits.
