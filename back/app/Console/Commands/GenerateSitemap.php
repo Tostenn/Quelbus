@@ -17,7 +17,7 @@ class GenerateSitemap extends Command
     public function handle(): int
     {
         $base = rtrim($this->option('url'), '/');
-        $paths = ['/', '/recherche', '/lignes', '/a-propos', '/contact'];
+        $paths = ['/', '/recherche', '/lignes', '/a-propos', '/soutenir', '/contact'];
 
         Line::query()->orderBy('id')->each(function (Line $line) use (&$paths) {
             $paths[] = '/lignes/'.$line->slug;
