@@ -8,6 +8,7 @@ import {
   logout,
   Unauthorized,
   type AdminReport,
+  type DonationsPage,
   type AdminStats,
   type AdminSubscriber,
   type Page,
@@ -15,10 +16,11 @@ import {
 import { SITE_URL } from '../lib/config'
 import { usePageMeta } from '../lib/usePageMeta'
 
-type Tab = 'stats' | 'reports' | 'subscribers'
+type Tab = 'stats' | 'donations' | 'reports' | 'subscribers'
 
 const TABS: { value: Tab; label: string }[] = [
   { value: 'stats', label: 'Statistiques' },
+  { value: 'donations', label: 'Dons' },
   { value: 'reports', label: 'Signalements' },
   { value: 'subscribers', label: 'Retours' },
 ]
@@ -87,6 +89,7 @@ export default function Admin() {
         </div>
 
         {tab === 'stats' && <StatsTab />}
+        {tab === 'donations' && <DonationsTab />}
         {tab === 'reports' && <ReportsTab />}
         {tab === 'subscribers' && <SubscribersTab />}
       </div>
@@ -105,6 +108,7 @@ function StatsTab() {
     { label: 'Trajets recherchés', value: totals.searches },
     { label: 'Signalements', value: totals.reports },
     { label: 'Inscrits', value: totals.subscribers },
+    { label: 'Dons reçus (F)', value: totals.donations_amount },
     { label: 'Lignes', value: totals.lines },
     { label: 'Arrêts', value: totals.stops },
   ]
@@ -141,6 +145,65 @@ function Pager({ page, last, onChange }: { page: number; last: number; onChange:
         Suivant
       </button>
     </div>
+  )
+}
+
+const STATUS: Record<string, string> = { success: 'Reçu', pending: 'En attente', failed: 'Échoué', abandoned: 'Abandonné' }
+const CHANNELS: Record<string, string> = { mobile_money: 'Mobile Money', card: 'Carte', apple_pay: 'Apple Pay', bank: 'Banque' }
+
+function DonationsTab() {
+  const [page, setPage] = useState(1)
+  const { data, error, loading } = useAdmin<DonationsPage>(`/donations?page=${page}`)
+  if (loading) return <p className="muted">Chargement…</p>
+  if (error || !data) return <p className="form-alert">{error}</p>
+
+  return (
+    <>
+      <ul className="stat-tiles">
+        <li>
+          <span className="stat-label">Total reçu</span>
+          <strong className="stat-value">{data.totals.amount.toLocaleString('fr-FR')} F</strong>
+        </li>
+        <li>
+          <span className="stat-label">Dons confirmés</span>
+          <strong className="stat-value">{data.totals.count}</strong>
+        </li>
+        <li>
+          <span className="stat-label">En attente</span>
+          <strong className="stat-value">{data.totals.pending}</strong>
+        </li>
+      </ul>
+      {!data.data.length ? (
+        <p className="muted admin-empty">Aucun don pour l’instant.</p>
+      ) : (
+        <ul className="admin-list">
+          {data.data.map((d) => (
+            <li key={d.id} className="admin-item">
+              <div className="admin-item-head">
+                <strong>
+                  {d.amount.toLocaleString('fr-FR')} F · {d.name || 'Anonyme'}
+                </strong>
+                <span className={`status-badge status-${d.status}`}>{STATUS[d.status] ?? d.status}</span>
+              </div>
+              {d.message && <p className="admin-quote">{d.message}</p>}
+              <p className="muted">
+                {date(d.paid_at ?? d.created_at)}
+                {d.channel && ` · ${CHANNELS[d.channel] ?? d.channel}`}
+                {d.email && (
+                  <>
+                    {' · '}
+                    <a href={`mailto:${d.email}`}>{d.email}</a>
+                  </>
+                )}
+                {' · '}
+                <code>{d.reference}</code>
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Pager page={data.current_page} last={data.last_page} onChange={setPage} />
+    </>
   )
 }
 

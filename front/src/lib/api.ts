@@ -175,3 +175,43 @@ export async function submitReport(payload: ReportPayload): Promise<ReportResult
   if (response.status === 429) return { ok: false, message: 'Trop d’envois. Patientez une minute.', errors: {} }
   return { ok: false, message: 'Une erreur est survenue. Réessayez dans un instant.', errors: {} }
 }
+
+export type DonationPayload = { amount: number; name: string; email: string; message: string; website: string }
+
+export type DonationStatus = 'pending' | 'success' | 'failed' | 'abandoned'
+
+export type DonationInfo = { reference: string; status: DonationStatus; amount: number; currency: string; name: string | null }
+
+export async function startDonation(
+  payload: DonationPayload,
+): Promise<{ ok: true; url: string } | { ok: false; message: string; errors: Record<string, string> }> {
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}/api/donations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch {
+    return { ok: false, message: 'Impossible de joindre le serveur. Vérifiez votre connexion.', errors: {} }
+  }
+
+  const data = await response.json().catch(() => ({}))
+  if (response.ok && data.authorization_url) return { ok: true, url: data.authorization_url }
+  if (response.status === 422) {
+    const errors: Record<string, string> = {}
+    for (const [field, messages] of Object.entries<string[]>(data.errors ?? {})) errors[field] = messages[0]
+    return { ok: false, message: 'Certains champs sont à corriger.', errors }
+  }
+  if (response.status === 429) return { ok: false, message: 'Trop d’essais. Patientez une minute.', errors: {} }
+  return { ok: false, message: data.message ?? 'Le paiement est indisponible pour le moment.', errors: {} }
+}
+
+export async function fetchDonation(reference: string): Promise<DonationInfo | null> {
+  const response = await fetch(`${API_URL}/api/donations/${encodeURIComponent(reference)}`, {
+    headers: { Accept: 'application/json' },
+  })
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error('Vérification impossible pour le moment.')
+  return (await response.json()).data
+}

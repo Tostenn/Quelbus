@@ -8,6 +8,7 @@ import Line from './pages/Line'
 import Stop from './pages/Stop'
 import About from './pages/About'
 import Support from './pages/Support'
+import Thanks from './pages/Thanks'
 import Login from './pages/Login'
 import Admin from './pages/Admin'
 import NotFound from './components/NotFound'
@@ -23,6 +24,7 @@ function App() {
         <Route path="arrets/:slug" element={<Stop />} />
         <Route path="a-propos" element={<About />} />
         <Route path="soutenir" element={<Support />} />
+        <Route path="soutenir/merci" element={<Thanks />} />
         <Route path="contact" element={<Contact />} />
         <Route path="connexion" element={<Login />} />
         <Route path="admin" element={<Admin />} />
