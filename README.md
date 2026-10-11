@@ -52,7 +52,7 @@ Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec corres
 
 ## Démarrage rapide
 
-Prérequis : PHP 8.3+, Composer, Node 20+.
+Prérequis : PHP 8.3+ (extension `pdo_pgsql`), Composer, Node 20+, une base PostgreSQL.
 
 ```sh
 git clone https://github.com/Tostenn/Quelbus.git
@@ -64,7 +64,7 @@ cd Quelbus
 ```sh
 cd back
 composer install
-cp .env.example .env        # régler DB_* (MySQL par défaut, ou DB_CONNECTION=sqlite)
+cp .env.example .env        # régler DB_* (PostgreSQL)
 php artisan key:generate
 php artisan migrate
 php artisan serve           # http://localhost:8000
@@ -81,6 +81,19 @@ npm run dev                 # http://localhost:5173
 
 `FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.monradar.ci` en production.
 
+### Données de transport
+
+Les lignes viennent du [scraper](scraper/README.md) (SOTRA, gbaka, woro-woro d'Abidjan). Pour les charger en base :
+
+```sh
+cd back
+php artisan transit:import ../scraper/data/abidjan_bus.json
+```
+
+Sans argument, la commande lit `storage/app/transit/abidjan_bus.json` (emplacement à utiliser en production). Elle peut être relancée sans créer de doublons, s'exécute dans une transaction et affiche un rapport d'anomalies. `--prune` supprime en plus ce qui a disparu du fichier (refusé si le fichier est incomplet).
+
+Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation OpenStreetMap) → `direction_stops` (arrêts ordonnés) ← `stops`.
+
 ### Inscriptions
 
 - `POST /api/subscribers` avec `first_name`, `last_name`, `email`, `profile` (`utilisateur`, `contributeur` ou `les_deux`) et `message` (facultatif).
@@ -96,6 +109,8 @@ Chaque nouvelle inscription reçoit un email de confirmation, dont le texte dép
 - Les gabarits sont dans `back/resources/views/mail/` (contenu) et `back/resources/views/vendor/mail/` (couleurs et pied de page).
 
 ### Tests
+
+Les tests vident la base à chaque lancement : ils utilisent une **base dédiée**, jamais celle de l'application. En local, créer `back/.env.testing` (copie de `.env` avec `APP_ENV=testing` et `DB_DATABASE=quelbus_test`, ignoré par git). La CI lance son propre PostgreSQL.
 
 ```sh
 cd back && php artisan test && vendor/bin/pint --test
