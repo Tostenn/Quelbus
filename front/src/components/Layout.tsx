@@ -60,6 +60,7 @@ export default function Layout() {
           </div>
           <div className="footer-links">
             <Link to="/lignes">Toutes les lignes</Link>
+            <Link to="/a-propos">À propos</Link>
             <Link to="/contact">Être prévenu des nouveautés</Link>
             <Link to="/contact?profil=contributeur">Contribuer</Link>
             {REPO_URL && (

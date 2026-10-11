@@ -6,6 +6,7 @@ import Search from './pages/Search'
 import Lines from './pages/Lines'
 import Line from './pages/Line'
 import Stop from './pages/Stop'
+import About from './pages/About'
 import NotFound from './components/NotFound'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="lignes" element={<Lines />} />
         <Route path="lignes/:slug" element={<Line />} />
         <Route path="arrets/:slug" element={<Stop />} />
+        <Route path="a-propos" element={<About />} />
         <Route path="contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
       </Route>

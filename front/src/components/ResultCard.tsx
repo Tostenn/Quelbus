@@ -1,13 +1,15 @@
 import { Link } from 'react-router'
 import { ArrowRight, PersonSimpleWalk } from '@phosphor-icons/react'
 import LineBadge from './LineBadge'
-import type { SearchResult } from '../lib/api'
+import type { Place, SearchResult } from '../lib/api'
 import { TYPE_LABELS, walkLabel } from '../lib/search'
 
-type Props = { result: SearchResult; best?: boolean }
+type Props = { result: SearchResult; from: Place; best?: boolean }
 
-export default function ResultCard({ result, best = false }: Props) {
+export default function ResultCard({ result, from, best = false }: Props) {
   const { line, direction, board, alight, stops } = result
+  // Seule une vraie position GPS est montrée sur la carte de la ligne
+  const here = from.name === 'Ma position' ? `&ici=${from.lat.toFixed(6)},${from.lng.toFixed(6)}` : ''
 
   return (
     <article className={`result-card${best ? ' is-best' : ''}`}>
@@ -44,8 +46,8 @@ export default function ResultCard({ result, best = false }: Props) {
           </div>
         </li>
       </ol>
-      <Link className="text-link" to={`/lignes/${line.slug}?sens=${direction.id}&montee=${board.id}&descente=${alight.id}`}>
-        Voir les arrêts du trajet <ArrowRight size={16} />
+      <Link className="text-link" to={`/lignes/${line.slug}?sens=${direction.id}&montee=${board.id}&descente=${alight.id}${here}`}>
+        Voir le trajet sur la carte <ArrowRight size={16} />
       </Link>
     </article>
   )

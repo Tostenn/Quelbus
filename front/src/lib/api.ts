@@ -124,10 +124,54 @@ export type StopSummary = { id: number; name: string; slug: string; lat: number;
 
 export type LineDetail = Omit<LineSummary, 'directions_count'> & {
   operator: string | null
-  directions: { id: number; name: string; is_loop: boolean; stops: StopSummary[] }[]
+  directions: { id: number; name: string; is_loop: boolean; geometry?: [number, number][][]; stops: StopSummary[] }[]
 }
 
 export type StopDetail = StopSummary & {
   lines: { line: Pick<LineSummary, 'id' | 'ref' | 'name' | 'slug' | 'type'>; direction: { id: number; name: string } }[]
   nearby: { id: number; name: string; slug: string; walk: number }[]
+}
+
+export const REPORT_KINDS = {
+  arret_manquant: 'Arrêt manquant',
+  arret_mal_place: 'Arrêt mal placé ou mal nommé',
+  ordre_faux: 'Ordre des arrêts faux',
+  ligne_ne_passe_plus: 'La ligne ne passe plus par là',
+  ligne_manquante: 'Ligne manquante',
+  autre: 'Autre',
+} as const
+
+export type ReportPayload = {
+  page: string
+  line_id?: number
+  stop_id?: number
+  kind: keyof typeof REPORT_KINDS | ''
+  message: string
+  email: string
+  website: string
+}
+
+export type ReportResult = { ok: true; message: string } | { ok: false; message: string; errors: Record<string, string> }
+
+export async function submitReport(payload: ReportPayload): Promise<ReportResult> {
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}/api/reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch {
+    return { ok: false, message: 'Impossible de joindre le serveur. Vérifiez votre connexion.', errors: {} }
+  }
+
+  const data = await response.json().catch(() => ({}))
+  if (response.ok) return { ok: true, message: data.message ?? 'Merci !' }
+  if (response.status === 422) {
+    const errors: Record<string, string> = {}
+    for (const [field, messages] of Object.entries<string[]>(data.errors ?? {})) errors[field] = messages[0]
+    return { ok: false, message: 'Certains champs sont à corriger.', errors }
+  }
+  if (response.status === 429) return { ok: false, message: 'Trop d’envois. Patientez une minute.', errors: {} }
+  return { ok: false, message: 'Une erreur est survenue. Réessayez dans un instant.', errors: {} }
 }

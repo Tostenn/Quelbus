@@ -1,12 +1,17 @@
+import { lazy, Suspense } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
 import NotFound from '../components/NotFound'
+import ReportForm from '../components/ReportForm'
 import type { LineDetail } from '../lib/api'
 import { lineTitle, TYPE_LABELS } from '../lib/search'
 import { useApi } from '../lib/useApi'
 import { usePageMeta } from '../lib/usePageMeta'
+
+const LineMap = lazy(() => import('../components/LineMap'))
+const NO_GEOMETRY: [number, number][][] = []
 
 export default function Line() {
   const { slug = '' } = useParams()
@@ -32,6 +37,9 @@ export default function Line() {
   const board = stops.findIndex((s) => String(s.id) === query.get('montee'))
   const alight = stops.findIndex((s) => String(s.id) === query.get('descente'))
   const trip = board >= 0 && alight > board
+  // Position GPS transmise par la recherche
+  const [userLat, userLng] = (query.get('ici') ?? '').split(',').map(Number)
+  const hasUser = query.has('ici') && Number.isFinite(userLat) && Number.isFinite(userLng)
 
   return (
     <section className="section page-section">
@@ -74,6 +82,34 @@ export default function Line() {
               </div>
             )}
 
+            <Suspense fallback={<div className="line-map" />}>
+              <LineMap
+                stops={stops}
+                geometry={direction.geometry ?? NO_GEOMETRY}
+                board={board}
+                alight={alight}
+                userLat={hasUser ? userLat : undefined}
+                userLng={hasUser ? userLng : undefined}
+              />
+            </Suspense>
+            {(trip || hasUser) && (
+              <ul className="map-legend">
+                {hasUser && (
+                  <li>
+                    <span className="map-pin map-pin-user legend-pin" aria-hidden="true" /> Vous
+                  </li>
+                )}
+                <li>
+                  <span className="map-pin map-pin-board legend-pin" aria-hidden="true" /> Montée
+                </li>
+                {trip && (
+                  <li>
+                    <span className="map-pin map-pin-alight legend-pin" aria-hidden="true" /> Descente
+                  </li>
+                )}
+              </ul>
+            )}
+
             <ol className="stop-list">
               {stops.map((stop, i) => {
                 const ride = trip && i > board && i < alight
@@ -81,7 +117,7 @@ export default function Line() {
                 return (
                   <li
                     key={`${stop.id}-${i}`}
-                    className={`stop-item${role ? ' is-key' : ''}${ride ? ' is-ride' : ''}${trip && (i < board || i > alight) ? ' is-off' : ''}`}
+                    className={`stop-item${i === board ? ' is-key is-board' : ''}${trip && i === alight ? ' is-key is-alight' : ''}${ride ? ' is-ride' : ''}${trip && (i < board || i > alight) ? ' is-off' : ''}`}
                   >
                     <span className="stop-number">{String(i + 1).padStart(2, '0')}</span>
                     <span className="stop-dot" aria-hidden="true" />
@@ -97,8 +133,13 @@ export default function Line() {
             </ol>
 
             <p className="form-note">
-              Un arrêt manque ou n’est pas à sa place&nbsp;? <Link to="/contact?profil=contributeur">Signalez-le</Link>.
+              Données&nbsp;:{' '}
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+                © OpenStreetMap contributors
+              </a>
+              . Elles peuvent être incomplètes ou dépassées.
             </p>
+            <ReportForm lineId={line.id} />
           </>
         )}
       </div>

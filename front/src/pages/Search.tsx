@@ -4,7 +4,7 @@ import { ArrowClockwise, ArrowRight, Info, PencilSimple, PersonSimpleWalk, Warni
 import SearchForm from '../components/SearchForm'
 import ResultCard from '../components/ResultCard'
 import { usePageMeta } from '../lib/usePageMeta'
-import { fetchSearch, type LineType, type SearchResponse } from '../lib/api'
+import { fetchSearch, type LineType, type Place, type SearchResponse } from '../lib/api'
 import { formatDistance, queryToSearch, RADII, searchToQuery, TYPE_FILTERS } from '../lib/search'
 
 type State = { key: string; data?: SearchResponse; error?: string }
@@ -150,14 +150,14 @@ export default function Search() {
             </div>
           )}
 
-          {data && <Results data={data} radius={params.radius} filtered={activeType !== 'tous'} onAllTypes={() => update({ types: [] })} />}
+          {data && <Results data={data} from={params.from} radius={params.radius} filtered={activeType !== 'tous'} onAllTypes={() => update({ types: [] })} />}
         </div>
       </div>
     </section>
   )
 }
 
-function Results({ data, radius, filtered, onAllTypes }: { data: SearchResponse; radius: number; filtered: boolean; onAllTypes: () => void }) {
+function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchResponse; from: Place; radius: number; filtered: boolean; onAllTypes: () => void }) {
   const count = data.results.length
 
   return (
@@ -186,7 +186,7 @@ function Results({ data, radius, filtered, onAllTypes }: { data: SearchResponse;
             {count} ligne{count > 1 ? 's' : ''} directe{count > 1 ? 's' : ''}
           </p>
           {data.results.map((result, i) => (
-            <ResultCard key={result.line.id} result={result} best={i === 0} />
+            <ResultCard key={result.line.id} result={result} from={from} best={i === 0} />
           ))}
         </>
       )}

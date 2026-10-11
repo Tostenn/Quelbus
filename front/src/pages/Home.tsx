@@ -1,5 +1,4 @@
 import { Link } from 'react-router'
-import LineBadge from '../components/LineBadge'
 import SearchForm from '../components/SearchForm'
 import {
   ArrowRight,
@@ -9,7 +8,6 @@ import {
   GithubLogo,
   MapPin,
   MapTrifold,
-  PersonSimpleWalk,
   UsersThree,
 } from '@phosphor-icons/react'
 import { REPO_URL } from '../lib/config'
@@ -63,7 +61,7 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero section-dark">
         <div className="container hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">
@@ -76,6 +74,9 @@ export default function Home() {
               Indiquez d’où vous partez et où vous allez&nbsp;: QuelBus vous montre les lignes qui y vont{' '}
               <strong>directement</strong>, où monter et où descendre. Gratuit, libre, fait à Abidjan.
             </p>
+          </div>
+
+          <div className="hero-search">
             <div className="search-card">
               <SearchForm />
             </div>
@@ -85,57 +86,6 @@ export default function Home() {
                 <UsersThree size={16} /> Aidez-nous à corriger
               </Link>
             </p>
-          </div>
-
-          <div className="hero-demo" aria-label="Exemple de résultat dans QuelBus">
-            <div className="demo-query">
-              <div className="demo-field">
-                <span className="pin pin-from" aria-hidden="true" />
-                <span>
-                  <span className="field-label">Départ</span>
-                  Terminus Angré
-                </span>
-              </div>
-              <div className="demo-field">
-                <span className="pin pin-to" aria-hidden="true" />
-                <span>
-                  <span className="field-label">Destination</span>
-                  Mosquée d’Adjamé
-                </span>
-              </div>
-            </div>
-            <div className="demo-result">
-              <div className="demo-result-head">
-                <LineBadge refNumber="81" accent size="lg" />
-                <div>
-                  <div className="demo-direction">Terminus Angré → Gare Nord</div>
-                  <div className="muted">26 arrêts entre montée et descente</div>
-                </div>
-              </div>
-              <div className="demo-legs">
-                <div className="demo-leg">
-                  <span className="pin pin-from" aria-hidden="true" />
-                  <div>
-                    <div className="field-label">Montez à</div>
-                    <div className="demo-stop">1er Arrêt 81-82</div>
-                    <div className="muted walk">
-                      <PersonSimpleWalk size={16} /> 120 m à pied
-                    </div>
-                  </div>
-                </div>
-                <div className="demo-leg">
-                  <span className="pin pin-to" aria-hidden="true" />
-                  <div>
-                    <div className="field-label">Descendez à</div>
-                    <div className="demo-stop">Mosquée Adjamé</div>
-                    <div className="muted walk">
-                      <PersonSimpleWalk size={16} /> 15 m à pied
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p className="demo-caption">Résultat réel de QuelBus pour ce trajet.</p>
           </div>
         </div>
       </section>

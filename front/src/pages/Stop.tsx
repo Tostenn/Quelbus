@@ -3,6 +3,7 @@ import { PersonSimpleWalk } from '@phosphor-icons/react'
 import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
 import NotFound from '../components/NotFound'
+import ReportForm from '../components/ReportForm'
 import SearchForm from '../components/SearchForm'
 import type { StopDetail } from '../lib/api'
 import { useApi } from '../lib/useApi'
@@ -70,6 +71,8 @@ export default function Stop() {
                 </ul>
               </>
             )}
+
+            <ReportForm stopId={stop.id} />
           </>
         )}
       </div>
