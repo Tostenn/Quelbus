@@ -103,11 +103,26 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 - `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
 - La logique est dans `app/Services/Transit/RouteSearchService.php`.
 
-### Dons
+### Dons (Paystack)
 
-La page `/soutenir` affiche un bouton de don dès que `VITE_DONATE_URL` est renseigné au build du front (et `VITE_DONATE_WAVE_URL` pour un lien Wave direct). Sans ces variables, elle indique que les dons ouvrent bientôt.
+La page `/soutenir` encaisse les dons par [Paystack](https://paystack.com) : Wave, Orange Money, MTN et carte bancaire, en francs CFA.
 
-Solution conseillée : une **page de paiement [Paystack](https://paystack.com)** (disponible en Côte d'Ivoire : Wave, Orange Money, MTN, Visa, Mastercard ; le donateur choisit le montant). Alternative ivoirienne : un **lien de paiement [CinetPay](https://cinetpay.com)**. Buy Me a Coffee n'est pas utilisable : ses versements passent par Stripe, qui ne couvre pas la Côte d'Ivoire.
+1. Le donateur choisit un montant (200 F minimum) ; `POST /api/donations` crée le don « en attente » et renvoie la page de paiement Paystack.
+2. Après le paiement, Paystack le renvoie sur `/soutenir/merci?reference=…`. Le front interroge `GET /api/donations/{reference}`, qui **vérifie le paiement auprès de Paystack** (statut, montant et devise) : l'URL de retour ne suffit jamais à confirmer un don.
+3. En parallèle, le webhook `POST /api/paystack/webhook` (signature HMAC-SHA512 vérifiée) confirme le don même si le donateur ferme la page.
+4. Les dons se suivent dans le tableau de bord, onglet « Dons ».
+
+Mise en place :
+
+```sh
+# back/.env
+PAYSTACK_SECRET_KEY=sk_live_…                      # Paystack > Settings > API Keys & Webhooks
+PAYSTACK_CALLBACK_URL=https://quelbus.monradar.ci/soutenir/merci
+PAYSTACK_FALLBACK_EMAIL=contact@monradar.ci        # Paystack exige un email ; utilisé si le donateur n'en donne pas
+php artisan migrate
+```
+
+Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://quelbus-api.monradar.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`. Sans clé, la page affiche que les dons ne sont pas encore ouverts.
 
 ### Référencement
 
