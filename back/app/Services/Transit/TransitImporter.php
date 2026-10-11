@@ -10,15 +10,8 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
- * Importe le JSON produit par scraper/scrape.py (format décrit dans scraper/README.md).
- *
- * Dans la source, chaque entrée de « lines » est un sens de circulation (A → B).
- * L'import regroupe les sens d'une même ligne :
- *  - SOTRA : même numéro (201, 206…) ;
- *  - gbaka / woro-woro : mêmes terminus dans les deux sens, dans la même catégorie ;
- *  - autre : chaque entrée est sa propre ligne.
- *
- * Idempotent : lignes, sens et arrêts sont retrouvés par leur clé, rien n'est dupliqué.
+ * Importe le JSON de scraper/scrape.py. Chaque entrée de « lines » y est un sens (A → B) :
+ * les sens d'une même ligne sont regroupés (même numéro SOTRA, ou mêmes terminus pour gbaka et woro-woro).
  */
 class TransitImporter
 {
@@ -98,7 +91,7 @@ class TransitImporter
     }
 
     /**
-     * Tout est écrit par lots : la base peut être distante (une requête par sens prendrait des dizaines de minutes).
+     * Écrit par lots : ligne par ligne, l'import prenait 45 min sur une base distante.
      *
      * @param  list<array>  $entries
      * @param  array<int, int>  $stopIds
@@ -111,7 +104,6 @@ class TransitImporter
             $this->usedSlugs['line:'.$slug] = true;
         }
 
-        // 1. Lignes manquantes
         $newLines = [];
         foreach ($entries as $i => $entry) {
             $type = in_array($entry['type'] ?? null, Line::TYPES, true) ? $entry['type'] : 'autre';
@@ -141,7 +133,6 @@ class TransitImporter
             $lineIds = Line::query()->pluck('id', 'key')->all();
         }
 
-        // 2. Sens (clé : identifiant de relation OSM)
         $existingDirections = array_flip(LineDirection::query()->pluck('osm_relation_id')->all());
         $directions = [];
         $sequences = [];
@@ -183,7 +174,6 @@ class TransitImporter
             LineDirection::query()->toBase()->upsert($chunk, ['osm_relation_id'], $columns);
         }
 
-        // 3. Arrêts de chaque sens : on remplace tout
         $directionIds = LineDirection::query()
             ->whereIn('osm_relation_id', array_keys($sequences))
             ->pluck('id', 'osm_relation_id')
@@ -203,8 +193,6 @@ class TransitImporter
     }
 
     /**
-     * Supprime ce qui n'est plus dans le fichier : sens disparus, puis lignes et arrêts orphelins.
-     *
      * @param  list<array>  $entries
      */
     private function prune(array $entries, ImportReport $report): void
@@ -260,7 +248,7 @@ class TransitImporter
     }
 
     /**
-     * « Mosquée d'Adjamé » -> « mosquee d adjame » : base de la recherche par nom.
+     * « Mosquée d'Adjamé » -> « mosquee d adjame »
      */
     public static function normalize(string $text): string
     {

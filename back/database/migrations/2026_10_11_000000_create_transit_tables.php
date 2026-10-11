@@ -6,15 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Réseau de transport : une ligne a un ou plusieurs sens,
-     * chaque sens dessert une suite ordonnée d'arrêts.
-     */
     public function up(): void
     {
         Schema::create('lines', function (Blueprint $table) {
             $table->id();
-            // Clé de regroupement calculée à l'import (ex. « sotra:201 »), pour rester idempotent
+            // Clé de regroupement calculée à l'import, ex. « sotra:201 »
             $table->string('key')->unique();
             $table->string('type', 20)->index(); // sotra, gbaka, woro-woro, autre
             $table->string('ref', 20)->nullable()->index(); // numéro SOTRA, null pour gbaka et woro-woro
@@ -48,7 +44,7 @@ return new class extends Migration
             $table->string('commune')->nullable();
             $table->timestamps();
 
-            // La source ne fournit pas d'identifiant d'arrêt : un arrêt = un nom à une position
+            // La source n'a pas d'identifiant d'arrêt
             $table->unique(['name', 'lat', 'lng']);
             $table->index(['lat', 'lng']);
         });

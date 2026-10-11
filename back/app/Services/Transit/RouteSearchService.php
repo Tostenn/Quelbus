@@ -6,15 +6,7 @@ use App\Models\Stop;
 use Illuminate\Support\Facades\DB;
 
 /**
- * « Je suis ici, je veux aller là-bas : quelle ligne directe prendre ? »
- *
- * Règle (cahier des charges, section 5) :
- *  1. arrêts à moins de R mètres du départ (O) et de la destination (D) ;
- *  2. sens de ligne qui passent par o ∈ O puis d ∈ D (sequence(o) < sequence(d)) ;
- *  3. pour chaque ligne, la paire (o, d) qui minimise la marche totale ;
- *  4. tri par marche totale, puis par nombre d'arrêts.
- *
- * Une ligne qui fait marcher au moins autant que le trajet direct à pied est écartée.
+ * Lignes directes entre deux points (voir le cahier des charges, section 5).
  */
 class RouteSearchService
 {
@@ -23,7 +15,7 @@ class RouteSearchService
     private const EARTH_RADIUS_M = 6371000;
 
     /**
-     * Cherche au rayon demandé, puis élargit (500, 800 m) tant qu'aucune ligne n'est trouvée.
+     * Élargit le rayon (500 puis 800 m) tant qu'aucune ligne n'est trouvée.
      *
      * @param  list<string>|null  $types  sotra, gbaka, woro-woro… (null = tous)
      * @return array{radius: int, requested_radius: int, expanded: bool, walkable: bool, distance: int, results: list<array>}
@@ -54,7 +46,7 @@ class RouteSearchService
     }
 
     /**
-     * Lignes directes à un rayon donné, une par ligne (le meilleur sens et la meilleure paire d'arrêts).
+     * Une entrée par ligne : le sens et la paire d'arrêts qui font le moins marcher.
      *
      * @param  list<string>|null  $types
      * @return list<array>
@@ -74,7 +66,7 @@ class RouteSearchService
             ->whereIn('so.stop_id', array_keys($origins))
             ->whereIn('sd.stop_id', array_keys($destinations))
             ->whereColumn('sd.stop_id', '!=', 'so.stop_id')
-            // Une boucle peut repasser par le terminus : l'ordre inverse est alors valable
+            // Sur une boucle, on peut repasser par le terminus
             ->where(fn ($q) => $q->whereColumn('sd.sequence', '>', 'so.sequence')->orWhere('ld.is_loop', true))
             ->when($types, fn ($q) => $q->whereIn('l.type', $types))
             ->get([
@@ -106,7 +98,6 @@ class RouteSearchService
      */
     public function nearbyStops(float $lat, float $lng, int $radius): array
     {
-        // Boîte englobante (utilise l'index lat/lng), puis distance exacte
         $dLat = rad2deg($radius / self::EARTH_RADIUS_M);
         $dLng = rad2deg($radius / (self::EARTH_RADIUS_M * cos(deg2rad($lat))));
 

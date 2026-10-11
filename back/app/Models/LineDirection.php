@@ -27,8 +27,6 @@ class LineDirection extends Model
     }
 
     /**
-     * Arrêts dans l'ordre du trajet.
-     *
      * @return BelongsToMany<Stop, $this>
      */
     public function stops(): BelongsToMany

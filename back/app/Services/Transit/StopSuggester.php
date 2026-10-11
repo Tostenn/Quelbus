@@ -5,11 +5,8 @@ namespace App\Services\Transit;
 use App\Models\Stop;
 
 /**
- * Autocomplétion des lieux de départ et d'arrivée à partir des noms d'arrêts.
- *
- * Un même arrêt existe souvent plusieurs fois (une par ligne ou par trottoir, à quelques
- * mètres d'écart) : les arrêts de même nom proches les uns des autres sont fusionnés
- * en une seule suggestion, placée à leur position moyenne.
+ * Un même arrêt existe souvent plusieurs fois à quelques mètres d'écart :
+ * les arrêts homonymes proches sont regroupés en une seule suggestion.
  */
 class StopSuggester
 {
@@ -53,7 +50,7 @@ class StopSuggester
             $groups[] = ['name' => $stop->name, 'search_name' => $stop->search_name, 'lat' => $stop->lat, 'lng' => $stop->lng, 'stops' => 1];
         }
 
-        // Les noms qui commencent par la saisie d'abord, puis les arrêts les plus desservis
+        // D'abord les noms qui commencent par la saisie, puis les plus desservis
         $first = $words[array_key_first($words)];
         usort($groups, fn ($a, $b) => [! str_starts_with($a['search_name'], $first), -$a['stops'], $a['name']]
             <=> [! str_starts_with($b['search_name'], $first), -$b['stops'], $b['name']]);
