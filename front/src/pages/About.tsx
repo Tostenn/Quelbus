@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import Creator from '../components/Creator'
 import { REPO_URL } from '../lib/config'
 import { usePageMeta } from '../lib/usePageMeta'
 
@@ -56,6 +57,10 @@ export default function About() {
           <Link to="/contact?profil=contributeur">rejoindre les contributeurs</Link> ou corriger directement la carte sur
           OpenStreetMap.
         </p>
+
+        <div className="about-creator">
+          <Creator />
+        </div>
       </div>
     </section>
   )

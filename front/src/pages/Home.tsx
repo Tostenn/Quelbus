@@ -1,5 +1,7 @@
 import { Link } from 'react-router'
+import Creator from '../components/Creator'
 import SearchForm from '../components/SearchForm'
+import StatsBand from '../components/StatsBand'
 import {
   ArrowRight,
   Bus,
@@ -89,6 +91,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <StatsBand />
 
       <section className="section section-problem">
         <div className="container problem-grid">
@@ -196,6 +200,12 @@ export default function Home() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <Creator />
         </div>
       </section>
 

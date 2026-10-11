@@ -7,6 +7,8 @@ import Lines from './pages/Lines'
 import Line from './pages/Line'
 import Stop from './pages/Stop'
 import About from './pages/About'
+import Login from './pages/Login'
+import Admin from './pages/Admin'
 import NotFound from './components/NotFound'
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
         <Route path="arrets/:slug" element={<Stop />} />
         <Route path="a-propos" element={<About />} />
         <Route path="contact" element={<Contact />} />
+        <Route path="connexion" element={<Login />} />
+        <Route path="admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
