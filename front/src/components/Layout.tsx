@@ -6,6 +6,7 @@ import { REPO_URL, SITE_URL } from '../lib/config'
 
 const pageTitles: Record<string, string> = {
   '/': 'Quel bus SOTRA prendre à Abidjan ? | QuelBus',
+  '/recherche': 'Quel bus prendre ? Lignes directes à Abidjan | QuelBus',
   '/contact': 'Rejoindre le projet | QuelBus',
 }
 
@@ -39,14 +40,18 @@ export default function Layout() {
             <Logo key={pathname} animated />
           </Link>
           <nav className="nav" aria-label="Navigation principale">
+
             <Link className="nav-link hide-sm" to="/#comment">
               Comment ça marche
             </Link>
             <Link className="nav-link hide-sm" to="/#open-source">
               Open source
             </Link>
-            <NavLink className="btn btn-dark btn-sm" to="/contact">
+            <NavLink className="nav-link hide-sm" to="/contact">
               Rejoindre
+            </NavLink>
+            <NavLink className="btn btn-dark btn-sm" to="/recherche">
+              Rechercher
             </NavLink>
           </nav>
         </div>

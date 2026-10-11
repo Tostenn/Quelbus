@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
 import LineBadge from '../components/LineBadge'
+import SearchForm from '../components/SearchForm'
 import {
   ArrowRight,
-  Bell,
   Bus,
   Code,
   Crosshair,
@@ -28,7 +28,7 @@ const steps = [
   {
     icon: Bus,
     title: 'Montez dans le bon bus',
-    text: 'QuelBus affiche les lignes SOTRA directes qui passent à moins de 300 m de vous et de votre destination, dans le bon sens.',
+    text: 'QuelBus affiche les lignes directes (SOTRA, gbakas, wôrô-wôrôs) qui passent à moins de 300 m de vous et de votre destination, dans le bon sens.',
   },
 ]
 
@@ -51,9 +51,9 @@ const contributions = [
 ]
 
 const roadmap = [
-  { label: 'Maintenant', title: 'On rassemble la communauté', text: 'Page de présentation, inscriptions, premiers contributeurs.' },
-  { label: 'Ensuite', title: 'Import des lignes SOTRA', text: 'Lignes, sens et arrêts récupérés depuis OpenStreetMap, vérifiés ligne par ligne.' },
-  { label: 'Puis', title: 'Recherche « quel bus prendre »', text: 'Départ, destination, lignes directes. Une version publique à tester.' },
+  { label: 'Fait', title: 'On rassemble la communauté', text: 'Page de présentation, inscriptions, premiers contributeurs.' },
+  { label: 'Fait', title: 'Import des lignes', text: '606 lignes SOTRA, gbakas et wôrô-wôrôs, 6 400 arrêts, issus d’OpenStreetMap.' },
+  { label: 'Maintenant', title: 'Recherche « quel bus prendre »', text: 'Départ, destination, lignes directes. Une première version à tester.' },
   { label: 'Après', title: 'Pages lignes, arrêts et lieux', text: 'Une fiche par ligne et par lieu, cartes, signalement d’erreurs.' },
 ]
 
@@ -70,20 +70,18 @@ export default function Home() {
               Quel bus prendre&nbsp;? <span className="accent">On vous le dit.</span>
             </h1>
             <p className="lead">
-              Indiquez d’où vous partez et où vous allez&nbsp;: QuelBus vous montre les lignes SOTRA qui y vont{' '}
+              Indiquez d’où vous partez et où vous allez&nbsp;: QuelBus vous montre les lignes qui y vont{' '}
               <strong>directement</strong>, où monter et où descendre. Gratuit, libre, fait à Abidjan.
             </p>
-            <div className="hero-actions">
-              <Link className="btn btn-primary btn-lg" to="/contact">
-                <Bell />
-                Être prévenu du lancement
-              </Link>
-              <Link className="btn btn-ghost btn-lg" to="/contact?profil=contributeur">
-                <UsersThree />
-                Contribuer au projet
-              </Link>
+            <div className="search-card">
+              <SearchForm />
             </div>
-            <p className="hero-note">En préparation. Laissez votre email, on vous écrit quand c’est prêt.</p>
+            <p className="hero-note">
+              Première version, en test. Une ligne fausse ou manquante&nbsp;?{' '}
+              <Link to="/contact?profil=contributeur">
+                <UsersThree size={16} /> Aidez-nous à corriger
+              </Link>
+            </p>
           </div>
 
           <div className="hero-demo" aria-label="Exemple de résultat dans QuelBus">
@@ -92,7 +90,7 @@ export default function Home() {
                 <span className="pin pin-from" aria-hidden="true" />
                 <span>
                   <span className="field-label">Départ</span>
-                  Angré 8e Tranche
+                  Terminus Angré
                 </span>
               </div>
               <div className="demo-field">
@@ -108,7 +106,7 @@ export default function Home() {
                 <LineBadge refNumber="81" accent size="lg" />
                 <div>
                   <div className="demo-direction">Terminus Angré → Gare Nord</div>
-                  <div className="muted">25 arrêts entre montée et descente</div>
+                  <div className="muted">26 arrêts entre montée et descente</div>
                 </div>
               </div>
               <div className="demo-legs">
@@ -116,7 +114,7 @@ export default function Home() {
                   <span className="pin pin-from" aria-hidden="true" />
                   <div>
                     <div className="field-label">Montez à</div>
-                    <div className="demo-stop">Pharmacie Angré</div>
+                    <div className="demo-stop">1er Arrêt 81-82</div>
                     <div className="muted walk">
                       <PersonSimpleWalk size={16} /> 120 m à pied
                     </div>
@@ -128,13 +126,13 @@ export default function Home() {
                     <div className="field-label">Descendez à</div>
                     <div className="demo-stop">Mosquée Adjamé</div>
                     <div className="muted walk">
-                      <PersonSimpleWalk size={16} /> 40 m à pied
+                      <PersonSimpleWalk size={16} /> 15 m à pied
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <p className="demo-caption">Exemple d’écran. Données illustratives.</p>
+            <p className="demo-caption">Résultat réel de QuelBus pour ce trajet.</p>
           </div>
         </div>
       </section>
@@ -179,7 +177,7 @@ export default function Home() {
             <div>
               <h3>Ce que QuelBus fait</h3>
               <ul className="check-list">
-                <li>Les lignes SOTRA directes, sans correspondance</li>
+                <li>Les lignes directes, sans correspondance&nbsp;: SOTRA, gbakas, wôrô-wôrôs</li>
                 <li>Où monter, où descendre, et combien marcher</li>
                 <li>Le bon sens de la ligne, pas l’inverse</li>
                 <li>Fonctionne sur les petits téléphones et en 3G</li>
@@ -189,7 +187,7 @@ export default function Home() {
               <h3>Ce qu’il ne fait pas (encore)</h3>
               <ul className="cross-list">
                 <li>Les horaires et le temps réel</li>
-                <li>Les gbakas, wôrô-wôrôs et bateaux-bus</li>
+                <li>Les bateaux-bus et le métro</li>
                 <li>Les trajets avec correspondance</li>
               </ul>
             </div>
@@ -235,7 +233,7 @@ export default function Home() {
           <h2>Où en est le projet.</h2>
           <ol className="roadmap">
             {roadmap.map((r, i) => (
-              <li key={r.title} className={`roadmap-item${i === 0 ? ' is-current' : ''}`}>
+              <li key={r.title} className={`roadmap-item${i === 2 ? ' is-current' : ''}`}>
                 <span className="roadmap-stop" aria-hidden="true" />
                 <div>
                   <span className="roadmap-label">{r.label}</span>
