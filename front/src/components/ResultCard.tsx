@@ -18,11 +18,11 @@ export default function ResultCard({ result, from, best = false }: Props) {
       e.stopPropagation();
       const path = `/recherche?arrivee=${encodeURIComponent(alight.name)}&alat=${alight.lat}&alng=${alight.lng}`;
       const globalLink = `${window.location.origin}` + path;
-      let message = `
+      const message = `
 salut, rejoins moi à l'arrêt ${alight.name}
 calcule ton trajet par ici: ${globalLink}
 `;
-       let encodedMessage = encodeURIComponent(message);
+       const encodedMessage = encodeURIComponent(message);
        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
     }
   return (
