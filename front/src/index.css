@@ -1050,6 +1050,25 @@ main {
   border-top: 1px solid var(--border);
 }
 
+/* styliser le bouton de partage d'itinéraire whatsapp */
+.btn-share-whatsapp{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  font: 800 0.95rem/1 var(--sans);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.btn-share-whatsapp:hover{
+  background: #1ebe5b;
+}
 .share-title {
   font-size: 1.4rem;
   margin: 0;
