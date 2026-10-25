@@ -160,6 +160,7 @@ main {
 }
 
 .nav-link {
+  white-space: nowrap;
   padding: 10px 14px;
   border-radius: 10px;
   font-weight: 700;
@@ -2203,26 +2204,236 @@ dialog.arrival h2 {
   border-top: 1px solid var(--border);
 }
 
-.login {
-  max-width: 460px;
+/* ---------- Accès équipe : connexion, mot de passe ---------- */
+
+.auth-page {
+  display: grid;
+  place-items: start center;
+  padding-inline: 16px;
 }
 
-.login-form {
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  display: grid;
+  gap: 14px;
+  padding: 28px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.auth-title {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.auth-intro {
+  color: var(--muted);
+  margin: 0;
+}
+
+.auth-intro strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.auth-form {
   display: grid;
   gap: 18px;
-  margin-top: 20px;
+  margin-top: 8px;
+}
+
+.auth-link {
+  justify-self: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.auth-done {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: #e3f1e7;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.auth-done svg {
+  flex: none;
+}
+
+.auth-done p {
+  margin: 0;
+  color: var(--ink);
+}
+
+.password-input {
+  position: relative;
+}
+
+.field .password-input input {
+  padding-right: 52px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+/* ---------- Tableau de bord ---------- */
+
+.section.admin-page,
+.section.auth-page {
+  padding-top: 40px;
 }
 
 .admin-head {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
+  gap: 4px 16px;
+  align-items: baseline;
   justify-content: space-between;
 }
 
+.admin-title {
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  margin: 0;
+}
+
+.admin-head p {
+  margin: 0;
+}
+
+/* Onglets soulignés, défilables sur mobile */
 .admin-tabs {
-  margin: 14px 0 22px;
+  display: flex;
+  gap: 4px;
+  margin: 20px 0 24px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-tabs button {
+  flex: none;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  font: 700 0.98rem/1 var(--sans);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.admin-tabs button:hover {
+  color: var(--ink);
+}
+
+.admin-tabs button.is-selected {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.admin-meta {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.admin-section-title {
+  font-size: 1.15rem;
+  margin: 0 0 6px;
+}
+
+.admins {
+  display: grid;
+  gap: 20px;
+  max-width: 860px;
+}
+
+.admins .admin-list {
+  margin-top: -8px;
+}
+
+.admin-invite {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.admin-invite .muted {
+  margin: 0 0 16px;
+}
+
+.admin-invite-fields {
+  display: grid;
+  gap: 14px;
+  align-items: end;
+}
+
+.admin-notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #e3f1e7;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.admin-user {
+  justify-items: start;
+}
+
+.admin-user p {
+  margin: 2px 0 0;
+}
+
+.admin-user-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
 }
 
 .stat-tiles {
@@ -2766,6 +2977,11 @@ fieldset.amounts legend {
   margin-top: 16px;
 }
 
+/* Statut d'un admin : le texte porte le sens, la couleur le confirme */
+.admin-user .status-badge {
+  white-space: nowrap;
+}
+
 @media (min-width: 720px) {
   fieldset.amounts {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2810,6 +3026,24 @@ fieldset.amounts legend {
 
   .section {
     padding: 88px 0;
+  }
+
+  .admin-invite-fields {
+    grid-template-columns: 1fr 1fr auto;
+  }
+
+  .admin-user {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    justify-items: stretch;
+  }
+
+  .admin-invite-fields .btn {
+    min-height: 54px;
+  }
+
+  .auth-card {
+    padding: 32px;
   }
 
   .contrib-list {

@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DonationController;
+use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\StatsController;
@@ -24,6 +26,8 @@ Route::get('/donations/{reference}', [DonationController::class, 'show'])->middl
 Route::post('/paystack/webhook', [DonationController::class, 'webhook'])->name('paystack.webhook');
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
+Route::post('/password/forgot', [PasswordController::class, 'forgot'])->middleware('throttle:3,1')->name('password.forgot');
+Route::post('/password/reset', [PasswordController::class, 'reset'])->middleware('throttle:5,1')->name('password.update');
 
 Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/me', [AuthController::class, 'me'])->name('me');
@@ -32,6 +36,10 @@ Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(functi
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::get('/subscribers', [AdminController::class, 'subscribers'])->name('subscribers');
     Route::get('/donations', [AdminController::class, 'donations'])->name('donations');
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users', [AdminUserController::class, 'store'])->middleware('throttle:10,1')->name('users.store');
+    Route::post('/users/{user}/invitation', [AdminUserController::class, 'resend'])->middleware('throttle:5,1')->name('users.invite');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 });
 
 Route::middleware('throttle:120,1')->group(function () {

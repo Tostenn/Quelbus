@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router'
-import { SignOut } from '@phosphor-icons/react'
+import { Navigate, useNavigate, useSearchParams } from 'react-router'
+import { Check, PaperPlaneTilt, Trash, UserPlus, WarningCircle } from '@phosphor-icons/react'
 import DayChart from '../components/DayChart'
 import {
   adminGet,
+  adminSend,
   getToken,
-  logout,
   Unauthorized,
   type AdminReport,
+  type AdminUser,
   type DonationsPage,
   type AdminStats,
   type AdminSubscriber,
@@ -16,82 +17,83 @@ import {
 import { SITE_URL } from '../lib/config'
 import { usePageMeta } from '../lib/usePageMeta'
 
-type Tab = 'stats' | 'donations' | 'reports' | 'subscribers'
+type Tab = 'stats' | 'donations' | 'reports' | 'subscribers' | 'admins'
 
 const TABS: { value: Tab; label: string }[] = [
   { value: 'stats', label: 'Statistiques' },
-  { value: 'donations', label: 'Dons' },
   { value: 'reports', label: 'Signalements' },
-  { value: 'subscribers', label: 'Retours' },
+  { value: 'subscribers', label: 'Inscrits' },
+  { value: 'donations', label: 'Dons' },
+  { value: 'admins', label: 'Admins' },
 ]
+
+const isTab = (value: string | null): value is Tab => TABS.some((t) => t.value === value)
 
 const date = (iso: string) =>
   new Date(iso).toLocaleString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
-function useAdmin<T>(path: string) {
+function useAdmin<T>(path: string, version = 0) {
   const navigate = useNavigate()
-  const [state, setState] = useState<{ path: string; data?: T; error?: string }>({ path: '' })
+  const [state, setState] = useState<{ key: string; data?: T; error?: string }>({ key: '' })
+  const key = `${path}#${version}`
 
   useEffect(() => {
     const controller = new AbortController()
     adminGet<T>(path, controller.signal)
-      .then((data) => setState({ path, data }))
+      .then((data) => setState({ key, data }))
       .catch((e: unknown) => {
         if (e instanceof DOMException && e.name === 'AbortError') return
         if (e instanceof Unauthorized) return navigate('/connexion', { replace: true })
-        setState({ path, error: (e as Error).message })
+        setState({ key, error: (e as Error).message })
       })
     return () => controller.abort()
-  }, [path, navigate])
+  }, [path, key, navigate])
 
-  const loading = state.path !== path
+  const loading = state.key !== key
   return { data: loading ? undefined : state.data, error: loading ? undefined : state.error, loading }
 }
 
 export default function Admin() {
   usePageMeta('Tableau de bord | QuelBus')
-  const navigate = useNavigate()
-  const [tab, setTab] = useState<Tab>('stats')
+  const [query, setQuery] = useSearchParams()
+  const requested = query.get('onglet')
+  const tab: Tab = isTab(requested) ? requested : 'stats'
+  const { data: me } = useAdmin<{ user: { id: number; name: string } }>('/me')
 
   if (!getToken()) return <Navigate to="/connexion" replace />
 
   return (
-    <section className="section page-section">
+    <section className="section admin-page">
       <div className="container">
         <div className="admin-head">
-          <h1 className="page-title">Tableau de bord</h1>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            onClick={async () => {
-              await logout()
-              navigate('/connexion', { replace: true })
-            }}
-          >
-            <SignOut />
-            Déconnexion
-          </button>
+          <h1 className="admin-title">Tableau de bord</h1>
+          {me && <p className="muted">Connecté en tant que {me.user.name}</p>}
         </div>
 
-        <div className="segmented admin-tabs" role="tablist" aria-label="Sections">
+        <div className="admin-tabs" role="tablist" aria-label="Sections du tableau de bord">
           {TABS.map((t) => (
             <button
               key={t.value}
               type="button"
               role="tab"
+              id={`onglet-${t.value}`}
               aria-selected={tab === t.value}
+              aria-controls="panneau-admin"
               className={tab === t.value ? 'is-selected' : ''}
-              onClick={() => setTab(t.value)}
+              onClick={() => setQuery(t.value === 'stats' ? {} : { onglet: t.value }, { replace: true })}
             >
               {t.label}
             </button>
           ))}
         </div>
 
-        {tab === 'stats' && <StatsTab />}
-        {tab === 'donations' && <DonationsTab />}
-        {tab === 'reports' && <ReportsTab />}
-        {tab === 'subscribers' && <SubscribersTab />}
+        <div id="panneau-admin" role="tabpanel" aria-labelledby={`onglet-${tab}`} className="admin-panel">
+          {tab === 'stats' && <StatsTab />}
+          {tab === 'donations' && <DonationsTab />}
+          {tab === 'reports' && <ReportsTab />}
+          {tab === 'subscribers' && <SubscribersTab />}
+          {tab === 'admins' && <AdminsTab />}
+        </div>
       </div>
     </section>
   )
@@ -108,9 +110,6 @@ function StatsTab() {
     { label: 'Trajets recherchés', value: totals.searches },
     { label: 'Signalements', value: totals.reports },
     { label: 'Inscrits', value: totals.subscribers },
-    { label: 'Dons reçus (F)', value: totals.donations_amount },
-    { label: 'Lignes', value: totals.lines },
-    { label: 'Arrêts', value: totals.stops },
   ]
 
   return (
@@ -127,6 +126,10 @@ function StatsTab() {
         <DayChart title="Visites par jour" days={days} metric="visits" />
         <DayChart title="Trajets recherchés par jour" days={days} metric="searches" />
       </div>
+      <p className="admin-meta">
+        Depuis le lancement · Dons reçus&nbsp;: {totals.donations_amount.toLocaleString('fr-FR')}&nbsp;F · Données&nbsp;:{' '}
+        {totals.lines.toLocaleString('fr-FR')} lignes, {totals.stops.toLocaleString('fr-FR')} arrêts
+      </p>
     </>
   )
 }
@@ -276,5 +279,163 @@ function SubscribersTab() {
       </ul>
       <Pager page={data.current_page} last={data.last_page} onChange={setPage} />
     </>
+  )
+}
+
+const ago = (iso: string) => {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 864e5)
+  if (days <= 0) return 'aujourd’hui'
+  if (days === 1) return 'hier'
+  return `il y a ${days} jours`
+}
+
+function AdminsTab() {
+  const navigate = useNavigate()
+  const [version, setVersion] = useState(0)
+  const { data, error, loading } = useAdmin<{ data: AdminUser[] }>('/users', version)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null)
+  const [busy, setBusy] = useState<string | null>(null)
+
+  // Session expirée pendant une action : retour à la connexion
+  async function run(key: string, action: () => ReturnType<typeof adminSend>) {
+    setBusy(key)
+    setNotice(null)
+    try {
+      const result = await action()
+      setNotice({ ok: result.ok, text: result.message })
+      if (result.ok) setVersion((v) => v + 1)
+      return result
+    } catch (e) {
+      if (e instanceof Unauthorized) navigate('/connexion', { replace: true })
+      return null
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function invite(event: React.FormEvent) {
+    event.preventDefault()
+    setErrors({})
+    const result = await run('invite', () => adminSend('/users', { name, email }))
+    if (!result) return
+    if (result.ok) {
+      setName('')
+      setEmail('')
+    } else {
+      setErrors(result.errors)
+    }
+  }
+
+  function remove(user: AdminUser) {
+    if (!window.confirm(`Retirer l’accès de ${user.name} (${user.email}) ? Sa session sera fermée.`)) return
+    run(`remove-${user.id}`, () => adminSend(`/users/${user.id}`, {}, 'DELETE'))
+  }
+
+  return (
+    <div className="admins">
+      <form className="admin-invite" onSubmit={invite} noValidate>
+        <h2 className="admin-section-title">Ajouter un admin</h2>
+        <p className="muted">
+          Il reçoit un email pour choisir son mot de passe (lien valable 3&nbsp;jours). Tous les admins ont les mêmes
+          droits.
+        </p>
+        <div className="admin-invite-fields">
+          <div className="field">
+            <label htmlFor="admin-name">Nom</label>
+            <input
+              id="admin-name"
+              autoComplete="off"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              aria-invalid={errors.name ? true : undefined}
+              aria-describedby={errors.name ? 'admin-name-error' : undefined}
+            />
+            {errors.name && (
+              <p id="admin-name-error" className="field-error">
+                {errors.name}
+              </p>
+            )}
+          </div>
+          <div className="field">
+            <label htmlFor="admin-email">Email</label>
+            <input
+              id="admin-email"
+              type="email"
+              autoComplete="off"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={errors.email ? 'admin-email-error' : undefined}
+            />
+            {errors.email && (
+              <p id="admin-email-error" className="field-error">
+                {errors.email}
+              </p>
+            )}
+          </div>
+          <button type="submit" className="btn btn-primary" disabled={busy === 'invite'}>
+            <UserPlus aria-hidden="true" />
+            {busy === 'invite' ? 'Envoi…' : 'Envoyer l’invitation'}
+          </button>
+        </div>
+      </form>
+
+      <div aria-live="polite">
+        {notice && (
+          <p className={notice.ok ? 'admin-notice' : 'form-alert'}>
+            {notice.ok ? <Check size={20} aria-hidden="true" /> : <WarningCircle size={20} aria-hidden="true" />}
+            {notice.text}
+          </p>
+        )}
+      </div>
+
+      <h2 className="admin-section-title">Accès au tableau de bord</h2>
+      {loading && !data && <p className="muted">Chargement…</p>}
+      {error && <p className="form-alert">{error}</p>}
+      {data && (
+        <ul className="admin-list">
+          {data.data.map((u) => (
+            <li key={u.id} className="admin-item admin-user">
+              <div>
+                <strong>
+                  {u.name}
+                  {u.is_me && <span className="muted"> (vous)</span>}
+                </strong>
+                <p className="muted">
+                  <a href={`mailto:${u.email}`}>{u.email}</a>
+                </p>
+              </div>
+              <span className={`status-badge ${u.last_login_at ? 'status-success' : 'status-pending'}`}>
+                {u.last_login_at ? `Connecté ${ago(u.last_login_at)}` : 'Invitation en attente'}
+              </span>
+              {!u.is_me && (
+                <div className="admin-user-actions">
+                  {!u.last_login_at && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      disabled={busy !== null}
+                      onClick={() => run(`resend-${u.id}`, () => adminSend(`/users/${u.id}/invitation`))}
+                    >
+                      <PaperPlaneTilt aria-hidden="true" />
+                      {busy === `resend-${u.id}` ? 'Envoi…' : 'Renvoyer l’invitation'}
+                    </button>
+                  )}
+                  <button type="button" className="btn btn-ghost btn-sm btn-danger" disabled={busy !== null} onClick={() => remove(u)}>
+                    <Trash aria-hidden="true" />
+                    Retirer
+                  </button>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }

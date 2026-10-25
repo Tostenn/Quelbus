@@ -10,6 +10,8 @@ import About from './pages/About'
 import Support from './pages/Support'
 import Thanks from './pages/Thanks'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Admin from './pages/Admin'
 import NotFound from './components/NotFound'
 
@@ -28,6 +30,8 @@ function App() {
         <Route path="soutenir/merci" element={<Thanks />} />
         <Route path="contact" element={<Contact />} />
         <Route path="connexion" element={<Login />} />
+        <Route path="mot-de-passe-oublie" element={<ForgotPassword />} />
+        <Route path="mot-de-passe/nouveau" element={<ResetPassword />} />
         <Route path="admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Route>

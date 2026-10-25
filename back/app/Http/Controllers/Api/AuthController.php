@@ -23,6 +23,8 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => 'Email ou mot de passe incorrect.']);
         }
 
+        $user->forceFill(['last_login_at' => now()])->save();
+
         return response()->json([
             'token' => $user->createToken('admin', ['*'], now()->addDays(30))->plainTextToken,
             'user' => $user->only(['name', 'email']),
@@ -31,7 +33,7 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json(['user' => $request->user()->only(['name', 'email'])]);
+        return response()->json(['user' => $request->user()->only(['id', 'name', 'email'])]);
     }
 
     public function logout(Request $request): JsonResponse
