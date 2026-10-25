@@ -1,6 +1,6 @@
 # Vidéo de présentation QuelBus
 
-Animation de 31 secondes en motion design, sans son. Toute l'animation est codée en HTML/CSS/JS dans `scene.template.html`, puis rendue image par image avec Playwright et encodée avec ffmpeg. Le résultat est identique à chaque rendu.
+Animation de 31 secondes en motion design, avec musique et voix off. Toute l'animation est codée en HTML/CSS/JS dans `scene.template.html`, puis rendue image par image avec Playwright et encodée avec ffmpeg. Le résultat est identique à chaque rendu.
 
 ## Déroulé
 
@@ -11,7 +11,7 @@ Animation de 31 secondes en motion design, sans son. Toute l'animation est codé
 | 8 – 12 s | Les lignes sont aspirées et forment le logo, puis le slogan apparaît |
 | 12 – 23 s | Démo sur téléphone : départ, destination, résultat |
 | 23 – 27,5 s | Avantages : SOTRA, gbakas, wôrô-wôrôs, bon sens, partage, 3G |
-| 27,5 – 31,5 s | Appel à l'action : quelbus.monradar.ci |
+| 27,5 – 31,5 s | Appel à l'action : quelbus.ci |
 
 Le résultat de la démo (ligne 81, arrêts) est **illustratif**. Remplacez-le par un vrai résultat dans `scene.template.html` (bloc `#results`).
 
@@ -29,10 +29,18 @@ Prérequis : Node avec Playwright et Chromium, Python 3, ffmpeg.
 
 ```sh
 cd video
-python3 build.py                                   # gabarit + logo → scene.html
-node render.js 1080 1920 quelbus-vertical.mp4      # 9:16 : TikTok, Reels, Shorts, Statut WhatsApp
-node render.js 1920 1080 quelbus-horizontal.mp4    # 16:9 : site, YouTube, LinkedIn
+python3 build.py                                    # gabarit + logo → scene.html
+mkdir -p out
+node render.js 1080 1920 out/vertical-muet.mp4      # 9:16 : TikTok, Reels, Shorts, Statut WhatsApp
+node render.js 1920 1080 out/horizontal-muet.mp4    # 16:9 : site, YouTube, LinkedIn
+python3 music.py                                    # musique synthétisée → music.wav
+python3 mix.py                                      # image + musique + voix → front/public/video/
 ```
+
+## Son
+
+- **Musique** (`music.py`) : composée en code, donc libre de droits. Tempo 120 BPM en fa majeur, calé sur les scènes. On y entend un impact sur le logo et des petits sons sur les touches du téléphone.
+- **Voix off** : texte et réglages ElevenLabs dans [`voix-off.md`](voix-off.md). Les fichiers `01.mp3` à `08.mp3` vont dans `voix/`. `mix.py` place chaque phrase sur sa scène et baisse la musique sous la voix. Le son final est normalisé à -14 LUFS, le niveau des réseaux sociaux.
 
 Pour vérifier une image précise sans tout rendre, par exemple aux secondes 3,6 et 21 :
 
