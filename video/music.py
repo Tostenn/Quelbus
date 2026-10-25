@@ -1,7 +1,7 @@
 """Musique de la vidéo QuelBus, synthétisée de zéro (libre de droits).
 
 120 BPM : une mesure = 2 s, les changements de scène tombent sur les mesures.
-Marimba + nappe + basse + percussions légères, en fa majeur.
+Batterie frappante, basse, stabs, marimba et deux « drops » (logo et appel à l'action), en fa majeur.
 Les petits sons (taps, pops, impact du logo) sont calés sur la timeline de scene.template.html.
 
     python3 music.py            # écrit music.wav
@@ -143,6 +143,52 @@ def impact(d=2.5):
     return boom + air
 
 
+def kick2(d=0.45):
+    """Grosse caisse « commerciale » : sub + attaque sèche."""
+    t = tt(d)
+    f = 48 + 140 * np.exp(-t * 35)
+    body = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 7)
+    clk = fft_filter(rng.standard_normal(len(t)), lo=2000) * np.exp(-t * 400) * 0.5
+    return np.tanh(2.2 * (body + clk)) * np.minimum(1, t / 0.0008)
+
+
+def snare(d=0.3):
+    t = tt(d)
+    tone = np.sin(2 * np.pi * 190 * t) * np.exp(-t * 30)
+    n = fft_filter(rng.standard_normal(len(t)), lo=1200, hi=9000) * np.exp(-t * 16)
+    return (0.6 * tone + n) * np.minimum(1, t / 0.001)
+
+
+def ohat(d=0.25):
+    t = tt(d)
+    return fft_filter(rng.standard_normal(len(t)), lo=7000) * np.exp(-t * 14)
+
+
+def crash(d=2.5):
+    t = tt(d)
+    n = fft_filter(rng.standard_normal(len(t)), lo=3500)
+    return n * np.exp(-t * 1.6) * np.minimum(1, t / 0.002)
+
+
+def subdrop(d=1.6):
+    t = tt(d)
+    f = 30 + 50 * np.exp(-t * 2.5)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 1.6)
+
+
+def stab(freqs, d=0.22, bright=5200):
+    """Accord court et brillant (scie désaccordée), type piano house."""
+    t = tt(d)
+    s = np.zeros_like(t)
+    for f in freqs:
+        for det in (-0.15, 0.0, 0.14):
+            ff = f * 2 ** (det / 12)
+            for k in range(1, 9):
+                s += np.sin(2 * np.pi * ff * k * t) / k
+    env = np.exp(-t * 11) * np.minimum(1, t / 0.003) * np.minimum(1, (d - t) / 0.02)
+    return fft_filter(s * env, hi=bright) / (len(freqs) * 4)
+
+
 # ---------- partition ----------
 CH = {
     'F': ['F3', 'A3', 'C4'], 'C': ['E3', 'G3', 'C4'], 'Dm': ['D3', 'F3', 'A3'],
@@ -151,64 +197,101 @@ CH = {
 ROOT = {'F': 'F1', 'C': 'C2', 'Dm': 'D2', 'Bb': 'Bb1', 'Csus': 'C2', 'Gm': 'G1'}
 
 drums, music, sfx = Bus(), Bus(), Bus()
+kicks = []  # instants des grosses caisses, pour faire « pomper » la musique
 
-# intro (0-4) : question, accords mineurs, marimba clairsemée
+
+def K(at, g=0.7):
+    drums.add(kick2(), at, g)
+    kicks.append(at)
+
+
+def chord(name, octave_up=False):
+    fs = [note(n) for n in CH[name]]
+    return [f * 2 for f in fs] if octave_up else fs
+
+
+# intro (0-4) : la question, déjà rythmée (battement de cœur + sub)
 for bar, ch in enumerate(['Dm', 'Bb']):
-    music.add(pad([note(n) for n in CH[ch]], 2.3), bar * 2, 0.55)
+    music.add(pad(chord(ch), 2.3), bar * 2, 0.5)
+    for k in (0, 2):
+        K(bar * 2 + k * BEAT, 0.55)
+    music.add(bass(note(ROOT[ch]), 0.9), bar * 2, 0.45)
+    music.add(bass(note(ROOT[ch]), 0.4), bar * 2 + 1.5 * BEAT, 0.3)
 for at, n in [(0.5, 'A4'), (1.0, 'C5'), (1.5, 'D5'), (2.5, 'F5'), (3.0, 'D5'), (3.5, 'E5')]:
-    music.add(marimba(note(n)), at, 0.28, pan=0.2)
-
-# tension (4-8) : trop de lignes, hi-hat en doubles croches qui monte
-for bar, ch in enumerate(['Gm', 'Bb', 'Csus', 'Csus']):
-    music.add(pad([note(n) for n in CH[ch]], 1.2), 4 + bar * 1.0, 0.45)
-for i in range(32):
-    at = 4 + i * 0.125
-    drums.add(shaker(0.05, 8000), at, 0.10 + 0.25 * i / 32, pan=0.4 if i % 2 else -0.4)
+    music.add(marimba(note(n)), at, 0.24, pan=0.2)
 for i in range(8):
-    drums.add(kick(0.2), 4 + i * 0.5, 0.35 + 0.05 * i)
-# pops chaotiques des numéros de lignes
+    drums.add(shaker(0.05, 8000), 0.25 + i * 0.5, 0.12, pan=0.3)
+
+# tension (4-8) : 4 temps, charleston qui monte, roulement, puis coupure
+for bar, ch in enumerate(['Gm', 'Bb', 'Csus', 'Csus']):
+    music.add(pad(chord(ch), 1.05), 4 + bar * 1.0, 0.45)
+    music.add(stab(chord(ch, True), 0.2), 4 + bar * 1.0 + BEAT, 0.5, pan=-0.2)
+for i in range(7):
+    K(4 + i * 0.5, 0.55 + 0.03 * i)
+    music.add(bass(note('G1') if i < 2 else note('Bb1') if i < 4 else note('C2'), 0.35), 4 + i * 0.5 + 0.25, 0.4)
+for i in range(30):
+    drums.add(shaker(0.05, 8000), 4 + i * 0.125, 0.10 + 0.22 * i / 30, pan=0.4 if i % 2 else -0.4)
+# roulement de caisse claire : croches, doubles, triples
+roll = [6.0 + i * 0.25 for i in range(4)] + [7.0 + i * 0.125 for i in range(4)] + [7.5 + i * 0.0625 for i in range(4)]
+for i, at in enumerate(roll):
+    drums.add(snare(0.15), at, 0.12 + 0.3 * i / len(roll), pan=0.1)
 for i in range(26):
-    sfx.add(pop(500 + rng.random() * 900, 0.1), 4.15 + rng.random() * 1.4, 0.05, pan=rng.uniform(-0.8, 0.8))
-sfx.add(riser(1.5), 6.5, 0.22)
+    sfx.add(pop(500 + rng.random() * 900, 0.1), 4.15 + rng.random() * 1.4, 0.04, pan=rng.uniform(-0.8, 0.8))
+sfx.add(riser(1.75), 6.0, 0.3)
+# (7.75-8.0 : silence volontaire avant le drop)
 
-# logo (8-12) : impact + résolution en fa majeur
-sfx.add(impact(), 8.0, 0.7)
-music.add(pad([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 4.4, att=0.05, rel=1.2), 8.0, 0.6)
+# logo (8-12) : DROP
+sfx.add(impact(), 8.0, 0.75)
+drums.add(crash(3.0), 8.0, 0.23)
+music.add(subdrop(1.8), 8.0, 0.7)
+K(8.0, 0.9)
+music.add(stab([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 0.5), 8.0, 0.8)
+music.add(pad([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 4.3, att=0.05, rel=1.2), 8.0, 0.5)
 for at, n in [(8.55, 'C5'), (8.85, 'F5'), (9.05, 'A5')]:  # anneau, barre, point
-    music.add(marimba(note(n), 1.4), at, 0.4)
+    music.add(marimba(note(n), 1.4), at, 0.42)
+for at in (9.0, 10.0, 11.0):  # demi-tempo puissant
+    K(at, 0.7)
+    drums.add(snare(), at + 0.5, 0.3)
+for k, at in enumerate([8.75, 9.25, 9.75, 10.25, 10.75, 11.25]):
+    music.add(stab(chord(['F', 'C', 'Dm', 'Bb', 'F', 'C'][k], True), 0.18), at, 0.35, pan=0.25 if k % 2 else -0.25)
 for i, n in enumerate(['F4', 'A4', 'C5', 'F5', 'C5', 'A4']):
-    music.add(marimba(note(n)), 10.0 + i * 0.25, 0.22, pan=-0.3 + 0.12 * i)
-sfx.add(riser(0.9), 11.1, 0.15)
+    music.add(marimba(note(n)), 10.0 + i * 0.25, 0.2, pan=-0.3 + 0.12 * i)
+sfx.add(riser(0.9), 11.1, 0.2)
 sfx.add(pop(300, 0.4), 11.55, 0.25)  # le point orange s'agrandit
+drums.add(snare(0.15), 11.75, 0.3)
+drums.add(snare(0.15), 11.875, 0.36)
 
-# groove (12-27.5) : I-V-vi-IV
+# groove (12-27.5) : I-V-vi-IV, basse syncopée, stabs à contretemps
 prog = ['F', 'C', 'Dm', 'Bb']
 melody = [  # (temps dans la mesure, note) sur 2 mesures, rejoué
     (0, 'C5'), (0.75, 'A4'), (1.5, 'C5'), (2.0, 'D5'), (2.75, 'C5'),
     (4, 'A4'), (4.75, 'G4'), (5.5, 'A4'), (6.0, 'C5'), (7.0, 'F5'),
 ]
 start = 12.0
-bars = 8  # 12 -> 28
-for b in range(bars):
+drums.add(crash(2.0), 12.0, 0.16)
+for b in range(8):
     t0 = start + b * 2
     ch = prog[b % 4]
     lim = min(2.0, 27.5 - t0)  # la dernière mesure s'arrête sur l'appel à l'action
     if lim <= 0:
         continue
-    music.add(pad([note(n) for n in CH[ch]], min(2.2, lim + 0.15), att=0.2, rel=0.3), t0, 0.35)
+    music.add(pad(chord(ch), min(2.2, lim + 0.15), att=0.2, rel=0.3), t0, 0.3)
     r = note(ROOT[ch])
-    for at, mult in [(0, 1), (0.75, 1), (1.5, 2), (2.5, 1), (3.0, 1.5)]:  # basse syncopée
+    for at, mult in [(0, 1), (0.75, 1), (1.5, 2), (2.5, 1), (3.0, 1.5), (3.5, 2)]:
         if at * BEAT < lim:
-            music.add(bass(r * mult, 0.4), t0 + at * BEAT, 0.42)
+            music.add(bass(r * mult, 0.35), t0 + at * BEAT, 0.5)
     for k in range(4):
         if k * BEAT < lim:
-            drums.add(kick(), t0 + k * BEAT, 0.55 if k % 2 == 0 else 0.4)
+            K(t0 + k * BEAT, 0.75)
+            drums.add(ohat(), t0 + (k + 0.5) * BEAT, 0.11, pan=-0.3)
+            music.add(stab(chord(ch, True), 0.16), t0 + (k + 0.5) * BEAT, 0.3, pan=0.2)
     for k in (1, 3):
         if k * BEAT < lim:
-            drums.add(clap(), t0 + k * BEAT, 0.18)
+            drums.add(clap(), t0 + k * BEAT, 0.26)
+            drums.add(snare(0.2), t0 + k * BEAT, 0.18)
     for k in range(8):
         if k * BEAT / 2 < lim:
-            drums.add(shaker(), t0 + k * BEAT / 2 + 0.25 * BEAT * (k % 2), 0.12 if k % 2 else 0.2, pan=0.35)
+            drums.add(shaker(), t0 + k * BEAT / 2 + 0.25 * BEAT * (k % 2), 0.08 if k % 2 else 0.13, pan=0.35)
     if b >= 1:  # la mélodie entre après une mesure
         for at, n in melody:
             ta = start + (b // 2) * 4 + at * BEAT
@@ -216,9 +299,14 @@ for b in range(bars):
                 if t0 <= ta < t0 + lim:
                     music.add(marimba(note(n)), ta, 0.3, pan=0.15)
     if b >= 5:  # couche en plus pour les avantages
-        for k in range(4):
-            if (k + 0.5) * BEAT < lim:
-                music.add(marimba(note(CH[ch][k % 3]) * 2, 0.4), t0 + (k + 0.5) * BEAT, 0.12, pan=-0.4)
+        for k in range(8):
+            if k * BEAT / 2 < lim:
+                music.add(marimba(note(CH[ch][k % 3]) * 2, 0.3), t0 + k * BEAT / 2, 0.1, pan=-0.4)
+# transition vers les avantages (23.35)
+for i, at in enumerate([22.85 + i * 0.125 for i in range(4)]):
+    drums.add(snare(0.12), at, 0.15 + 0.06 * i)
+sfx.add(riser(0.6), 22.75, 0.18)
+drums.add(crash(1.8), 23.35, 0.14)
 
 # sons de l'interface (démo)
 for at in (13.3, 15.3, 16.95, 17.55):
@@ -231,26 +319,46 @@ for i in range(4):  # coches des avantages
 sfx.add(pop(600), 18.75, 0.25)
 sfx.add(pop(750), 18.9, 0.2)
 
-# appel à l'action (27.5-31.5) : impact doux, accord final, fin sur la tonique
-sfx.add(riser(1.0), 26.5, 0.14)
-sfx.add(impact(3.5), 27.5, 0.45)
+# appel à l'action (27.5-31.5) : second drop, accord final sur la tonique
+for i, at in enumerate([26.5 + i * 0.125 for i in range(8)]):
+    drums.add(snare(0.12), at, 0.12 + 0.04 * i)
+sfx.add(riser(1.0), 26.5, 0.22)
+sfx.add(impact(3.5), 27.5, 0.6)
+drums.add(crash(3.0), 27.5, 0.23)
+music.add(subdrop(1.8), 27.5, 0.6)
+K(27.5, 0.9)
+music.add(stab(chord('Bb', True), 0.4), 27.5, 0.6)
+music.add(stab(chord('C', True), 0.4), 28.25, 0.55)
 for b, ch in enumerate(['Bb', 'C']):
-    music.add(pad([note(n) for n in CH[ch]], 1.1), 27.5 + b * 1.0, 0.65)
-music.add(pad([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 2.6, att=0.1, rel=1.6), 29.0, 0.75)
-music.add(bass(note('F1'), 2.0), 29.0, 0.4)
+    music.add(pad(chord(ch), 0.8), 27.5 + b * 0.75, 0.55)
+K(28.25, 0.7)
+music.add(pad([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 2.5, att=0.05, rel=1.6), 29.0, 0.7)
+music.add(stab([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 0.6), 29.0, 0.7)
+music.add(bass(note('F1'), 2.0), 29.0, 0.5)
 for i, n in enumerate(['C5', 'F5', 'A5', 'C6']):
     music.add(marimba(note(n), 1.6), 28.6 + i * 0.12, 0.25, pan=-0.3 + 0.2 * i)
-drums.add(kick(), 27.5, 0.6)
-drums.add(kick(), 29.0, 0.5)
+K(29.0, 0.8)
+drums.add(crash(2.4), 29.0, 0.16)
 
 # ---------- mixage ----------
-L = reverb(music.l, mix=0.3) + drums.l + reverb(sfx.l, 1.0, 0.15)
-R = reverb(music.r, mix=0.3) + drums.r + reverb(sfx.r, 1.0, 0.15)
 t = np.arange(N) / SR
+# la musique « pompe » sous chaque grosse caisse (effet sidechain)
+pump = np.ones(N)
+for k in kicks:
+    i = int(k * SR)
+    seg = t[: N - i]
+    pump[i:] = np.minimum(pump[i:], 1 - 0.5 * np.exp(-seg / 0.11))
+music.l *= pump
+music.r *= pump
+L = reverb(music.l, mix=0.25) + drums.l + reverb(sfx.l, 1.0, 0.15)
+R = reverb(music.r, mix=0.25) + drums.r + reverb(sfx.r, 1.0, 0.15)
+# coupure avant le drop du logo
+gap = 1 - 0.97 * ((t > 7.78) & (t < 8.0))
+L, R = L * gap, R * gap
 fade = np.minimum(1, t / 0.05) * np.minimum(1, (DUR - t) / 1.2)
 L, R = L * fade, R * fade
 peak = max(np.abs(L).max(), np.abs(R).max())
-L, R = np.tanh(L / peak * 1.3) * 0.89, np.tanh(R / peak * 1.3) * 0.89
+L, R = np.tanh(L / peak * 1.6) * 0.9, np.tanh(R / peak * 1.6) * 0.9
 pcm = (np.stack([L, R], 1) * 32767).astype('<i2')
 with wave.open('music.wav', 'wb') as w:
     w.setnchannels(2)

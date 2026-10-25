@@ -39,7 +39,7 @@ python3 mix.py                                      # image + musique + voix →
 
 ## Son
 
-- **Musique** (`music.py`) : composée en code, donc libre de droits. Tempo 120 BPM en fa majeur, calé sur les scènes. On y entend un impact sur le logo et des petits sons sur les touches du téléphone.
+- **Musique** (`music.py`) : composée en code, donc libre de droits. Tempo 120 BPM en fa majeur, calé sur les scènes, avec une énergie de pub pour aller avec la voix. La musique pompe sous la grosse caisse. Un roulement et une coupure précèdent un « drop » sur le logo, puis un second drop arrive sur quelbus.ci. On entend aussi des petits sons sur les touches du téléphone.
 - **Voix off** : texte et réglages ElevenLabs dans [`voix-off.md`](voix-off.md). Les fichiers `01.mp3` à `08.mp3` vont dans `voix/`. `mix.py` place chaque phrase sur sa scène et baisse la musique sous la voix. Le son final est normalisé à -14 LUFS, le niveau des réseaux sociaux.
 
 Pour vérifier une image précise sans tout rendre, par exemple aux secondes 3,6 et 21 :
