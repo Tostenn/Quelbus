@@ -11,7 +11,7 @@ Indiquez d'où vous partez et où vous allez : QuelBus vous montre les lignes de
 [![Données : ODbL](https://img.shields.io/badge/donn%C3%A9es-OpenStreetMap%20ODbL-1A1613.svg)](https://www.openstreetmap.org/copyright)
 [![PR bienvenues](https://img.shields.io/badge/PR-bienvenues-2f7d4a.svg)](CONTRIBUTING.md)
 
-**[quelbus.monradar.ci](https://quelbus.monradar.ci)**
+**[quelbus.ci](https://quelbus.ci)**
 
 [Contribuer](CONTRIBUTING.md) · [Signaler une erreur](https://github.com/Tostenn/Quelbus/issues/new/choose) · [Feuille de route](#feuille-de-route)
 
@@ -79,7 +79,7 @@ cp .env.example .env        # VITE_API_URL=http://localhost:8000
 npm run dev                 # http://localhost:5173
 ```
 
-`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.monradar.ci` en production.
+`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.ci` en production.
 
 ### Données de transport
 
@@ -117,7 +117,7 @@ Mise en place :
 ```sh
 # back/.env
 PAYSTACK_SECRET_KEY=sk_live_…                      # Paystack > Settings > API Keys & Webhooks
-PAYSTACK_CALLBACK_URL=https://quelbus.monradar.ci/soutenir/merci
+PAYSTACK_CALLBACK_URL=https://quelbus.ci/soutenir/merci
 PAYSTACK_FALLBACK_EMAIL=contact@monradar.ci        # Paystack exige un email ; utilisé si le donateur n'en donne pas
 php artisan migrate
 ```
@@ -169,7 +169,21 @@ cd front && npm run lint && npm run build
 
 ### Mise en ligne du front
 
-Le front est une application monopage : l'hébergeur doit renvoyer `index.html` pour toutes les routes (dont `/contact`). Sur Netlify, un fichier `public/_redirects` contenant `/* /index.html 200` suffit ; Vercel et Cloudflare Pages le gèrent par défaut. `VITE_API_URL` doit être défini au moment du build.
+Le front est une application monopage : l'hébergeur doit renvoyer `index.html` pour toutes les routes (dont `/contact`). Sur Apache (cPanel), le fichier `front/public/.htaccess` s'en charge. Il bloque aussi l'accès au dossier `.git` et règle le cache. `VITE_API_URL` doit être défini au moment du build.
+
+**Branche `front-build`.** À chaque push sur `main` qui touche `front/`, le workflow [`deploy-front.yml`](.github/workflows/deploy-front.yml) construit le front et publie le contenu de `dist/` sur la branche `front-build`. On peut aussi le lancer à la main depuis l'onglet Actions. L'adresse de l'API se règle dans *Settings → Secrets and variables → Actions → Variables*, avec la variable `VITE_API_URL` (par défaut `https://quelbus-api.monradar.ci`).
+
+Sur le serveur, la première fois (le dossier doit être vide) :
+
+```sh
+git clone -b front-build https://github.com/Tostenn/Quelbus.git /home/c2846100c/public_html/quelbus.ci
+```
+
+Puis, à chaque mise à jour :
+
+```sh
+git -C /home/c2846100c/public_html/quelbus.ci pull
+```
 
 ## Contribuer
 

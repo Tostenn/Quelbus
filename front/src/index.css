@@ -670,6 +670,32 @@ main {
   box-shadow: none;
 }
 
+.section-video {
+  border-bottom: 1px solid var(--border);
+}
+
+.video-frame {
+  margin-top: 28px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--ink);
+  box-shadow: var(--shadow);
+  aspect-ratio: 16 / 9;
+}
+
+.video-frame.is-vertical {
+  aspect-ratio: 9 / 16;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.video-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .section-problem {
   border-bottom: 1px solid var(--border);
 }

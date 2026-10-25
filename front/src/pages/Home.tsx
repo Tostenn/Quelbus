@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import Creator from '../components/Creator'
+import PresentationVideo from '../components/PresentationVideo'
 import SearchForm from '../components/SearchForm'
 import StatsBand from '../components/StatsBand'
 import { ArrowRight, GithubLogo, Heart } from '@phosphor-icons/react'
@@ -75,6 +76,8 @@ export default function Home() {
       </section>
 
       <StatsBand />
+
+      <PresentationVideo />
 
       <section className="section section-problem">
         <div className="container problem-grid">

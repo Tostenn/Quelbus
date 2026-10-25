@@ -8,10 +8,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Modifié
 
+- Le site passe sur le domaine https://quelbus.ci (adresse canonique, balises de partage, sitemap, robots.txt).
+
 - Les textes d'inscription, de partage et l'email de confirmation parlent d'une application déjà en ligne : on s'inscrit pour les nouveautés, pour contribuer ou pour soutenir.
 - La base de données passe de MySQL à PostgreSQL ; les tests utilisent une base PostgreSQL dédiée.
 
 ### Ajouté
+
+- Vidéo de présentation de 30 secondes sur la page d'accueil : verticale sur téléphone, 16:9 ailleurs. Sources et rendu dans `video/`.
+- Branche `front-build` : un workflow construit le front à chaque push sur `main`, prêt à être cloné sur l'hébergement.
+- `.htaccess` pour Apache : routes de l'application monopage, cache, accès au dossier `.git` bloqué.
 
 - Page d'accueil de présentation du projet (`front/`) : le problème, le fonctionnement, ce que QuelBus fait et ne fait pas, l'appel aux contributeurs et la feuille de route.
 - Page contact `/contact` pour s'inscrire au lancement : prénom, nom, email, profil (utilisateur, contributeur, les deux) et message facultatif.

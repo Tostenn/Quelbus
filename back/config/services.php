@@ -32,7 +32,7 @@ return [
         'secret_key' => env('PAYSTACK_SECRET_KEY'),
         'currency' => env('PAYSTACK_CURRENCY', 'XOF'),
         // Page du front où Paystack renvoie le donateur après le paiement
-        'callback_url' => env('PAYSTACK_CALLBACK_URL', 'https://quelbus.monradar.ci/soutenir/merci'),
+        'callback_url' => env('PAYSTACK_CALLBACK_URL', 'https://quelbus.ci/soutenir/merci'),
         // Paystack exige un email : utilisé quand le donateur n'en donne pas
         'fallback_email' => env('PAYSTACK_FALLBACK_EMAIL', 'contact@monradar.ci'),
     ],

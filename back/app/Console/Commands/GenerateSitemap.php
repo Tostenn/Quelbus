@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 #[Signature('sitemap:generate
     {path=../front/public/sitemap.xml : Fichier de sortie}
-    {--url=https://quelbus.monradar.ci : Adresse du site}')]
+    {--url=https://quelbus.ci : Adresse du site}')]
 #[Description('Génère le sitemap du front : pages fixes, lignes et arrêts')]
 class GenerateSitemap extends Command
 {

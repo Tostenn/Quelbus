@@ -74,8 +74,8 @@ class TransitApiTest extends TestCase
         $this->artisan('sitemap:generate', ['path' => $path])->assertSuccessful();
 
         $xml = file_get_contents($path);
-        $this->assertStringContainsString('https://quelbus.monradar.ci/lignes/'.Line::firstOrFail()->slug, $xml);
-        $this->assertStringContainsString('https://quelbus.monradar.ci/arrets/gare-nord', $xml);
+        $this->assertStringContainsString('https://quelbus.ci/lignes/'.Line::firstOrFail()->slug, $xml);
+        $this->assertStringContainsString('https://quelbus.ci/arrets/gare-nord', $xml);
         $this->assertSame(5 + 1 + 3, substr_count($xml, '<url>'));
         unlink($path);
     }

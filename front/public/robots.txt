@@ -6,4 +6,4 @@ Disallow: /mot-de-passe
 Disallow: /soutenir/merci
 Disallow: /rejoindre
 
-Sitemap: https://quelbus.monradar.ci/sitemap.xml
+Sitemap: https://quelbus.ci/sitemap.xml
