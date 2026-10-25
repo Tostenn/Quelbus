@@ -1,11 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { ArrowClockwise, ArrowRight, Info, PencilSimple, PersonSimpleWalk, WarningCircle } from '@phosphor-icons/react'
+import {
+  ArrowClockwise,
+  ArrowRight,
+  Info,
+  PencilSimple,
+  PersonSimpleWalk,
+  WarningCircle,
+} from '@phosphor-icons/react'
 import SearchForm from '../components/SearchForm'
 import ResultCard from '../components/ResultCard'
+import MeetingShare from '../components/MeetingShare'
+import { rememberDestination } from '../lib/meeting'
 import { usePageMeta } from '../lib/usePageMeta'
 import { fetchSearch, type LineType, type Place, type SearchResponse } from '../lib/api'
-import { formatDistance, queryToSearch, RADII, searchToQuery, TYPE_FILTERS } from '../lib/search'
+import {
+  formatDistance,
+  queryToDestination,
+  queryToSearch,
+  RADII,
+  searchToQuery,
+  TYPE_FILTERS,
+} from '../lib/search'
 
 type State = { key: string; data?: SearchResponse; error?: string }
 
@@ -22,6 +38,7 @@ export default function Search() {
   useEffect(() => {
     const search = queryToSearch(new URLSearchParams(key))
     if (!search) return
+    rememberDestination(search.to)
     const controller = new AbortController()
     fetchSearch(search, controller.signal)
       .then((data) => setState({ key, data }))
@@ -32,6 +49,22 @@ export default function Search() {
       })
     return () => controller.abort()
   }, [key, retries])
+
+  // Lien de rendez-vous reçu : la destination est connue, il manque le départ de la personne
+  const meetingPoint = params ? null : queryToDestination(query)
+  if (meetingPoint) {
+    return (
+      <section className="section search-page">
+        <div className="container narrow">
+          <h1 className="search-title">On vous attend à {meetingPoint.name}</h1>
+          <p className="lead">Dites où vous êtes&nbsp;: QuelBus cherche aussitôt le bus qui vous y emmène.</p>
+          <div className="search-card">
+            <SearchForm initialTo={meetingPoint} autoSubmit />
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   if (!params) {
     return (
@@ -75,6 +108,8 @@ export default function Search() {
             {editing ? 'Fermer' : 'Modifier'}
           </button>
         </div>
+
+        {data && !editing && <MeetingShare to={params.to} />}
 
         {editing && (
           <div className="search-card">
@@ -194,9 +229,9 @@ function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchRes
       {count === 0 && !data.walkable && (
         <div className="empty-state">
           <span className="empty-icon" aria-hidden="true">
-            !
+            <WarningCircle size={26} />
           </span>
-          <h2>Aucune ligne directe, même à {data.radius} m à pied.</h2>
+          <h2>Aucune ligne directe, même à {data.radius} m à pied</h2>
           <p className="muted">Il faut peut-être changer de bus en route&nbsp;: QuelBus ne calcule pas encore les correspondances.</p>
           {filtered && (
             <button type="button" className="btn btn-primary" onClick={onAllTypes}>
@@ -213,3 +248,4 @@ function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchRes
     </div>
   )
 }
+

@@ -19,6 +19,7 @@ function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="recherche" element={<Search />} />
+        <Route path="rejoindre" element={<Search />} />
         <Route path="lignes" element={<Lines />} />
         <Route path="lignes/:slug" element={<Line />} />
         <Route path="arrets/:slug" element={<Stop />} />

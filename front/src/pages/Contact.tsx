@@ -106,8 +106,7 @@ export default function Contact() {
     <section className="section">
       <div className="container contact-grid">
         <div className="contact-intro">
-          <p className="eyebrow">Rejoindre QuelBus</p>
-          <h1>Restez au courant, ou aidez-nous à aller plus loin.</h1>
+          <h1>Être prévenu, ou donner un coup de main</h1>
           <p className="lead">
             QuelBus marche déjà&nbsp;: <Link to="/recherche">cherchez votre bus</Link>. Laissez vos coordonnées pour
             savoir quand arrivent les nouveautés, ou pour donner un coup de main.

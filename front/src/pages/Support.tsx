@@ -55,7 +55,6 @@ export default function Support() {
   return (
     <section className="section page-section">
       <div className="container narrow">
-        <p className="eyebrow">Soutenir le projet</p>
         <h1 className="page-title">Offrez un garba à l’équipe</h1>
         <p className="lead">
           QuelBus est gratuit, sans publicité et le restera. Si l’appli vous a évité de rater votre bus, un petit don

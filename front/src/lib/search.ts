@@ -52,6 +52,21 @@ function readPlace(query: URLSearchParams, name: string, lat: string, lng: strin
   return valid ? place : null
 }
 
+// Lien de rendez-vous : seulement la destination. Chacun part d'où il est, avec son propre bus.
+// « Ma position » n'a pas de sens pour celui qui reçoit le lien
+export function meetingName(place: Place): string {
+  return place.name === 'Ma position' ? 'la position partagée' : place.name
+}
+
+export function rendezvousUrl(to: Place): string {
+  const query = new URLSearchParams({ arrivee: meetingName(to), alat: to.lat.toFixed(6), alng: to.lng.toFixed(6) })
+  return `${window.location.origin}/rejoindre?${query}`
+}
+
+export function queryToDestination(query: URLSearchParams): Place | null {
+  return readPlace(query, 'arrivee', 'alat', 'alng')
+}
+
 export function queryToSearch(query: URLSearchParams): SearchParams | null {
   const from = readPlace(query, 'depart', 'dlat', 'dlng')
   const to = readPlace(query, 'arrivee', 'alat', 'alng')

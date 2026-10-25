@@ -11,6 +11,8 @@ type Props = {
   radius?: number
   types?: LineType[]
   onSubmitted?: () => void
+  /** Lance la recherche dès que le départ est connu (lien de rendez-vous). */
+  autoSubmit?: boolean
 }
 
 type GeoState = 'idle' | 'locating' | 'denied' | 'unavailable' | 'outside'
@@ -21,13 +23,32 @@ const geoMessages: Record<Exclude<GeoState, 'idle' | 'locating'>, string> = {
   outside: 'Vous semblez être hors d’Abidjan. Tapez votre point de départ.',
 }
 
-export default function SearchForm({ initialFrom = null, initialTo = null, radius = RADII[0], types = [], onSubmitted }: Props) {
+export default function SearchForm({
+  initialFrom = null,
+  initialTo = null,
+  radius = RADII[0],
+  types = [],
+  onSubmitted,
+  autoSubmit = false,
+}: Props) {
   const navigate = useNavigate()
   const [from, setFrom] = useState<Place | null>(initialFrom)
   const [to, setTo] = useState<Place | null>(initialTo)
   const [geo, setGeo] = useState<GeoState>('idle')
   const [errors, setErrors] = useState<{ from?: string; to?: string }>({})
   const [swapKey, setSwapKey] = useState(0)
+
+  function go(start: Place, end: Place) {
+    navigate(`/recherche?${searchToQuery({ from: start, to: end, radius, types })}`)
+    onSubmitted?.()
+  }
+
+  function chooseFrom(place: Place | null) {
+    setFrom(place)
+    if (!place) return
+    setErrors((e) => ({ ...e, from: undefined }))
+    if (autoSubmit && to) go(place, to)
+  }
 
   function locate() {
     if (!('geolocation' in navigator)) {
@@ -43,8 +64,7 @@ export default function SearchForm({ initialFrom = null, initialTo = null, radiu
           return
         }
         setGeo('idle')
-        setFrom(place)
-        setErrors((e) => ({ ...e, from: undefined }))
+        chooseFrom(place)
       },
       (error) => setGeo(error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable'),
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
@@ -60,8 +80,7 @@ export default function SearchForm({ initialFrom = null, initialTo = null, radiu
     setErrors(next)
     if (!from || !to) return
 
-    navigate(`/recherche?${searchToQuery({ from, to, radius, types })}`)
-    onSubmitted?.()
+    go(from, to)
   }
 
   return (
@@ -72,10 +91,7 @@ export default function SearchForm({ initialFrom = null, initialTo = null, radiu
         placeholder="Quartier, carrefour, arrêt…"
         pin="from"
         value={from}
-        onChange={(place) => {
-          setFrom(place)
-          if (place) setErrors((e) => ({ ...e, from: undefined }))
-        }}
+        onChange={chooseFrom}
         error={errors.from}
         action={
           <>

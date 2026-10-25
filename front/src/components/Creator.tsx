@@ -12,7 +12,6 @@ export default function Creator() {
         loading="lazy"
       />
       <div>
-        <p className="eyebrow">Derrière le projet</p>
         <h2 className="creator-name">Tosten Kouya</h2>
         <p className="creator-role">Full-Stack Developer &amp; Creator</p>
         <p className="creator-text">

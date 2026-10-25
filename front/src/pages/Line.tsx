@@ -5,10 +5,12 @@ import ArrivalDialog from '../components/ArrivalDialog'
 import JsonLd from '../components/JsonLd'
 import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
+import MeetingShare from '../components/MeetingShare'
 import NotFound from '../components/NotFound'
 import ReportForm from '../components/ReportForm'
 import type { LineDetail } from '../lib/api'
 import { distance } from '../lib/geo'
+import { lastDestination, wasShared } from '../lib/meeting'
 import { lineTitle, TYPE_LABELS } from '../lib/search'
 import { breadcrumb } from '../lib/seo'
 import { useApi } from '../lib/useApi'
@@ -64,6 +66,18 @@ export default function Line() {
   const arrived = toAlight < ARRIVAL_RADIUS
 
   const [dismissed, setDismissed] = useState(false)
+
+  // Partage du rendez-vous, s'il n'a pas été fait sur la page de résultats.
+  // Lu une fois : le bloc reste affiché après le clic, le temps d'envoyer.
+  const [savedDestination] = useState(lastDestination)
+  const alightStop = trip ? stops[alight] : null
+  // La destination cherchée, si elle correspond bien à cette descente ; sinon l'arrêt lui-même
+  const meetingPoint =
+    alightStop &&
+    (savedDestination && distance(savedDestination.lat, savedDestination.lng, alightStop.lat, alightStop.lng) < 1500
+      ? savedDestination
+      : { name: alightStop.name, lat: alightStop.lat, lng: alightStop.lng })
+  const showShare = meetingPoint !== null && !wasShared(meetingPoint)
 
   // La liste suit l'arrêt en cours
   const lastScrolled = useRef(-1)
@@ -123,6 +137,8 @@ export default function Line() {
                   ))}
                 </div>
               )}
+
+              {meetingPoint && showShare && <MeetingShare to={meetingPoint} />}
             </div>
 
             <aside className="line-aside">

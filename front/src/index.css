@@ -168,6 +168,52 @@ main {
   text-decoration: none;
 }
 
+/* Petits téléphones : l'en-tête tient sur une ligne sans déborder */
+@media (max-width: 400px) {
+  .header-inner {
+    gap: 8px;
+  }
+
+  .nav-link {
+    padding: 10px 8px;
+  }
+
+  .site-header .logo {
+    gap: 7px;
+  }
+
+  .site-header .logo-word {
+    font-size: 1.2rem;
+  }
+
+  .nav .btn-sm {
+    padding-inline: 12px;
+  }
+}
+
+@media (max-width: 340px) {
+  .header-inner {
+    gap: 4px;
+  }
+
+  .nav {
+    gap: 0;
+  }
+
+  .nav-link {
+    padding-inline: 6px;
+    font-size: 0.9rem;
+  }
+
+  .site-header .logo-word {
+    font-size: 1.05rem;
+  }
+
+  .nav .btn-sm {
+    padding-inline: 10px;
+  }
+}
+
 .nav-link:hover {
   background: var(--surface-hover);
   color: var(--ink);
@@ -177,7 +223,7 @@ main {
   display: none;
 }
 
-/* Logo : deux arrêts reliés, départ creux et arrivée pleine. */
+/* Logo : départ creux, ligne, arrivée orange (voir components/Logo.tsx). */
 .logo {
   display: inline-flex;
   align-items: center;
@@ -186,30 +232,20 @@ main {
 
 .logo-mark {
   width: 40px;
-  display: flex;
-  align-items: center;
+  height: auto;
+  flex: none;
+  overflow: visible;
+  color: var(--ink);
 }
 
 .logo-from,
-.logo-to {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  flex: none;
-}
-
-.logo-from {
-  border: 4px solid var(--ink);
-}
-
-.logo-to {
-  background: var(--accent);
-}
-
 .logo-line {
-  height: 4px;
-  flex: 1;
-  background: var(--ink);
+  fill: currentColor;
+}
+
+.logo-to,
+.logo-bus {
+  fill: var(--accent);
 }
 
 .logo-word {
@@ -218,14 +254,18 @@ main {
   letter-spacing: -0.02em;
 }
 
-/* Animation d'arrivée : le départ apparaît, un bus parcourt la ligne qui se trace,
-   puis l'arrivée tombe en place. Rejouée à chaque page (voir Layout). */
-.logo-animated .logo-mark {
-  position: relative;
+/* Animation d'ouverture : le départ apparaît, un bus parcourt la ligne qui se trace,
+   puis l'arrivée se pose. Jouée une seule fois (voir Layout). */
+.logo-animated .logo-from,
+.logo-animated .logo-to,
+.logo-animated .logo-line,
+.logo-bus {
+  transform-box: fill-box;
 }
 
 .logo-animated .logo-from {
-  animation: logo-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center;
+  animation: logo-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .logo-animated .logo-line {
@@ -234,19 +274,14 @@ main {
 }
 
 .logo-animated .logo-to {
-  animation: logo-drop 0.5s 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center;
+  animation: logo-drop 0.5s 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .logo-bus {
-  position: absolute;
-  top: 50%;
-  left: 13px;
-  width: 9px;
-  height: 7px;
-  margin-top: -3.5px;
-  border-radius: 2px;
-  background: var(--accent);
-  box-shadow: 0 0 0 2px var(--bg);
+  stroke: var(--bg);
+  stroke-width: 10px;
+  paint-order: stroke;
   animation: logo-ride 0.6s 0.2s cubic-bezier(0.65, 0, 0.35, 1) both;
 }
 
@@ -284,14 +319,14 @@ main {
     opacity: 1;
   }
   100% {
-    transform: translateX(14px);
+    transform: translateX(32px);
     opacity: 0;
   }
 }
 
 @keyframes logo-drop {
   0% {
-    transform: translateY(-10px) scale(0.4);
+    transform: translateY(-30%) scale(0.4);
     opacity: 0;
   }
   60% {
@@ -320,12 +355,8 @@ main {
   padding: 48px 0 32px;
 }
 
-.site-footer .logo-from {
-  border-color: var(--bg);
-}
-
-.site-footer .logo-line {
-  background: var(--bg);
+.site-footer .logo-mark {
+  color: var(--bg);
 }
 
 .site-footer .logo-word {
@@ -547,7 +578,7 @@ main {
 }
 
 .check-list,
-.cross-list {
+.next-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -556,36 +587,35 @@ main {
 }
 
 .check-list li,
-.cross-list li {
+.next-list li {
   position: relative;
-  padding-left: 30px;
+  padding-left: 26px;
   font-weight: 600;
 }
 
+/* Puces du logo : point plein = disponible, anneau = à venir. */
 .check-list li::before,
-.cross-list li::before {
+.next-list li::before {
+  content: '';
   position: absolute;
-  left: 0;
-  top: 1px;
-  width: 20px;
-  height: 20px;
+  left: 2px;
+  top: 0.4em;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 0.75rem;
-  font-weight: 800;
+  box-sizing: border-box;
 }
 
 .check-list li::before {
-  content: '✓';
   background: var(--accent);
-  color: #fff;
 }
 
-.cross-list li::before {
-  content: '–';
-  background: var(--border);
+.next-list li {
   color: var(--muted);
+}
+
+.next-list li::before {
+  border: 3px solid var(--faint);
 }
 
 /* ---------- Accueil ---------- */
@@ -625,6 +655,10 @@ main {
   color: #b9afa3;
 }
 
+.hero-note a {
+  color: #f0a27a;
+}
+
 .hero .lead {
   color: #cfc6ba;
 }
@@ -636,8 +670,7 @@ main {
 }
 
 .section-problem {
-  background: var(--surface);
-  border-block: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .problem-grid {
@@ -662,72 +695,75 @@ main {
   font-weight: 700;
 }
 
-.steps {
-  list-style: none;
-  padding: 0;
-  margin: 32px 0 0;
-  display: grid;
-  gap: 16px;
-}
-
-.step {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 22px;
-  display: grid;
-  gap: 10px;
-}
-
-.step p {
-  color: var(--muted);
-}
-
-.step-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--ink);
-  color: var(--bg);
-  display: grid;
-  place-items: center;
-  margin-bottom: 4px;
-}
-
-.step:last-child .step-icon {
-  background: var(--accent);
-  color: #fff;
-}
-
-.step-label {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--faint);
-}
-
 .walk {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-.card-icon {
-  color: #f0a27a;
+/* Les étapes comme une ligne de bus : départ creux, arrivée orange (comme le logo). */
+.route {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0 0;
+  display: grid;
 }
 
-.honest {
-  margin-top: 40px;
+.route-item {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  padding-bottom: 28px;
+}
+
+.route-item::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 20px;
+  bottom: 0;
+  width: 4px;
+  background: var(--ink);
+}
+
+.route-item:last-child::before {
+  display: none;
+}
+
+.route-stop {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 4px solid var(--ink);
+  background: var(--bg);
+  flex: none;
+  position: relative;
+  z-index: 1;
+}
+
+.route-item.is-end .route-stop {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.route-item h3 {
+  margin: 0 0 6px;
+}
+
+.route-item p {
+  color: var(--muted);
+  max-width: 36ch;
+}
+
+.scope {
+  margin-top: 24px;
   display: grid;
   gap: 28px;
-  padding: 24px;
-  border-radius: 18px;
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
 }
 
-.honest h3 {
+.scope h3 {
   margin-bottom: 14px;
 }
 
@@ -740,90 +776,25 @@ main {
   color: #f0a27a;
 }
 
-.cards {
-  display: grid;
-  gap: 14px;
-  margin-top: 32px;
-}
-
-.card-dark {
-  border: 1px solid #3a332d;
-  background: #221d19;
-  border-radius: 18px;
-  padding: 22px;
-  display: grid;
-  gap: 10px;
-}
-
-.card-dark p {
-  color: #cfc6ba;
-}
-
-/* Feuille de route affichée comme une ligne de bus : chaque étape est un arrêt. */
-.roadmap {
+.contrib-list {
   list-style: none;
   padding: 0;
-  margin: 32px 0 0;
+  margin: 36px 0 0;
   display: grid;
-  position: relative;
+  gap: 24px;
 }
 
-.roadmap-item {
-  position: relative;
-  display: flex;
-  gap: 20px;
-  padding-bottom: 28px;
+.contrib-list li {
+  padding-top: 18px;
+  border-top: 1px solid #3a332d;
 }
 
-.roadmap-item::before {
-  content: '';
-  position: absolute;
-  left: 9px;
-  top: 20px;
-  bottom: 0;
-  width: 4px;
-  background: var(--ink);
+.contrib-list h3 {
+  margin-bottom: 8px;
 }
 
-.roadmap-item:last-child::before {
-  display: none;
-}
-
-.roadmap-stop {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 4px solid var(--ink);
-  background: var(--bg);
-  flex: none;
-  position: relative;
-  z-index: 1;
-}
-
-.roadmap-item.is-current .roadmap-stop {
-  background: var(--accent);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 6px rgba(206, 91, 34, 0.18);
-}
-
-.roadmap-label {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--faint);
-}
-
-.roadmap-item.is-current .roadmap-label {
-  color: var(--accent);
-}
-
-.roadmap-item h3 {
-  margin: 4px 0 6px;
-}
-
-.roadmap-item p {
-  color: var(--muted);
+.contrib-list p {
+  color: #cfc6ba;
 }
 
 .section-cta {
@@ -1051,24 +1022,6 @@ main {
 }
 
 /* styliser le bouton de partage d'itinéraire whatsapp */
-.btn-share-whatsapp{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px 16px;
-  background: #25d366;
-  color: #ffffff;
-  border: none;
-  border-radius: var(--radius);
-  font: 800 0.95rem/1 var(--sans);
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-.btn-share-whatsapp:hover{
-  background: #1ebe5b;
-}
 .share-title {
   font-size: 1.4rem;
   margin: 0;
@@ -1363,6 +1316,31 @@ main {
 
 .trip-place .pin {
   margin-top: 5px;
+}
+
+.meeting-share {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.meeting-share p {
+  margin: 0;
+}
+
+.meeting-share strong {
+  color: var(--ink);
+}
+
+.meeting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .filters {
@@ -2660,7 +2638,7 @@ fieldset.amounts legend {
   background: var(--accent);
   color: #fff;
   animation:
-    heart-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    heart-pop 0.7s cubic-bezier(0.16, 1, 0.3, 1) both,
     heart-beat 1.6s 1.2s ease-in-out infinite;
 }
 
@@ -2834,14 +2812,13 @@ fieldset.amounts legend {
     padding: 88px 0;
   }
 
-  .steps,
-  .cards {
+  .contrib-list {
     grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
   }
 
-  .honest {
+  .scope {
     grid-template-columns: 1fr 1fr;
-    padding: 32px;
   }
 
   .form-row {
@@ -2926,24 +2903,28 @@ fieldset.amounts legend {
     gap: 56px;
   }
 
-  .roadmap {
-    grid-template-columns: repeat(4, 1fr);
+  .route {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  /* En large, la ligne de la feuille de route devient horizontale. */
-  .roadmap-item {
+  /* En large, la ligne devient horizontale. */
+  .route-item {
     flex-direction: column;
     gap: 16px;
-    padding: 0 24px 0 0;
+    padding: 0 32px 0 0;
   }
 
-  .roadmap-item::before {
+  .route-item::before {
     left: 20px;
     right: 0;
     top: 9px;
     bottom: auto;
     width: auto;
     height: 4px;
+  }
+
+  .route-item:last-child::before {
+    display: none;
   }
 
   .contact-grid {
