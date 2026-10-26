@@ -1,0 +1,64 @@
+name: Build du front (branche front-build)
+
+# Construit le front et publie le dossier dist/ sur la branche front-build.
+# Sur le serveur :
+#   première fois : git clone -b front-build https://github.com/Tostenn/Quelbus.git <dossier>
+#   ensuite       : git -C <dossier> pull
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'front/**'
+      - '.github/workflows/deploy-front.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: front-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build et publication
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+    env:
+      # Réglable dans Settings → Secrets and variables → Actions → Variables
+      VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.quelbus.ci' }}
+      VITE_REPO_URL: ${{ vars.VITE_REPO_URL || 'https://github.com/Tostenn/Quelbus' }}
+      VITE_DONATIONS: ${{ vars.VITE_DONATIONS || 'off' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+      - name: Publier dist/ sur front-build
+        working-directory: .
+        env:
+          REMOTE: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: |
+          # on garde l'historique de front-build pour qu'un simple « git pull » suffise sur le serveur
+          if git ls-remote --exit-code --heads "$REMOTE" front-build >/dev/null; then
+            git clone -q --depth 1 -b front-build "$REMOTE" publish
+          else
+            mkdir publish && git -C publish init -q -b front-build
+          fi
+          find publish -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a front/dist/. publish/
+          cd publish
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Rien de nouveau"; exit 0; fi
+          git commit -q -m "Build du front depuis ${GITHUB_SHA::7}"
+          git push -q "$REMOTE" HEAD:front-build
