@@ -79,7 +79,7 @@ cp .env.example .env        # VITE_API_URL=http://localhost:8000
 npm run dev                 # http://localhost:5173
 ```
 
-`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.monradar.ci` en production.
+`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.monradar.ci` en production. L'API de production est servie sur `https://api.quelbus.ci`.
 
 ### Données de transport
 
@@ -122,7 +122,7 @@ PAYSTACK_FALLBACK_EMAIL=contact@monradar.ci        # Paystack exige un email ; u
 php artisan migrate
 ```
 
-Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://quelbus-api.monradar.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`.
+Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://api.quelbus.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`.
 
 Côté front, les liens et le formulaire « Soutenir » n'apparaissent qu'avec `VITE_DONATIONS=on` au build (à activer une fois le compte Paystack validé, et ajouter alors `/soutenir` au sitemap). Sans clé Paystack, l'API refuse les dons (503).
 

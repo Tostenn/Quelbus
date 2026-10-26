@@ -19,10 +19,17 @@ return [
 
     'allowed_methods' => ['*'],
 
-    // 'allowed_origins' => explode(',', env('FRONTEND_URL', 'http://localhost:5173')),
-    'allowed_origins' => ['*'],
+    // Origines du front listées dans FRONTEND_URL (séparées par des virgules)
+    'allowed_origins' => array_values(array_filter(array_map(
+        fn (string $origin) => rtrim(trim($origin), '/'),
+        explode(',', (string) env('FRONTEND_URL', 'http://localhost:5173')),
+    ))),
 
-    'allowed_origins_patterns' => [],
+    // Domaines de production toujours autorisés : quelbus.ci (et sous-domaines) et quelbus.monradar.ci
+    'allowed_origins_patterns' => [
+        '#^https://([a-z0-9-]+\.)?quelbus\.ci$#',
+        '#^https://quelbus\.monradar\.ci$#',
+    ],
 
     'allowed_headers' => ['*'],
 
