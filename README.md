@@ -42,6 +42,8 @@ Ce que QuelBus ne fait pas (encore) : horaires, temps réel, trajets avec corres
 - [x] **Pages publiques** : une fiche par ligne et par arrêt, avec titre et description propres
 - [x] **Finitions** : cartes, signalement d'erreurs, page « À propos »
 
+La suite : prédire l'heure d'arrivée des bus grâce aux voyages des utilisateurs. Voir la [vision](VISION.md).
+
 ## Structure du dépôt
 
 | Dossier | Contenu |
