@@ -35,6 +35,7 @@ export default function Search() {
   const [state, setState] = useState<State>({ key: '' })
   const [retries, setRetries] = useState(0)
   const [editing, setEditing] = useState(false)
+  const [meeting, setMeeting] = useState(false)
 
   useEffect(() => {
     const search = queryToSearch(new URLSearchParams(key))
@@ -76,10 +77,12 @@ export default function Search() {
         <div className="container narrow">
           <h1 className="search-title">Quel bus prendre&nbsp;?</h1>
           <p className="lead">Indiquez d’où vous partez et où vous allez.</p>
-          <div className="search-card">
-            <SearchForm />
-          </div>
-          <MeetMeHere />
+          {!meeting && (
+            <div className="search-card">
+              <SearchForm />
+            </div>
+          )}
+          <MeetMeHere onActiveChange={setMeeting} />
         </div>
       </section>
     )

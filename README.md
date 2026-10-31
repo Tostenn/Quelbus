@@ -100,7 +100,7 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 
 - `GET /api/search?from_lat=&from_lng=&to_lat=&to_lng=` : lignes directes entre deux points. Options : `radius` (300, 500 ou 800 m ; élargi automatiquement si rien n'est trouvé) et `types[]` (`sotra`, `gbaka`, `woro-woro`). La réponse indique le rayon utilisé, si le trajet se fait à pied, et pour chaque ligne l'arrêt de montée, l'arrêt de descente, la marche et le nombre d'arrêts.
 - `GET /api/suggest?q=mosquee adjame` : arrêts correspondant à la saisie (accents ignorés, arrêts homonymes proches fusionnés).
-- `GET /api/nearest-stop?lat=&lng=` : arrêt le plus proche d'une position (500 m au plus), ou `null`. Sert au bouton « Faire venir quelqu'un ici ».
+- `GET /api/nearest-stop?lat=&lng=` : arrêt le plus proche d'une position (500 m au plus), ou `null`. Sert au bouton « Rejoins-moi ici ».
 - `GET /api/lines`, `GET /api/lines/{slug}`, `GET /api/stops/{slug}` : index des lignes, fiche d'une ligne (sens et arrêts ordonnés), fiche d'un arrêt.
 - `POST /api/reports` : signalement d'erreur (`page`, `kind`, `message`, `email` facultatif, `line_id` ou `stop_id`). Lecture : `php artisan reports:export` écrit `storage/app/reports.csv`.
 - `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.

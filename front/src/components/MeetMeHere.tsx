@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, LinkSimple, MapPin, SpinnerGap, UsersThree, WhatsappLogo } from '@phosphor-icons/react'
+import { ArrowLeft, Check, LinkSimple, MapPin, SpinnerGap, UsersThree, WhatsappLogo } from '@phosphor-icons/react'
 import PlaceInput from './PlaceInput'
 import { fetchNearestStop, type Place } from '../lib/api'
 import { isInAbidjan, rendezvousUrl } from '../lib/search'
@@ -12,9 +12,10 @@ const PROBLEMS = {
   outside: 'Vous semblez être hors d’Abidjan. Choisissez le lieu du rendez-vous :',
 }
 
-// « Faire venir quelqu'un ici » : partage la position actuelle, une seule fois, sans définir de trajet.
+// « Rejoins-moi ici » : partage la position actuelle, une seule fois, sans définir de trajet.
 // La personne qui reçoit le lien dit où elle est et voit quel bus prendre pour venir.
-export default function MeetMeHere() {
+// onActiveChange : prévient la page pour qu'elle replie le formulaire de recherche pendant le partage.
+export default function MeetMeHere({ onActiveChange }: { onActiveChange?: (active: boolean) => void }) {
   const [step, setStep] = useState<Step>('idle')
   const [problem, setProblem] = useState<keyof typeof PROBLEMS | null>(null)
   const [place, setPlace] = useState<Place | null>(null)
@@ -25,7 +26,15 @@ export default function MeetMeHere() {
     setStep('manual')
   }
 
+  function cancel() {
+    setStep('idle')
+    setPlace(null)
+    setProblem(null)
+    onActiveChange?.(false)
+  }
+
   function locate() {
+    onActiveChange?.(true)
     if (!('geolocation' in navigator)) return fail('unavailable')
     setStep('locating')
     navigator.geolocation.getCurrentPosition(
@@ -86,6 +95,9 @@ export default function MeetMeHere() {
           </button>
         </div>
         <p className="meet-note">Votre position est envoyée une seule fois. Elle n’est pas suivie.</p>
+        <button type="button" className="meet-back" onClick={cancel}>
+          <ArrowLeft aria-hidden="true" /> Revenir à la recherche
+        </button>
       </div>
     )
   }
@@ -100,6 +112,9 @@ export default function MeetMeHere() {
           onChange={choose}
           pin="to"
         />
+        <button type="button" className="meet-back" onClick={cancel}>
+          <ArrowLeft aria-hidden="true" /> Revenir à la recherche
+        </button>
       </div>
     )
   }
@@ -108,7 +123,7 @@ export default function MeetMeHere() {
     <div className="meet-here">
       <button type="button" className="btn btn-ghost meet-button" onClick={locate} disabled={step === 'locating'}>
         {step === 'locating' ? <SpinnerGap className="spin" aria-hidden="true" /> : <UsersThree aria-hidden="true" />}
-        {step === 'locating' ? 'Localisation…' : 'Faire venir quelqu’un ici'}
+        {step === 'locating' ? 'Localisation…' : 'Rejoins-moi ici'}
       </button>
       <p className="meet-note">Envoyez votre position sur WhatsApp&nbsp;: la personne verra quel bus prendre pour vous rejoindre.</p>
     </div>
