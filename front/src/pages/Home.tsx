@@ -5,6 +5,7 @@ import MeetMeHere from '../components/MeetMeHere'
 import StatsBand from '../components/StatsBand'
 import { ArrowRight, GithubLogo, Heart } from '@phosphor-icons/react'
 import { DONATIONS_ENABLED, REPO_URL } from '../lib/config'
+import { useState } from 'react'
 import { usePageMeta } from '../lib/usePageMeta'
 
 const steps = [
@@ -38,6 +39,7 @@ const contributions = [
 ]
 
 export default function Home() {
+  const [meeting, setMeeting] = useState(false)
   usePageMeta('Quel bus prendre à Abidjan ? | QuelBus')
 
   return (
@@ -64,10 +66,12 @@ export default function Home() {
           </div>
 
           <div className="hero-search">
-            <div className="search-card">
-              <SearchForm />
-            </div>
-            <MeetMeHere />
+            {!meeting && (
+              <div className="search-card">
+                <SearchForm />
+              </div>
+            )}
+            <MeetMeHere onActiveChange={setMeeting} />
             <p className="hero-note">
               Une ligne fausse ou un arrêt manquant&nbsp;?{' '}
               <Link to="/contact?profil=contributeur">Signalez-le, on corrige.</Link>
