@@ -126,7 +126,7 @@ php artisan migrate
 
 Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://api.quelbus.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`.
 
-Côté front, les liens et le formulaire « Soutenir » n'apparaissent qu'avec `VITE_DONATIONS=on` au build (à activer une fois le compte Paystack validé, et ajouter alors `/soutenir` au sitemap). Sans clé Paystack, l'API refuse les dons (503).
+Côté front, les liens et le formulaire « Soutenir » n'apparaissent qu'avec `VITE_DONATIONS=on` au build (à activer une fois le compte Paystack validé, et générer alors le sitemap avec `php artisan sitemap:generate --soutenir`). Sans clé Paystack, l'API refuse les dons (503).
 
 ### Référencement
 
