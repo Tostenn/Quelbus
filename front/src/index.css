@@ -1344,6 +1344,42 @@ main {
   gap: 8px;
 }
 
+.meet-here {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+
+.meet-here p {
+  margin: 0;
+}
+
+.meet-here.is-ready > p:first-child {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.meet-here.is-ready > p:first-child svg {
+  color: var(--accent);
+  flex: none;
+}
+
+.meet-button {
+  width: 100%;
+  justify-content: center;
+}
+
+.meet-note {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;

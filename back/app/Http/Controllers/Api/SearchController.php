@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SearchRequest;
+use App\Models\Stop;
 use App\Services\Stats;
 use App\Services\Transit\RouteSearchService;
 use App\Services\Transit\StopSuggester;
@@ -32,6 +33,25 @@ class SearchController extends Controller
 
         return response()->json([
             'data' => mb_strlen($query) >= 2 ? $suggester->suggest(mb_substr($query, 0, 100)) : [],
+        ]);
+    }
+
+    /**
+     * Arrêt le plus proche d'une position (à 500 m au plus), pour nommer un lieu de rendez-vous.
+     */
+    public function nearestStop(Request $request, RouteSearchService $search): JsonResponse
+    {
+        $data = $request->validate([
+            'lat' => ['required', 'numeric', 'between:-90,90'],
+            'lng' => ['required', 'numeric', 'between:-180,180'],
+        ]);
+
+        $nearby = $search->nearbyStops((float) $data['lat'], (float) $data['lng'], 500);
+        $id = array_key_first($nearby);
+        $stop = $id === null ? null : Stop::find($id, ['id', 'name', 'slug']);
+
+        return response()->json([
+            'data' => $stop ? ['name' => $stop->name, 'slug' => $stop->slug, 'walk' => $nearby[$id]] : null,
         ]);
     }
 }
