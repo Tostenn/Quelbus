@@ -94,6 +94,16 @@ export async function fetchSuggestions(query: string, signal?: AbortSignal): Pro
   return data.data ?? []
 }
 
+export type NearestStop = { name: string; slug: string; walk: number }
+
+// Arrêt le plus proche d'une position (500 m au plus), ou null
+export async function fetchNearestStop(lat: number, lng: number, signal?: AbortSignal): Promise<NearestStop | null> {
+  const query = new URLSearchParams({ lat: lat.toFixed(6), lng: lng.toFixed(6) })
+  const response = await fetch(`${API_URL}/api/nearest-stop?${query}`, { headers: { Accept: 'application/json' }, signal })
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  return (await response.json()).data ?? null
+}
+
 export async function fetchSearch({ from, to, radius, types }: SearchParams, signal?: AbortSignal): Promise<SearchResponse> {
   const query = new URLSearchParams({
     from_lat: String(from.lat),

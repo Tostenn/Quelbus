@@ -14,6 +14,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Ajouté
 
+- Bouton « Faire venir quelqu'un ici » (accueil et recherche) : partage sa position sur WhatsApp sans définir de trajet, avec l'arrêt le plus proche comme repère. La personne qui reçoit le lien voit quel bus prendre pour venir.
+- API `GET /api/nearest-stop?lat=&lng=` : arrêt le plus proche d'une position (500 m au plus).
 - Page d'accueil de présentation du projet (`front/`) : le problème, le fonctionnement, ce que QuelBus fait et ne fait pas, l'appel aux contributeurs et la feuille de route.
 - Page contact `/contact` pour s'inscrire au lancement : prénom, nom, email, profil (utilisateur, contributeur, les deux) et message facultatif.
 - API Laravel `POST /api/subscribers` (`back/`) : validation en français, email unique, limite de 6 requêtes par minute, champ piège contre les robots.

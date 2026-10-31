@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import Creator from '../components/Creator'
 import SearchForm from '../components/SearchForm'
+import MeetMeHere from '../components/MeetMeHere'
 import StatsBand from '../components/StatsBand'
 import { ArrowRight, GithubLogo, Heart } from '@phosphor-icons/react'
 import { DONATIONS_ENABLED, REPO_URL } from '../lib/config'
@@ -66,6 +67,7 @@ export default function Home() {
             <div className="search-card">
               <SearchForm />
             </div>
+            <MeetMeHere />
             <p className="hero-note">
               Une ligne fausse ou un arrêt manquant&nbsp;?{' '}
               <Link to="/contact?profil=contributeur">Signalez-le, on corrige.</Link>

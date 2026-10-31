@@ -46,6 +46,7 @@ Route::middleware('throttle:120,1')->group(function () {
     Route::get('/stats', [StatsController::class, 'show'])->name('stats');
     Route::get('/search', [SearchController::class, 'search'])->name('search');
     Route::get('/suggest', [SearchController::class, 'suggest'])->name('suggest');
+    Route::get('/nearest-stop', [SearchController::class, 'nearestStop'])->name('nearest-stop');
     Route::get('/lines', [TransitController::class, 'lines'])->name('lines.index');
     Route::get('/lines/{line:slug}', [TransitController::class, 'line'])->name('lines.show');
     Route::get('/stops/{stop:slug}', [TransitController::class, 'stop'])->name('stops.show');

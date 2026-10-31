@@ -67,4 +67,24 @@ class SearchApiTest extends TestCase
 
         $this->getJson('/api/suggest?q=a')->assertOk()->assertJsonCount(0, 'data');
     }
+
+    public function test_the_nearest_stop_names_a_position(): void
+    {
+        $this->getJson('/api/nearest-stop?lat=5.358950&lng=-4.028100')
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Gare Nord')
+            ->assertJsonPath('data.walk', 11);
+    }
+
+    public function test_no_stop_nearby_returns_null(): void
+    {
+        $this->getJson('/api/nearest-stop?lat=5.300000&lng=-4.100000')
+            ->assertOk()
+            ->assertJsonPath('data', null);
+    }
+
+    public function test_the_nearest_stop_needs_a_valid_position(): void
+    {
+        $this->getJson('/api/nearest-stop?lat=abc')->assertUnprocessable()->assertJsonValidationErrors(['lat', 'lng']);
+    }
 }

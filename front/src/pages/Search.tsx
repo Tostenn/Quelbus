@@ -11,6 +11,7 @@ import {
 import SearchForm from '../components/SearchForm'
 import ResultCard from '../components/ResultCard'
 import MeetingShare from '../components/MeetingShare'
+import MeetMeHere from '../components/MeetMeHere'
 import { rememberDestination } from '../lib/meeting'
 import { usePageMeta } from '../lib/usePageMeta'
 import { fetchSearch, type LineType, type Place, type SearchResponse } from '../lib/api'
@@ -56,7 +57,10 @@ export default function Search() {
     return (
       <section className="section search-page">
         <div className="container narrow">
-          <h1 className="search-title">On vous attend à {meetingPoint.name}</h1>
+          <h1 className="search-title">
+            On vous attend {meetingPoint.name.startsWith('près de') ? '' : 'à '}
+            {meetingPoint.name}
+          </h1>
           <p className="lead">Dites où vous êtes&nbsp;: QuelBus cherche aussitôt le bus qui vous y emmène.</p>
           <div className="search-card">
             <SearchForm initialTo={meetingPoint} autoSubmit />
@@ -75,6 +79,7 @@ export default function Search() {
           <div className="search-card">
             <SearchForm />
           </div>
+          <MeetMeHere />
         </div>
       </section>
     )
