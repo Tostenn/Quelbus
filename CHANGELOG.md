@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Modifié
 
+- Le site passe à l'adresse https://quelbus.ci : adresse canonique, balises de partage, image d'aperçu, `robots.txt`, `sitemap.xml`, URL de retour Paystack. L'ancienne adresse quelbus.monradar.ci reste autorisée par l'API.
+- La vidéo de présentation « QuelBus en 30 secondes » revient sur la page d'accueil.
 - Signalement d'erreur : le formulaire s'ouvre dans une fenêtre (par le bas sur mobile, au centre sur grand écran), avec les types d'erreur en options cliquables et un écran de confirmation « Merci ! On corrige. ».
 - Les textes d'inscription, de partage et l'email de confirmation parlent d'une application déjà en ligne : on s'inscrit pour les nouveautés, pour contribuer ou pour soutenir.
 - La base de données passe de MySQL à PostgreSQL ; les tests utilisent une base PostgreSQL dédiée.

@@ -25,7 +25,7 @@ return [
         explode(',', (string) env('FRONTEND_URL', 'http://localhost:5173')),
     ))),
 
-    // Domaines de production toujours autorisés : quelbus.ci (et sous-domaines) et quelbus.monradar.ci
+    // Domaines de production toujours autorisés : quelbus.ci (et sous-domaines), plus l'ancienne adresse quelbus.monradar.ci
     'allowed_origins_patterns' => [
         '#^https://([a-z0-9-]+\.)?quelbus\.ci$#',
         '#^https://quelbus\.monradar\.ci$#',

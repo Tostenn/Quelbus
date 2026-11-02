@@ -11,7 +11,7 @@ Indiquez d'où vous partez et où vous allez : QuelBus vous montre les lignes de
 [![Données : ODbL](https://img.shields.io/badge/donn%C3%A9es-OpenStreetMap%20ODbL-1A1613.svg)](https://www.openstreetmap.org/copyright)
 [![PR bienvenues](https://img.shields.io/badge/PR-bienvenues-2f7d4a.svg)](CONTRIBUTING.md)
 
-**[quelbus.monradar.ci](https://quelbus.monradar.ci)**
+**[quelbus.ci](https://quelbus.ci)**
 
 [Contribuer](CONTRIBUTING.md) · [Signaler une erreur](https://github.com/Tostenn/Quelbus/issues/new/choose) · [Feuille de route](#feuille-de-route)
 
@@ -81,7 +81,7 @@ cp .env.example .env        # VITE_API_URL=http://localhost:8000
 npm run dev                 # http://localhost:5173
 ```
 
-`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.monradar.ci` en production. L'API de production est servie sur `https://api.quelbus.ci`.
+`FRONTEND_URL` dans `back/.env` doit contenir l'adresse du front (CORS) : `http://localhost:5173` en local, `https://quelbus.ci` en production. L'API de production est servie sur `https://api.quelbus.ci`.
 
 ### Données de transport
 
@@ -120,7 +120,7 @@ Mise en place :
 ```sh
 # back/.env
 PAYSTACK_SECRET_KEY=sk_live_…                      # Paystack > Settings > API Keys & Webhooks
-PAYSTACK_CALLBACK_URL=https://quelbus.monradar.ci/soutenir/merci
+PAYSTACK_CALLBACK_URL=https://quelbus.ci/soutenir/merci
 PAYSTACK_FALLBACK_EMAIL=contact@monradar.ci        # Paystack exige un email ; utilisé si le donateur n'en donne pas
 php artisan migrate
 ```
