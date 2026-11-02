@@ -31,7 +31,7 @@ Trouver mon bus
 
 Le meilleur coup de pouce : parlez de QuelBus autour de vous.
 
-<x-mail::button :url="$siteUrl" color="success">
+<x-mail::button :url="$siteUrl" color="dark">
 Partager QuelBus
 </x-mail::button>
 
