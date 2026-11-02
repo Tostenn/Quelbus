@@ -16,12 +16,15 @@ php artisan serve        # http://localhost:8000
 | Validation (messages en français) | `app/Http/Requests/StoreSubscriberRequest.php` |
 | Contrôleur | `app/Http/Controllers/Api/SubscriberController.php` |
 | Email de confirmation (en file d'attente) | `app/Mail/SubscriptionConfirmed.php`, `resources/views/mail/` |
+| Habillage des emails (logo, couleurs, pied de page) | `resources/views/vendor/mail/`, `resources/views/vendor/notifications/` |
 | Export CSV (`php artisan subscribers:export`) | `app/Console/Commands/ExportSubscribers.php` |
 | Tests | `tests/Feature/SubscriberTest.php` |
 
 `FRONTEND_URL` (dans `.env`) liste les origines autorisées par CORS, séparées par des virgules.
 
 Les emails partent en file d'attente : lancer `php artisan queue:work` à côté du serveur, en local comme en production.
+
+Le logo des emails est une image PNG servie par le site : `front/public/email/quelbus-logo.png`, chargée depuis `FRONTEND_URL`. Les clients mail (Gmail, Outlook) n'affichent pas les SVG.
 
 Tests et style : `php artisan test` puis `vendor/bin/pint --test`.
 
