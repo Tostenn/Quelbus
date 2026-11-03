@@ -27,7 +27,12 @@ class SubscriberController extends Controller
         );
 
         if (! $subscriber->wasRecentlyCreated) {
-            return response()->json(['message' => 'Cette adresse est déjà inscrite. On vous recontacte très bientôt.']);
+            if (! $subscriber->unsubscribed_at) {
+                return response()->json(['message' => 'Cette adresse est déjà inscrite. On vous recontacte très bientôt.']);
+            }
+
+            // Une personne désinscrite qui revient : on la réinscrit avec ses nouvelles réponses.
+            $subscriber->update([...$request->safe()->only(['first_name', 'last_name', 'profile', 'message']), 'unsubscribed_at' => null]);
         }
 
         // Mis en file d'attente (le mail implémente ShouldQueue).

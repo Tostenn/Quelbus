@@ -1,44 +1,46 @@
 <x-mail::message>
 # Bonjour {{ $subscriber->first_name }},
 
-@if ($subscriber->profile === 'contributeur')
-Merci de vouloir contribuer à QuelBus ! Votre inscription est bien enregistrée.
+@if ($subscriber->isContributor())
+Merci de vouloir donner un coup de main à QuelBus&nbsp;! Votre inscription est bien enregistrée.
 
-QuelBus est déjà en ligne. On revient vers vous avec des pistes concrètes pour mettre la main à la pâte : vérifier des lignes sur le terrain, coder, dessiner ou cartographier les arrêts.
+Les contributeurs s'organisent sur **le groupe WhatsApp QuelBus**&nbsp;: on y partage les lignes à vérifier, les erreurs repérées et les prochaines étapes. C'est le meilleur endroit pour commencer.
 
-En attendant, le code et les discussions sont ouverts :
-
-<x-mail::button :url="$repoUrl">
-Voir le projet sur GitHub
+<x-mail::button :url="$whatsappUrl">
+Rejoindre le groupe WhatsApp
 </x-mail::button>
-@elseif ($subscriber->profile === 'les_deux')
-Merci de nous rejoindre ! Votre inscription est bien enregistrée.
 
-QuelBus est déjà en ligne : essayez-le dès maintenant. On revient vers vous pour voir comment vous pouvez aider à l'améliorer.
+**Vous connaissez une ligne&nbsp;?** Ouvrez sa page sur QuelBus, vérifiez les arrêts et cliquez sur «&nbsp;Signaler une erreur&nbsp;» s'il manque quelque chose. C'est l'aide la plus utile, et elle ne demande aucune compétence technique.
 
-<x-mail::button :url="$repoUrl">
-Découvrir le projet sur GitHub
+<x-mail::button :url="$siteUrl.'/lignes'" color="dark">
+Vérifier une ligne
 </x-mail::button>
+
+Vous codez, dessinez ou cartographiez&nbsp;? Le projet est open source&nbsp;: [le code est sur GitHub]({{ $repoUrl }}).
 @else
-Merci pour votre inscription ! Elle est bien enregistrée.
+Merci pour votre inscription&nbsp;! Elle est bien enregistrée.
 
-QuelBus est déjà en ligne : indiquez votre départ et votre destination, il vous dit quelle ligne prendre, où monter et où descendre. On vous écrira quand il y aura du nouveau : nouvelles lignes, correspondances, horaires.
+QuelBus est déjà en ligne&nbsp;: indiquez votre départ et votre destination, il vous dit quelle ligne prendre, où monter et où descendre.
 
 <x-mail::button :url="$siteUrl.'/recherche'">
 Trouver mon bus
 </x-mail::button>
+
+On vous préviendra par email des nouveautés&nbsp;: nouvelles lignes, correspondances, horaires.
+
+Il existe aussi **un groupe WhatsApp** pour échanger autour du projet&nbsp;: poser vos questions, partager vos trajets, proposer des idées.
+
+<x-mail::button :url="$whatsappUrl" color="dark">
+Rejoindre le groupe WhatsApp
+</x-mail::button>
 @endif
 
-Le meilleur coup de pouce : parlez de QuelBus autour de vous.
-
-<x-mail::button :url="$siteUrl" color="dark">
-Partager QuelBus
-</x-mail::button>
+Le meilleur coup de pouce&nbsp;: parlez de QuelBus autour de vous.
 
 À très vite,<br>
 L'équipe QuelBus
 
 <x-mail::subcopy>
-Vous recevez cet email parce que vous vous êtes inscrit(e) sur {{ $siteUrl }}. Pour ne plus rien recevoir, répondez simplement à ce message.
+Vous recevez cet email parce que vous vous êtes inscrit(e) sur [quelbus.ci]({{ $siteUrl }}). [Ne plus recevoir d'emails]({{ $subscriber->unsubscribeUrl() }})
 </x-mail::subcopy>
 </x-mail::message>

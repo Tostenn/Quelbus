@@ -17,12 +17,16 @@ php artisan serve        # http://localhost:8000
 | Contrôleur | `app/Http/Controllers/Api/SubscriberController.php` |
 | Email de confirmation (en file d'attente) | `app/Mail/SubscriptionConfirmed.php`, `resources/views/mail/` |
 | Habillage des emails (logo, couleurs, pied de page) | `resources/views/vendor/mail/`, `resources/views/vendor/notifications/` |
+| Newsletter (tableau de bord → onglet Newsletter) | `app/Http/Controllers/Api/AdminNewsletterController.php`, `app/Mail/NewsletterMail.php`, `resources/views/mail/newsletter.blade.php` |
+| Désinscription (lien signé des emails) | `app/Http/Controllers/Web/UnsubscribeController.php`, `resources/views/unsubscribe.blade.php` |
 | Export CSV (`php artisan subscribers:export`) | `app/Console/Commands/ExportSubscribers.php` |
 | Tests | `tests/Feature/SubscriberTest.php` |
 
 `FRONTEND_URL` (dans `.env`) liste les origines autorisées par CORS, séparées par des virgules.
 
 Les emails partent en file d'attente : lancer `php artisan queue:work` à côté du serveur, en local comme en production.
+
+Newsletter : un email par inscrit, espacés de `NEWSLETTER_DELAY` secondes (2 par défaut) pour respecter les limites d'envoi de l'hébergeur. Les personnes désinscrites sont exclues. Le lien de désinscription est signé avec `APP_URL` : en production, `APP_URL` doit être l'adresse publique de l'API (`https://api.quelbus.ci`), sinon les liens ne fonctionnent pas. Le lien du groupe WhatsApp se règle avec `WHATSAPP_GROUP_URL`.
 
 Le logo des emails est une image PNG servie par le site : `front/public/email/quelbus-logo.png`, chargée depuis `FRONTEND_URL`. Les clients mail (Gmail, Outlook) n'affichent pas les SVG.
 

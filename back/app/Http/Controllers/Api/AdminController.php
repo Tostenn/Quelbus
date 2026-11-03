@@ -87,7 +87,7 @@ class AdminController extends Controller
         return response()->json(
             Subscriber::query()
                 ->orderByDesc('id')
-                ->paginate(20, ['id', 'first_name', 'last_name', 'email', 'profile', 'message', 'created_at']),
+                ->paginate(20, ['id', 'first_name', 'last_name', 'email', 'profile', 'message', 'created_at', 'unsubscribed_at']),
         );
     }
 }

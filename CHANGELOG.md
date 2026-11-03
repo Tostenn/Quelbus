@@ -8,6 +8,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Modifié
 
+- Email d'inscription réécrit : les contributeurs sont invités sur le groupe WhatsApp et à vérifier une ligne ; les utilisateurs apprennent qu'ils seront prévenus des nouveautés par email et qu'un groupe WhatsApp existe pour échanger.
 - La vidéo de présentation de l'accueil est maintenant celle de YouTube (lecteur chargé au clic, sans cookies) ; les fichiers vidéo locaux sont retirés.
 - Bandeau de chiffres : sur ordinateur, les quatre chiffres tiennent sur une ligne (le bloc « 3 transports » n'est plus affiché que sur mobile).
 - Le site passe à l'adresse https://quelbus.ci : adresse canonique, balises de partage, image d'aperçu, `robots.txt`, `sitemap.xml`, URL de retour Paystack. L'ancienne adresse quelbus.monradar.ci reste autorisée par l'API.
@@ -18,6 +19,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Ajouté
 
+- Newsletter dans le tableau de bord : rédaction en Markdown avec aperçu en direct, `{prenom}` remplacé par le prénom, email de test à soi-même, choix du public (tous, utilisateurs, contributeurs), historique des envois.
+- Lien de désinscription dans chaque email (page de confirmation et désinscription « en un clic » de Gmail / Outlook). Une personne désinscrite qui se réinscrit est réactivée.
 - Bouton « Rejoins-moi ici » (accueil et recherche) : partage sa position sur WhatsApp sans définir de trajet, avec l'arrêt le plus proche comme repère. La personne qui reçoit le lien voit quel bus prendre pour venir.
 - API `GET /api/nearest-stop?lat=&lng=` : arrêt le plus proche d'une position (500 m au plus).
 - Page d'accueil de présentation du projet (`front/`) : le problème, le fonctionnement, ce que QuelBus fait et ne fait pas, l'appel aux contributeurs et la feuille de route.

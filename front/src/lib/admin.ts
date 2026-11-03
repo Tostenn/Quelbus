@@ -89,7 +89,7 @@ export function resetPassword(payload: { token: string; email: string; password:
   return postForm('/password/reset', payload)
 }
 
-/** Appels d'écriture du tableau de bord (ajout, renvoi, retrait d'admin). */
+/** Appels d'écriture du tableau de bord (admins, newsletter…). */
 export function adminSend(path: string, body: object = {}, method: 'POST' | 'DELETE' = 'POST') {
   return postForm(`/admin${path}`, body, getToken() ?? '', method)
 }
@@ -169,4 +169,24 @@ export type AdminSubscriber = {
   profile: string
   message: string | null
   created_at: string
+  unsubscribed_at: string | null
+}
+
+export type NewsletterAudience = 'tous' | 'utilisateurs' | 'contributeurs'
+
+export type AdminNewsletter = {
+  id: number
+  subject: string
+  body: string
+  audience: NewsletterAudience
+  audience_label: string
+  recipients: number
+  sent_by: string | null
+  created_at: string
+}
+
+export type NewslettersPage = {
+  audiences: { value: NewsletterAudience; label: string; count: number }[]
+  unsubscribed: number
+  data: AdminNewsletter[]
 }

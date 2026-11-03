@@ -161,7 +161,7 @@ img {
 }
 
 .inner-body a {
-    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
 .accent-bar {
