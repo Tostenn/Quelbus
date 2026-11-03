@@ -48,10 +48,11 @@ export default function StatsBand() {
   const { data } = useApi<PublicStats>('/stats')
   if (!data) return null
 
-  const items: { icon: Icon; value: number; label: string }[] = [
+  const items: { icon: Icon; value: number; label: string; mobileOnly?: boolean }[] = [
     { icon: Bus, value: data.lines, label: 'lignes de bus' },
     { icon: MapPin, value: data.stops, label: 'arrêts sur la carte' },
-    { icon: Path, value: 3, label: 'transports : SOTRA, gbaka, wôrô‑wôrô' },
+    // Masqué sur ordinateur : l'info est déjà partout sur la page
+    { icon: Path, value: 3, label: 'transports : SOTRA, gbaka, wôrô‑wôrô', mobileOnly: true },
   ]
   if (data.searches >= PUBLIC_THRESHOLD) items.push({ icon: MagnifyingGlass, value: data.searches, label: 'trajets recherchés' })
   if (data.visits >= PUBLIC_THRESHOLD) items.push({ icon: UsersThree, value: data.visits, label: 'visites' })
@@ -63,8 +64,8 @@ export default function StatsBand() {
           Tout Abidjan, ligne par ligne
         </h2>
         <ul className="stats-list">
-          {items.map(({ icon: ItemIcon, value, label }) => (
-            <li key={label}>
+          {items.map(({ icon: ItemIcon, value, label, mobileOnly }) => (
+            <li key={label} className={mobileOnly ? 'stats-mobile-only' : undefined}>
               <span className="stats-icon" aria-hidden="true">
                 <ItemIcon size={22} weight="bold" />
               </span>

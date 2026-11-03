@@ -683,17 +683,54 @@ main {
   aspect-ratio: 16 / 9;
 }
 
-.video-frame.is-vertical {
-  aspect-ratio: 9 / 16;
-  max-width: 420px;
-  margin-inline: auto;
+.video-frame iframe,
+.video-facade {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
-.video-frame video {
+.video-facade {
+  position: relative;
+  padding: 0;
+  background: var(--ink);
+  cursor: pointer;
+}
+
+/* La miniature YouTube est en 4:3 avec bandes noires : « cover » ne garde que l'image 16:9 */
+.video-facade img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.video-facade:hover .video-play,
+.video-facade:focus-visible .video-play {
+  background: var(--accent-hover);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.video-facade:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .section-problem {
@@ -2328,6 +2365,17 @@ dialog.arrival h2 {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* Sur ordinateur, le bloc « transports » (déjà dit ailleurs) est masqué pour garder une seule ligne */
+@media (min-width: 900px) {
+  .stats-list {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .stats-list .stats-mobile-only {
+    display: none;
+  }
 }
 
 .stats-list li {

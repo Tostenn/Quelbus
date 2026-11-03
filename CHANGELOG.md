@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Modifié
 
+- La vidéo de présentation de l'accueil est maintenant celle de YouTube (lecteur chargé au clic, sans cookies) ; les fichiers vidéo locaux sont retirés.
+- Bandeau de chiffres : sur ordinateur, les quatre chiffres tiennent sur une ligne (le bloc « 3 transports » n'est plus affiché que sur mobile).
 - Le site passe à l'adresse https://quelbus.ci : adresse canonique, balises de partage, image d'aperçu, `robots.txt`, `sitemap.xml`, URL de retour Paystack. L'ancienne adresse quelbus.monradar.ci reste autorisée par l'API.
 - La vidéo de présentation « QuelBus en 30 secondes » revient sur la page d'accueil.
 - Signalement d'erreur : le formulaire s'ouvre dans une fenêtre (par le bas sur mobile, au centre sur grand écran), avec les types d'erreur en options cliquables et un écran de confirmation « Merci ! On corrige. ».
