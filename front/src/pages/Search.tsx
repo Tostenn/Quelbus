@@ -195,14 +195,14 @@ export default function Search() {
             </div>
           )}
 
-          {data && <Results data={data} from={params.from} radius={params.radius} filtered={activeType !== 'tous'} onAllTypes={() => update({ types: [] })} />}
+          {data && <Results data={data} from={params.from} to={params.to} radius={params.radius} filtered={activeType !== 'tous'} onAllTypes={() => update({ types: [] })} />}
         </div>
       </div>
     </section>
   )
 }
 
-function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchResponse; from: Place; radius: number; filtered: boolean; onAllTypes: () => void }) {
+function Results({ data, from, to, radius, filtered, onAllTypes }: { data: SearchResponse; from: Place; to: Place; radius: number; filtered: boolean; onAllTypes: () => void }) {
   const count = data.results.length
   const combinations = data.combinations ?? []
   const combosFirst = combinations.length > 0 && data.prefer === 'combinations'
@@ -248,6 +248,7 @@ function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchRes
           key={combination.legs.map((l) => l.direction.id).join('-')}
           combination={combination}
           from={from}
+          to={to}
           best={i === 0 && combosFirst}
         />
       ))}

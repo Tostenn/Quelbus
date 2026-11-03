@@ -6,6 +6,7 @@ import Search from './pages/Search'
 import Lines from './pages/Lines'
 import Line from './pages/Line'
 import Stop from './pages/Stop'
+import Trip from './pages/Trip'
 import About from './pages/About'
 import Support from './pages/Support'
 import Thanks from './pages/Thanks'
@@ -25,6 +26,7 @@ function App() {
         <Route path="lignes" element={<Lines />} />
         <Route path="lignes/:slug" element={<Line />} />
         <Route path="arrets/:slug" element={<Stop />} />
+        <Route path="trajet" element={<Trip />} />
         <Route path="a-propos" element={<About />} />
         <Route path="soutenir" element={<Support />} />
         <Route path="soutenir/merci" element={<Thanks />} />

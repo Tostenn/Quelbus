@@ -2,31 +2,25 @@ import { Fragment } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, ArrowsLeftRight, PersonSimpleWalk } from '@phosphor-icons/react'
 import LineBadge from './LineBadge'
-import type { Combination, CombinationLeg, Place } from '../lib/api'
+import type { Combination, Place } from '../lib/api'
 import { TYPE_LABELS, walkLabel } from '../lib/search'
+import { tripUrl } from '../lib/trip'
 
-type Props = { combination: Combination; from: Place; best?: boolean }
+type Props = { combination: Combination; from: Place; to: Place; best?: boolean }
 
 const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? 's' : ''}`
 
-function legUrl(leg: CombinationLeg, here: string) {
-  return `/lignes/${leg.line.slug}?sens=${leg.direction.id}&montee=${leg.board.id}&descente=${leg.alight.id}${here}`
-}
-
-export default function CombinationCard({ combination, from, best = false }: Props) {
+export default function CombinationCard({ combination, from, to, best = false }: Props) {
   const { legs, changes } = combination
   const last = legs[legs.length - 1]
-  // Seule une vraie position GPS est montrée sur la carte de la première ligne
-  const here = from.name === 'Ma position' ? `&ici=${from.lat.toFixed(6)},${from.lng.toFixed(6)}` : ''
-
   return (
-    <article className={`result-card combination-card${best ? ' is-best' : ''}`}>
+    <Link className={`result-card combination-card${best ? ' is-best' : ''}`} to={tripUrl(combination, from, to)}>
       <div className="combination-head">
         <span className="combination-badges" aria-label={legs.map((l) => l.line.ref ?? TYPE_LABELS[l.line.type]).join(', puis ')}>
           {legs.map((leg, i) => (
             <Fragment key={leg.direction.id}>
               {i > 0 && <ArrowRight size={18} aria-hidden="true" />}
-              <LineBadge refNumber={leg.line.ref} type={leg.line.type} accent={best && i === 0} size="lg" />
+              <LineBadge refNumber={leg.line.ref} type={leg.line.type} accent={best && leg.line.type === 'sotra'} size="lg" />
             </Fragment>
           ))}
         </span>
@@ -85,9 +79,6 @@ export default function CombinationCard({ combination, from, best = false }: Pro
                 <span className="muted">
                   {plural(leg.stops, 'arrêt')}, descendez à <strong>{leg.alight.name}</strong>
                 </span>
-                <Link className="combination-map" to={legUrl(leg, i === 0 ? here : '')}>
-                  Voir sur la carte <ArrowRight size={15} aria-hidden="true" />
-                </Link>
               </div>
             </li>
           </Fragment>
@@ -105,6 +96,9 @@ export default function CombinationCard({ combination, from, best = false }: Pro
           </div>
         </li>
       </ol>
-    </article>
+      <span className="result-more">
+        Voir tout le trajet sur la carte <ArrowRight size={16} aria-hidden="true" />
+      </span>
+    </Link>
   )
 }
