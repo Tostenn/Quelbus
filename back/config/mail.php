@@ -115,4 +115,7 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    // Newsletter : secondes d'écart entre deux envois, pour rester sous les limites d'envoi de l'hébergeur.
+    'newsletter_delay' => (int) env('NEWSLETTER_DELAY', 2),
+
 ];

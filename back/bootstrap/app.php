@@ -13,7 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Le « désabonnement en un clic » de Gmail / Outlook envoie un POST sans jeton CSRF ; l'URL signée suffit.
+        $middleware->validateCsrfTokens(except: ['desinscription/*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -55,11 +55,50 @@ class SubscriberTest extends TestCase
         $contributor = new SubscriptionConfirmed(Subscriber::create($this->payload()));
         $contributor->assertHasSubject('Merci de rejoindre les contributeurs de QuelBus');
         $contributor->assertSeeInHtml('Bonjour Awa');
-        $contributor->assertSeeInHtml('Voir le projet sur GitHub');
+        $contributor->assertSeeInHtml('Rejoindre le groupe WhatsApp');
+        $contributor->assertSeeInHtml('https://chat.whatsapp.com/G37QsVVlc2EAjrhWNJ5vYY');
+        $contributor->assertSeeInHtml('Vérifier une ligne');
+        $contributor->assertSeeInHtml('/desinscription/');
 
         $user = new SubscriptionConfirmed(Subscriber::create($this->payload(['email' => 'user@example.com', 'profile' => 'utilisateur'])));
         $user->assertHasSubject('Votre inscription à QuelBus est confirmée');
-        $user->assertDontSeeInHtml('Voir le projet sur GitHub');
+        $user->assertSeeInHtml('Trouver mon bus');
+        $user->assertSeeInHtml('On vous préviendra par email des nouveautés', false);
+        $user->assertSeeInHtml('Rejoindre le groupe WhatsApp');
+        $user->assertDontSeeInHtml('Vérifier une ligne');
+    }
+
+    public function test_a_subscriber_can_unsubscribe_from_the_email_link(): void
+    {
+        $subscriber = Subscriber::create($this->payload());
+        $url = $subscriber->unsubscribeUrl();
+
+        // Ouvrir le lien ne fait que demander confirmation
+        $this->get($url)->assertOk()->assertSee('Me désinscrire');
+        $this->assertNull($subscriber->fresh()->unsubscribed_at);
+
+        $this->post($url)->assertOk()->assertSee('C’est fait');
+        $this->assertNotNull($subscriber->fresh()->unsubscribed_at);
+    }
+
+    public function test_an_unsigned_unsubscribe_link_is_refused(): void
+    {
+        $subscriber = Subscriber::create($this->payload());
+
+        $this->post("/desinscription/{$subscriber->id}")->assertForbidden();
+        $this->assertNull($subscriber->fresh()->unsubscribed_at);
+    }
+
+    public function test_an_unsubscribed_person_can_sign_up_again(): void
+    {
+        Mail::fake();
+        Subscriber::create([...$this->payload(), 'unsubscribed_at' => now()]);
+
+        $this->postJson('/api/subscribers', $this->payload(['profile' => 'utilisateur']))->assertCreated();
+
+        $this->assertNull(Subscriber::first()->unsubscribed_at);
+        $this->assertSame('utilisateur', Subscriber::first()->profile);
+        Mail::assertQueuedCount(1);
     }
 
     public function test_email_is_normalised_and_not_duplicated(): void

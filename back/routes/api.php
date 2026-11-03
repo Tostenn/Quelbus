@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\AdminNewsletterController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DonationController;
@@ -40,6 +41,10 @@ Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(functi
     Route::post('/users', [AdminUserController::class, 'store'])->middleware('throttle:10,1')->name('users.store');
     Route::post('/users/{user}/invitation', [AdminUserController::class, 'resend'])->middleware('throttle:5,1')->name('users.invite');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/newsletters', [AdminNewsletterController::class, 'index'])->name('newsletters.index');
+    Route::post('/newsletters/preview', [AdminNewsletterController::class, 'preview'])->middleware('throttle:60,1')->name('newsletters.preview');
+    Route::post('/newsletters/test', [AdminNewsletterController::class, 'test'])->middleware('throttle:5,1')->name('newsletters.test');
+    Route::post('/newsletters', [AdminNewsletterController::class, 'store'])->middleware('throttle:3,1')->name('newsletters.store');
 });
 
 Route::middleware('throttle:120,1')->group(function () {

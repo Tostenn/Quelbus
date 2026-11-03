@@ -41,6 +41,7 @@ class SubscriptionConfirmed extends Mailable implements ShouldQueue
             with: [
                 'siteUrl' => config('app.frontend_url'),
                 'repoUrl' => 'https://github.com/Tostenn/Quelbus',
+                'whatsappUrl' => config('app.whatsapp_url'),
             ],
         );
     }

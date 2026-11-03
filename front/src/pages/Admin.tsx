@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import { Check, PaperPlaneTilt, Trash, UserPlus, WarningCircle } from '@phosphor-icons/react'
 import DayChart from '../components/DayChart'
+import NewsletterTab from '../components/NewsletterTab'
 import {
-  adminGet,
   adminSend,
   getToken,
   Unauthorized,
@@ -15,14 +15,16 @@ import {
   type Page,
 } from '../lib/admin'
 import { SITE_URL } from '../lib/config'
+import { useAdmin } from '../lib/useAdmin'
 import { usePageMeta } from '../lib/usePageMeta'
 
-type Tab = 'stats' | 'donations' | 'reports' | 'subscribers' | 'admins'
+type Tab = 'stats' | 'donations' | 'reports' | 'subscribers' | 'newsletter' | 'admins'
 
 const TABS: { value: Tab; label: string }[] = [
   { value: 'stats', label: 'Statistiques' },
   { value: 'reports', label: 'Signalements' },
   { value: 'subscribers', label: 'Inscrits' },
+  { value: 'newsletter', label: 'Newsletter' },
   { value: 'donations', label: 'Dons' },
   { value: 'admins', label: 'Admins' },
 ]
@@ -31,27 +33,6 @@ const isTab = (value: string | null): value is Tab => TABS.some((t) => t.value =
 
 const date = (iso: string) =>
   new Date(iso).toLocaleString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-
-function useAdmin<T>(path: string, version = 0) {
-  const navigate = useNavigate()
-  const [state, setState] = useState<{ key: string; data?: T; error?: string }>({ key: '' })
-  const key = `${path}#${version}`
-
-  useEffect(() => {
-    const controller = new AbortController()
-    adminGet<T>(path, controller.signal)
-      .then((data) => setState({ key, data }))
-      .catch((e: unknown) => {
-        if (e instanceof DOMException && e.name === 'AbortError') return
-        if (e instanceof Unauthorized) return navigate('/connexion', { replace: true })
-        setState({ key, error: (e as Error).message })
-      })
-    return () => controller.abort()
-  }, [path, key, navigate])
-
-  const loading = state.key !== key
-  return { data: loading ? undefined : state.data, error: loading ? undefined : state.error, loading }
-}
 
 export default function Admin() {
   usePageMeta('Tableau de bord | QuelBus')
@@ -92,6 +73,7 @@ export default function Admin() {
           {tab === 'donations' && <DonationsTab />}
           {tab === 'reports' && <ReportsTab />}
           {tab === 'subscribers' && <SubscribersTab />}
+          {tab === 'newsletter' && <NewsletterTab />}
           {tab === 'admins' && <AdminsTab />}
         </div>
       </div>
@@ -268,7 +250,9 @@ function SubscribersTab() {
               <strong>
                 {s.first_name} {s.last_name}
               </strong>
-              <span className="muted">{date(s.created_at)}</span>
+              <span className="muted">
+                {s.unsubscribed_at && <span className="status-badge status-failed">Désinscrit</span>} {date(s.created_at)}
+              </span>
             </div>
             <p className="muted">
               {profiles[s.profile] ?? s.profile} · <a href={`mailto:${s.email}`}>{s.email}</a>

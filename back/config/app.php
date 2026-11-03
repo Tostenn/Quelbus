@@ -57,6 +57,9 @@ return [
     // Adresse publique du site (front), utilisée dans les emails. Première origine de FRONTEND_URL.
     'frontend_url' => rtrim(explode(',', env('FRONTEND_URL', 'http://localhost:5173'))[0], '/'),
 
+    // Groupe WhatsApp de la communauté QuelBus, cité dans les emails.
+    'whatsapp_url' => env('WHATSAPP_GROUP_URL', 'https://chat.whatsapp.com/G37QsVVlc2EAjrhWNJ5vYY'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
