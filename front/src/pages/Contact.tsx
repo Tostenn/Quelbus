@@ -15,13 +15,13 @@ import { submitSubscriber, type FieldErrors, type Profile, type SubscriberPayloa
 import { usePageMeta } from '../lib/usePageMeta'
 
 const profiles: { value: Profile; icon: Icon; title: string; text: string }[] = [
-  { value: 'utilisateur', icon: Bus, title: 'Je l’utilise', text: 'Prévenez-moi des nouveautés : lignes, correspondances, horaires…' },
+  { value: 'utilisateur', icon: Bus, title: 'Je l’utilise', text: 'Prévenez-moi des nouveautés : lignes, horaires, temps réel…' },
   { value: 'contributeur', icon: Code, title: 'Je veux contribuer', text: 'Code, design, vérification des lignes sur le terrain…' },
   { value: 'les_deux', icon: UsersThree, title: 'Les deux', text: 'Je l’utilise et je veux donner un coup de main.' },
 ]
 
 const messagePlaceholders: Record<Profile, string> = {
-  utilisateur: 'Ex. : je fais souvent Abobo – Plateau, ce serait bien d’avoir les correspondances.',
+  utilisateur: 'Ex. : je fais souvent Abobo – Plateau, avec un changement à Adjamé.',
   contributeur: 'Ex. : je suis développeur React, ou je connais bien les lignes de Yopougon.',
   les_deux: 'Ex. : je prends la 81 tous les jours et je peux aider à vérifier les arrêts.',
 }

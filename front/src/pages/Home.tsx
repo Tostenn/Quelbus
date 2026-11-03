@@ -20,7 +20,7 @@ const steps = [
   },
   {
     title: 'Montez dans le bon bus',
-    text: 'QuelBus affiche les lignes directes (SOTRA, gbakas, wôrô-wôrôs) qui passent près de vous et de votre destination, dans le bon sens.',
+    text: 'QuelBus affiche les lignes directes (SOTRA, gbakas, wôrô-wôrôs) qui passent près de vous et de votre destination, dans le bon sens. Pas de ligne directe ? Il vous dit où changer de bus.',
   },
 ]
 
@@ -121,6 +121,7 @@ export default function Home() {
               <h3>Ce que fait QuelBus</h3>
               <ul className="check-list">
                 <li>Les lignes directes&nbsp;: SOTRA, gbakas, wôrô-wôrôs</li>
+                <li>Sinon, où changer de bus pour finir le trajet</li>
                 <li>Où monter, où descendre, et combien marcher</li>
                 <li>Le bon sens de la ligne, pas l’inverse</li>
                 <li>Un lien à envoyer pour qu’on vous rejoigne</li>
@@ -131,7 +132,6 @@ export default function Home() {
               <h3>Prochainement</h3>
               <ul className="next-list">
                 <li>Les horaires et le temps réel</li>
-                <li>Les trajets avec correspondance</li>
                 <li>Les bateaux-bus et le métro</li>
               </ul>
             </div>

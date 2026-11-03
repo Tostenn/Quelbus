@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router'
 import {
   ArrowClockwise,
   ArrowRight,
+  ArrowsLeftRight,
   Info,
   PencilSimple,
   PersonSimpleWalk,
@@ -10,6 +11,7 @@ import {
 } from '@phosphor-icons/react'
 import SearchForm from '../components/SearchForm'
 import ResultCard from '../components/ResultCard'
+import CombinationCard from '../components/CombinationCard'
 import MeetingShare from '../components/MeetingShare'
 import MeetMeHere from '../components/MeetMeHere'
 import { rememberDestination } from '../lib/meeting'
@@ -27,7 +29,7 @@ import {
 type State = { key: string; data?: SearchResponse; error?: string }
 
 export default function Search() {
-  usePageMeta('Quel bus prendre ? Lignes directes à Abidjan | QuelBus')
+  usePageMeta('Quel bus prendre ? Lignes et correspondances à Abidjan | QuelBus')
   const [query, setQuery] = useSearchParams()
   const params = queryToSearch(query)
   const key = params ? searchToQuery(params) : ''
@@ -202,6 +204,55 @@ export default function Search() {
 
 function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchResponse; from: Place; radius: number; filtered: boolean; onAllTypes: () => void }) {
   const count = data.results.length
+  const combinations = data.combinations ?? []
+  const combosFirst = combinations.length > 0 && data.prefer === 'combinations'
+
+  const direct = count > 0 && (
+    <>
+      {data.expanded && (
+        <div className="notice">
+          <Info size={24} aria-hidden="true" />
+          <p>
+            {combosFirst
+              ? <>Sans changement, il faut marcher jusqu’à <strong>{data.radius} m</strong>&nbsp;:</>
+              : <>Aucune ligne directe à moins de {radius} m. Voici les lignes à moins de <strong>{data.radius} m</strong> à pied.</>}
+          </p>
+        </div>
+      )}
+      <p className="results-count">
+        {count} ligne{count > 1 ? 's' : ''} directe{count > 1 ? 's' : ''}
+      </p>
+      {data.results.map((result, i) => (
+        <ResultCard key={result.line.id} result={result} from={from} best={i === 0 && !combosFirst} />
+      ))}
+    </>
+  )
+
+  const combos = combinations.length > 0 && (
+    <>
+      {combosFirst && (
+        <div className="notice">
+          <ArrowsLeftRight size={24} aria-hidden="true" />
+          <p>
+            {count > 0 ? 'Les lignes directes font beaucoup marcher.' : 'Aucune ligne directe pour ce trajet.'} QuelBus vous
+            propose de <strong>combiner {combinations[0].changes > 1 ? 'plusieurs lignes' : 'deux lignes'}</strong>, comme le font les
+            habitués.
+          </p>
+        </div>
+      )}
+      <p className="results-count">
+        {combinations.length} combinaison{combinations.length > 1 ? 's' : ''} avec changement
+      </p>
+      {combinations.map((combination, i) => (
+        <CombinationCard
+          key={combination.legs.map((l) => l.direction.id).join('-')}
+          combination={combination}
+          from={from}
+          best={i === 0 && combosFirst}
+        />
+      ))}
+    </>
+  )
 
   return (
     <div className="results">
@@ -214,33 +265,28 @@ function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchRes
         </div>
       )}
 
-      {count > 0 && data.expanded && (
-        <div className="notice">
-          <Info size={24} aria-hidden="true" />
-          <p>
-            Aucune ligne directe à moins de {radius} m. Voici les lignes à moins de <strong>{data.radius} m</strong> à pied.
-          </p>
-        </div>
-      )}
-
-      {count > 0 && (
+      {combosFirst ? (
         <>
-          <p className="results-count">
-            {count} ligne{count > 1 ? 's' : ''} directe{count > 1 ? 's' : ''}
-          </p>
-          {data.results.map((result, i) => (
-            <ResultCard key={result.line.id} result={result} from={from} best={i === 0} />
-          ))}
+          {combos}
+          {direct}
+        </>
+      ) : (
+        <>
+          {direct}
+          {combos}
         </>
       )}
 
-      {count === 0 && !data.walkable && (
+      {count === 0 && combinations.length === 0 && !data.walkable && (
         <div className="empty-state">
           <span className="empty-icon" aria-hidden="true">
             <WarningCircle size={26} />
           </span>
-          <h2>Aucune ligne directe, même à {data.radius} m à pied</h2>
-          <p className="muted">Il faut peut-être changer de bus en route&nbsp;: QuelBus ne calcule pas encore les correspondances.</p>
+          <h2>Aucune ligne trouvée, même avec un changement</h2>
+          <p className="muted">
+            Aucune ligne directe à {data.radius} m à pied, ni de combinaison raisonnable de deux ou trois lignes. Essayez un point
+            de départ ou d’arrivée un peu différent, par exemple une gare ou un grand carrefour proche.
+          </p>
           {filtered && (
             <button type="button" className="btn btn-primary" onClick={onAllTypes}>
               Chercher avec tous les transports
@@ -252,8 +298,10 @@ function Results({ data, from, radius, filtered, onAllTypes }: { data: SearchRes
         </div>
       )}
 
-      <p className="form-note">Les données peuvent être incomplètes ou dépassées.</p>
+      <p className="form-note">
+        Les données peuvent être incomplètes ou dépassées.
+        {combinations.length > 0 && ' Les changements sont calculés d’après le tracé des lignes : demandez confirmation au chauffeur en cas de doute.'}
+      </p>
     </div>
   )
 }
-

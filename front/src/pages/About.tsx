@@ -35,7 +35,7 @@ export default function About() {
         <h2 className="section-title">Ce qu’il faut savoir</h2>
         <ul className="check-list">
           <li>Les distances à pied sont à vol d’oiseau&nbsp;: comptez un peu plus en vrai.</li>
-          <li>Pas d’horaires ni de temps réel, et pas encore de trajets avec correspondance.</li>
+          <li>Pas d’horaires ni de temps réel. Les changements de bus sont calculés d’après le tracé des lignes, sans tenir compte des horaires.</li>
           <li>Une ligne peut avoir changé depuis sa saisie. En cas de doute, demandez au chauffeur.</li>
         </ul>
 

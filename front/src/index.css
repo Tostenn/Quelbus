@@ -1569,6 +1569,101 @@ main {
   line-height: 1.3;
 }
 
+.combination-head {
+  display: grid;
+  gap: 8px;
+}
+
+.combination-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--faint);
+}
+
+.combination-steps {
+  display: grid;
+  margin: 0;
+  padding: 14px 0 0;
+  list-style: none;
+  border-top: 1px solid #efe9df;
+}
+
+.combination-stop,
+.combination-ride {
+  display: grid;
+  grid-template-columns: 13px 1fr;
+  column-gap: 12px;
+}
+
+.combination-stop > div,
+.combination-ride > div {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+}
+
+.combination-stop .field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pin-change {
+  background: var(--surface);
+  border: 3px solid var(--ink);
+}
+
+/* Le trait du trajet, de la couleur du transport */
+.combination-ride {
+  padding: 4px 0;
+}
+
+.combination-track {
+  justify-self: center;
+  width: 4px;
+  border-radius: 2px;
+  margin: -2px 0;
+  background: var(--accent);
+}
+
+.ride-gbaka .combination-track {
+  background: var(--ink);
+}
+
+.ride-woro-woro .combination-track,
+.ride-autre .combination-track {
+  background: var(--faint);
+}
+
+.combination-ride > div {
+  padding: 10px 0 12px;
+  gap: 4px;
+}
+
+.combination-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.combination-map {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.combination-map:hover {
+  text-decoration: underline;
+}
+
 .skeleton {
   height: 190px;
   background: linear-gradient(90deg, var(--surface) 0%, var(--surface-soft) 50%, var(--surface) 100%);
