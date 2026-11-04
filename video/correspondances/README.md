@@ -4,13 +4,13 @@
 
 | Temps | Scène |
 |---|---|
-| 0 – 4 s | Accroche : « Yopougon → Cocody · Pas de bus direct ? » |
+| 0 – 4 s | Accroche : « Angré → Gonzagueville · Pas de bus direct ? » |
 | 4 – 6 s | Révélation : « Nouveau sur QuelBus : les correspondances » |
 | 6 – 15 s | Démo : saisie, combinaison proposée, page trajet qui se dessine |
 | 15 – 19,5 s | Atouts : bus SOTRA d'abord, grandes gares, peu de marche, suivi |
 | 19,5 – 24 s | Appel à l'action : quelbus.ci |
 
-Le trajet montré (Yopougon → Adjamé → Cocody) est un exemple, sans numéros de ligne. Pour montrer un vrai résultat, modifiez les écrans 2 et 3 dans `scene.template.html` (blocs `#sB` et `#sC`).
+Le trajet montré est un vrai résultat de QuelBus : Petro Ivoire Angré → 775 jusqu'à Pont Lycée Technique → 53 jusqu'au Terminus Gonzagueville (38 arrêts, 107 m à pied). Pour en montrer un autre, modifiez l'accroche (`#trip`), les écrans 1 à 3 (`#sA`, `#sB`, `#sC`) et la frappe au clavier dans `music.py`.
 
 ## Générer
 

@@ -81,9 +81,9 @@ body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-f
 .ring{width:18px;height:18px;border-radius:50%;border:4px solid var(--ink);background:#fff;margin-top:3px}
 .more{margin-top:14px;font-size:17px;font-weight:800;color:var(--accent-ink)}
 /* page trajet */
-.ttl{font-size:34px;font-weight:900;letter-spacing:-.03em;line-height:1.05}
+.ttl{font-size:27px;font-weight:900;letter-spacing:-.03em;line-height:1.05}
 .tl{display:flex;align-items:center;gap:8px;margin:12px 0 16px;color:var(--faint);font-size:16px}
-#map{position:relative;height:300px;border-radius:22px;overflow:hidden;background:#ece6dc;border:1px solid var(--border)}
+#map{position:relative;height:270px;border-radius:22px;overflow:hidden;background:#ece6dc;border:1px solid var(--border)}
 #map svg{position:absolute;inset:0;width:100%;height:100%}
 .mk{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:4px solid #fff;box-shadow:0 3px 10px rgba(26,22,19,.35);display:grid;place-items:center;color:#fff}
 .mk svg{position:static;width:18px;height:18px}
@@ -121,7 +121,7 @@ body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-f
 
 <!-- S1 + S4 + S5 : fond sombre -->
 <div class="layer" id="dark"><div class="stripes"></div>
-  <div id="trip"><span class="pl"><span class="dot from"></span>Yopougon</span><span class="arr">→</span><span class="pl"><span class="dot to"></span>Cocody</span></div>
+  <div id="trip"><span class="pl"><span class="dot from"></span>Angré</span><span class="arr">→</span><span class="pl"><span class="dot to"></span>Gonzagueville</span></div>
   <h1 id="hook"><span class="l" id="h1"></span><br><span class="l" id="h2"></span></h1>
   <div id="nodirect"><span class="x"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span><span>Aucune ligne ne fait tout le trajet</span></div>
 </div>
@@ -163,14 +163,14 @@ body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-f
       <div class="appbar">{{LOGO}}<span class="btn">Rechercher</span></div>
       <div class="notice" id="bN"><span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span><span>Aucune ligne directe pour ce trajet. QuelBus vous propose de <b>combiner deux lignes</b>, comme le font les habitués.</span></div>
       <div class="card combo" id="bC">
-        <div class="bd"><span class="badge">Bus</span>→<span class="badge">Bus</span></div>
-        <p class="meta">1 changement · 7 arrêts · 290 m à pied au total</p>
+        <div class="bd"><span class="badge">775</span>→<span class="badge">53</span></div>
+        <p class="meta">1 changement · 38 arrêts · 107 m à pied au total</p>
         <div class="steps">
-          <div class="st"><span class="pin board" style="margin-top:3px"></span><span><span class="lbl">Montez à</span><span class="stopn">Yopougon Siporex</span></span></div>
-          <div class="st"><span class="track"></span><span class="ride"><b>Bus SOTRA</b> direction Adjamé · 4 arrêts</span></div>
-          <div class="st"><span class="ring"></span><span><span class="lbl">Changez à</span><span class="stopn">Adjamé Gare</span><span class="small">155 m à pied · 2 min</span></span></div>
-          <div class="st"><span class="track"></span><span class="ride"><b>Bus SOTRA</b> direction Cocody · 3 arrêts</span></div>
-          <div class="st"><span class="pin to" style="margin-top:3px"></span><span><span class="lbl">Arrivée</span><span class="stopn">Cocody Centre</span></span></div>
+          <div class="st"><span class="pin board" style="margin-top:3px"></span><span><span class="lbl">Montez à</span><span class="stopn">Petro Ivoire Angré</span></span></div>
+          <div class="st"><span class="track"></span><span class="ride"><b>Bus SOTRA</b> direction CHU Treichville · 16 arrêts</span></div>
+          <div class="st"><span class="ring"></span><span><span class="lbl">Changez à</span><span class="stopn">Pont Lycée Technique</span><span class="small">Au même arrêt · 45 lignes y passent</span></span></div>
+          <div class="st"><span class="track"></span><span class="ride"><b>Bus SOTRA</b> direction Gonzagueville · 22 arrêts</span></div>
+          <div class="st"><span class="pin to" style="margin-top:3px"></span><span><span class="lbl">Arrivée</span><span class="stopn">Terminus Gonzagueville</span></span></div>
         </div>
         <p class="more">Voir tout le trajet sur la carte →</p>
       </div>
@@ -179,29 +179,29 @@ body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-f
     <!-- écran 3 : page trajet -->
     <div class="scr" id="sC">
       <div class="appbar">{{LOGO}}<span class="btn">Rechercher</span></div>
-      <p class="ttl">Yopougon → Cocody</p>
-      <p class="tl"><span class="badge sm">Bus</span>→<span class="badge sm">Bus</span><span>1 changement · 7 arrêts</span></p>
+      <p class="ttl">Petro Ivoire Angré&nbsp;→ Terminus Gonzagueville</p>
+      <p class="tl"><span class="badge sm">775</span>→<span class="badge sm">53</span><span>1 changement · 38 arrêts</span></p>
       <div id="map">
         <svg viewBox="0 0 520 330" preserveAspectRatio="none">
           <g stroke="#fff" stroke-width="10" fill="none" opacity=".9">
             <path d="M-10 250 C 120 230, 200 260, 530 200"/><path d="M60 -10 C 90 120, 70 220, 110 340"/>
             <path d="M300 -10 C 280 120, 330 230, 310 340"/><path d="M-10 90 C 160 110, 330 70, 530 110"/>
           </g>
-          <path d="M440 10 C 470 120, 430 240, 480 340 L 530 340 L 530 10 Z" fill="#cfe0e6"/>
-          <path id="leg1" d="M70 250 L 140 225 L 200 200 L 245 170 L 285 140" fill="none" stroke="#CE5B22" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M-10 230 C 80 215, 120 260, 220 280 C 300 296, 330 250, 420 262 C 470 268, 500 250, 530 245 L 530 340 L -10 340 Z" fill="#cfe0e6"/>
+          <path id="leg1" d="M300 28 L 285 62 L 262 96 L 236 124 L 205 150" fill="none" stroke="#CE5B22" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
           <path id="walk" d="M285 140 L 305 128" fill="none" stroke="#6B6259" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 11"/>
-          <path id="leg2" d="M305 128 L 350 118 L 395 135 L 445 120" fill="none" stroke="#CE5B22" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <path id="leg2" d="M205 150 L 240 178 L 290 200 L 345 214 L 400 222 L 455 236" fill="none" stroke="#CE5B22" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span class="mk b" id="m1" style="left:13.5%;top:75.8%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="2"/><path d="M5 11h14M8 21v-3M16 21v-3"/></svg></span>
-        <span class="mk c" id="m2" style="left:56.5%;top:40.6%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span>
-        <span class="mk a" id="m3" style="left:85.6%;top:36.4%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></svg></span>
+        <span class="mk b" id="m1" style="left:57.7%;top:8.5%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="2"/><path d="M5 11h14M8 21v-3M16 21v-3"/></svg></span>
+        <span class="mk c" id="m2" style="left:39.4%;top:45.5%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span>
+        <span class="mk a" id="m3" style="left:87.5%;top:71.5%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></svg></span>
       </div>
       <div class="fr" id="fr">
-        <div class="row" id="f1"><span class="d b"></span><span><span class="lbl" style="color:var(--ok)">Montez à</span><span class="stopn">Yopougon Siporex</span></span></div>
-        <div class="lg" id="f2"><span class="badge sm">Bus</span><span class="t">Bus SOTRA direction Adjamé</span></div>
-        <div class="chg" id="f3"><span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span><span><b>Changement à Adjamé Gare</b> · l’arrêt du bus suivant est à 155 m à pied</span></div>
-        <div class="lg" id="f4"><span class="badge sm">Bus</span><span class="t">Bus SOTRA direction Cocody</span></div>
-        <div class="row" id="f5"><span class="d a"></span><span><span class="lbl" style="color:var(--accent-ink)">Descendez à</span><span class="stopn">Cocody Centre</span></span></div>
+        <div class="row" id="f1"><span class="d b"></span><span><span class="lbl" style="color:var(--ok)">Montez à</span><span class="stopn">Petro Ivoire Angré</span></span></div>
+        <div class="lg" id="f2"><span class="badge sm">775</span><span class="t">Bus SOTRA direction CHU Treichville</span></div>
+        <div class="chg" id="f3"><span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span><span><b>Changement à Pont Lycée Technique</b>, au même arrêt</span></div>
+        <div class="lg" id="f4"><span class="badge sm">53</span><span class="t">Bus SOTRA direction Gonzagueville</span></div>
+        <div class="row" id="f5"><span class="d a"></span><span><span class="lbl" style="color:var(--accent-ink)">Descendez à</span><span class="stopn">Terminus Gonzagueville</span></span></div>
       </div>
     </div>
 
@@ -213,7 +213,7 @@ body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-f
 <div class="layer" id="benefits"><div class="stripes"></div>
   <h2 id="bTitle">Des trajets <span>comme les habitués</span></h2>
   <div class="ben" id="b1" style="top:690px"><span class="ck">CK</span><span>Le bus SOTRA d’abord<small>puis gbaka et wôrô-wôrô si besoin</small></span></div>
-  <div class="ben" id="b2" style="top:900px"><span class="ck">CK</span><span>Changement dans les grandes gares<small>Adjamé, Plateau, Gare Sud…</small></span></div>
+  <div class="ben" id="b2" style="top:900px"><span class="ck">CK</span><span>Changement dans les grandes gares<small>Pont Lycée Technique&nbsp;: 45 lignes</small></span></div>
   <div class="ben" id="b3" style="top:1140px"><span class="ck">CK</span><span>Le moins de marche possible<small>et pas de détour inutile</small></span></div>
   <div class="ben" id="b4" style="top:1350px"><span class="ck">CK</span><span>Suivi jusqu’à l’arrivée<small>« Descendez ici, puis… »</small></span></div>
 </div>
@@ -260,7 +260,7 @@ const rw = words($('rH'), 'Les correspondances')
 
 /* ---------- temps (en s) : une mesure = 2 s ---------- */
 const T = { trip: 0.15, hook: 0.9, nod: 2.2, s1Out: 3.7, wipe: 4.0, revOut: 5.75, demo: 6.0,
-  type1: 6.55, type2: 7.35, tapGo: 8.0, results: 8.35, card: 8.65, tapCard: 10.55, trip3: 10.9,
+  type1: 6.45, type2: 7.2, tapGo: 8.25, results: 8.6, card: 8.9, tapCard: 10.55, trip3: 10.9,
   benefits: 15.0, cta: 19.5, end: 24.0 }
 window.DURATION = T.end
 
@@ -270,7 +270,7 @@ function center(el) {
   const a = el.getBoundingClientRect(), b = $('screen').getBoundingClientRect()
   return [a.left - b.left + a.width / 2, a.top - b.top + a.height / 2]
 }
-const typed = (s, t, t0, cps = 16) => s.slice(0, Math.floor(clamp((t - t0) * cps, 0, s.length)))
+const typed = (s, t, t0, cps = 26) => s.slice(0, Math.floor(clamp((t - t0) * cps, 0, s.length)))
 
 window.render = function (t) {
   /* --- couches visibles --- */
@@ -314,7 +314,7 @@ window.render = function (t) {
 
   // écran 1 : saisie
   const f = $('vFrom'), tt = $('vTo')
-  const s1 = typed('Yopougon', t, T.type1), s2 = typed('Cocody', t, T.type2)
+  const s1 = typed('Petro Ivoire Angré', t, T.type1), s2 = typed('Terminus Gonzagueville', t, T.type2)
   f.innerHTML = s1 + (t >= T.type1 && t < T.type2 ? '<span class="caret"></span>' : '')
   tt.innerHTML = s2 + (t >= T.type2 && t < T.tapGo ? '<span class="caret"></span>' : '')
   $('go').style.transform = `scale(${1 - 0.06 * Math.sin(Math.PI * clamp((t - T.tapGo) / 0.25))})`
@@ -334,7 +334,7 @@ window.render = function (t) {
   const d0 = T.trip3 + 0.5
   legs.forEach(({ el, L, id }, i) => {
     const k = p(t, d0 + [0, 0.95, 1.15][i], [0.9, 0.2, 0.75][i], E.inOut)
-    if (id === 'walk') el.style.opacity = k > 0 ? 1 : 0, el.style.strokeDashoffset = 0, el.setAttribute('d', `M285 140 L ${285 + 20 * k} ${140 - 12 * k}`)
+    if (id === 'walk') el.style.opacity = 0 // changement au même arrêt : pas de marche
     else el.style.strokeDashoffset = L * (1 - k)
   })
   ;[['m1', d0], ['m2', d0 + 0.95], ['m3', d0 + 1.9]].forEach(([id, at]) => {

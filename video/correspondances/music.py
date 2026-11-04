@@ -276,13 +276,13 @@ drums.add(crash(2.0), 6.0, 0.14)
 drums.add(crash(1.8), 15.0, 0.13)
 
 # sons de l'interface
-for i in range(8):  # frappe « Yopougon »
-    sfx.add(click(3800 + rng.random() * 600, 0.025), 6.55 + i / 16, 0.11)
-for i in range(6):  # frappe « Cocody »
-    sfx.add(click(3800 + rng.random() * 600, 0.025), 7.35 + i / 16, 0.11)
-for at in (8.0, 10.55):  # taps
+for i in range(18):  # frappe « Petro Ivoire Angré »
+    sfx.add(click(3800 + rng.random() * 600, 0.025), 6.45 + i / 26, 0.1)
+for i in range(22):  # frappe « Terminus Gonzagueville »
+    sfx.add(click(3800 + rng.random() * 600, 0.025), 7.2 + i / 26, 0.1)
+for at in (8.25, 10.55):  # taps
     sfx.add(click(), at, 0.32)
-sfx.add(pop(900), 8.65, 0.2)  # la combinaison arrive
+sfx.add(pop(900), 8.9, 0.2)  # la combinaison arrive
 for i, at in enumerate((11.4, 12.35, 13.3)):  # repères de la carte
     sfx.add(pop(700 + 120 * i, 0.15), at, 0.18)
 for i in range(4):  # coches des atouts
