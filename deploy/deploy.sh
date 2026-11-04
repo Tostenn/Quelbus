@@ -75,8 +75,18 @@ deploy_front() {
         exit 1
     fi
 
+    # sitemap.xml est réécrit chaque heure par le back (sitemap:generate) : on rend la version
+    # du dépôt pour que le pull passe, puis on le régénère aussitôt.
+    git -C "$dir" checkout -- sitemap.xml 2>/dev/null || true
     git -C "$dir" pull --ff-only origin "$branch"
     echo "Front à jour : $(git -C "$dir" log -1 --format='%h %s')"
+
+    step "Sitemap"
+    if [[ -f "$BACK_DIR/artisan" ]]; then
+        (cd "$BACK_DIR" && artisan sitemap:generate "$dir/sitemap.xml")
+    else
+        echo "Back introuvable ($BACK_DIR) : sitemap laissé tel quel, il sera réécrit à la prochaine heure."
+    fi
 }
 
 deploy_back() {

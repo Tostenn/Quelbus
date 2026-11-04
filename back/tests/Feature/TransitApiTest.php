@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Line;
 use App\Models\Stop;
 use App\Services\Transit\TransitImporter;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -78,5 +79,27 @@ class TransitApiTest extends TestCase
         $this->assertStringContainsString('https://quelbus.ci/arrets/gare-nord', $xml);
         $this->assertSame(5 + 1 + 3, substr_count($xml, '<url>'));
         unlink($path);
+    }
+
+    public function test_the_sitemap_is_written_to_the_configured_path_and_left_alone_when_unchanged(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'sitemap');
+        config(['app.sitemap_path' => $path]);
+
+        $this->artisan('sitemap:generate')->expectsOutputToContain('adresses écrites')->assertSuccessful();
+        $this->assertStringContainsString('<urlset', file_get_contents($path));
+        $this->assertFileDoesNotExist($path.'.tmp');
+
+        $this->artisan('sitemap:generate')->expectsOutputToContain('Sitemap inchangé')->assertSuccessful();
+        unlink($path);
+    }
+
+    public function test_the_sitemap_is_regenerated_every_hour(): void
+    {
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($e) => str_contains($e->command, 'sitemap:generate'));
+
+        $this->assertNotNull($event);
+        $this->assertSame('0 * * * *', $event->expression);
     }
 }

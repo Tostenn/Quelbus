@@ -55,6 +55,10 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     // Adresse publique du site (front), utilisée dans les emails. Première origine de FRONTEND_URL.
+    // Sitemap du front, réécrit chaque heure (sitemap:generate). En production : le sitemap.xml
+    // du dossier servi (clone de la branche front-build), pas celui des sources.
+    'sitemap_path' => env('SITEMAP_PATH') ?: base_path('../front/public/sitemap.xml'),
+
     'frontend_url' => rtrim(explode(',', env('FRONTEND_URL', 'http://localhost:5173'))[0], '/'),
 
     // Groupe WhatsApp de la communauté QuelBus, cité dans les emails.
