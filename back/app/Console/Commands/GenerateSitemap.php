@@ -10,8 +10,7 @@ use Illuminate\Console\Command;
 
 #[Signature('sitemap:generate
     {path=../front/public/sitemap.xml : Fichier de sortie}
-    {--url=https://quelbus.ci : Adresse du site}
-    {--soutenir : Inclure la page /soutenir (une fois les dons activés)}')]
+    {--url=https://quelbus.ci : Adresse du site}')]
 #[Description('Génère le sitemap du front : pages fixes, lignes et arrêts')]
 class GenerateSitemap extends Command
 {
@@ -19,9 +18,6 @@ class GenerateSitemap extends Command
     {
         $base = rtrim($this->option('url'), '/');
         $paths = ['/', '/recherche', '/lignes', '/a-propos', '/contact'];
-        if ($this->option('soutenir')) {
-            $paths[] = '/soutenir';
-        }
 
         Line::query()->orderBy('id')->each(function (Line $line) use (&$paths) {
             $paths[] = '/lignes/'.$line->slug;

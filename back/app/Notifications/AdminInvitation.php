@@ -30,7 +30,7 @@ class AdminInvitation extends Notification
             ->subject('Vous avez accès au tableau de bord QuelBus')
             ->greeting("Bonjour {$notifiable->name},")
             ->line("{$this->invitedBy} vous a ajouté comme administrateur de QuelBus.")
-            ->line('Choisissez votre mot de passe pour accéder au tableau de bord : statistiques, signalements, inscrits et dons.')
+            ->line('Choisissez votre mot de passe pour accéder au tableau de bord : statistiques, signalements et inscrits.')
             ->action('Choisir mon mot de passe', $url)
             ->line('Ce lien est valable 3 jours. Passé ce délai, demandez une nouvelle invitation.')
             ->salutation('L’équipe QuelBus');

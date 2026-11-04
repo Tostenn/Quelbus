@@ -8,8 +8,6 @@ import Line from './pages/Line'
 import Stop from './pages/Stop'
 import Trip from './pages/Trip'
 import About from './pages/About'
-import Support from './pages/Support'
-import Thanks from './pages/Thanks'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -28,8 +26,6 @@ function App() {
         <Route path="arrets/:slug" element={<Stop />} />
         <Route path="trajet" element={<Trip />} />
         <Route path="a-propos" element={<About />} />
-        <Route path="soutenir" element={<Support />} />
-        <Route path="soutenir/merci" element={<Thanks />} />
         <Route path="contact" element={<Contact />} />
         <Route path="connexion" element={<Login />} />
         <Route path="mot-de-passe-oublie" element={<ForgotPassword />} />
