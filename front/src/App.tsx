@@ -7,6 +7,7 @@ import Lines from './pages/Lines'
 import Line from './pages/Line'
 import Stop from './pages/Stop'
 import Trip from './pages/Trip'
+import Journey from './pages/Journey'
 import About from './pages/About'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
@@ -25,6 +26,7 @@ function App() {
         <Route path="lignes/:slug" element={<Line />} />
         <Route path="arrets/:slug" element={<Stop />} />
         <Route path="trajet" element={<Trip />} />
+        <Route path="trajets/:slug" element={<Journey />} />
         <Route path="a-propos" element={<About />} />
         <Route path="contact" element={<Contact />} />
         <Route path="connexion" element={<Login />} />

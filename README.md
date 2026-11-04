@@ -106,6 +106,15 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 - `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
 - La logique est dans `app/Services/Transit/RouteSearchService.php`.
 
+### Index des recherches
+
+Chaque recherche est enregistrée **en file d'attente** (job `RecordSearch`, même worker que les emails) : la réponse n'attend pas. Le job rattache le départ et l'arrivée à l'arrêt le plus proche (500 m au plus ; les quais homonymes d'une même gare comptent comme un seul arrêt), qu'il s'agisse d'une position GPS ou d'un lieu saisi.
+
+- `searched_routes` : un trajet départ → arrivée (ex. Terminus Angré → Gare Sud Plateau), son nombre de recherches et les lignes proposées la dernière fois. Une recherche filtrée par type de transport compte, mais ne remplace pas cette réponse.
+- `search_logs` et `search_log_lines` : une ligne par recherche, sans IP ni position exacte (zone d'environ 1 km), avec les lignes proposées. Servent aux statistiques.
+- `GET /api/routes/{depart--arrivee}` : page publique `/trajets/{slug}`, « Quel bus pour aller de A à B ? », réponse recalculée à chaque visite. Les trajets recherchés au moins 3 fois entrent dans le sitemap (`php artisan sitemap:generate`, à relancer régulièrement).
+- Logique : `app/Services/Transit/SearchIndex.php`.
+
 ### Référencement
 
 Chaque page met à jour son titre, sa description, son adresse canonique et ses balises Open Graph. `index.html` contient les données structurées du site ; les fiches ligne et arrêt ajoutent les leurs. L'image de partage `front/public/og-image.png` se régénère depuis `Maquette/og-image.html` (capture 1200×630).
@@ -115,6 +124,8 @@ Limite : le front est une application monopage, donc les aperçus WhatsApp ou Fa
 ### Tableau de bord
 
 Accès privé sur `/connexion` puis `/admin` : visites et recherches par jour, signalements d'erreurs, retours des inscrits.
+
+Section « Usage de l'appli » (7, 30 ou 90 jours, `GET /api/admin/insights?jours=30`) : recherches et croissance, part des recherches avec une réponse, trajets différents, recherches par visite, part du GPS, signalements pour 1 000 recherches ; trajets, départs et destinations les plus demandés ; lignes les plus proposées et fiches ligne les plus consultées ; combinaisons de lignes ; trajets sans réponse (là où compléter les données) ; recherches par heure et par jour de la semaine.
 
 ```sh
 cd back

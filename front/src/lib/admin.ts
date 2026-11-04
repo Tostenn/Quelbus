@@ -1,3 +1,4 @@
+import type { LineType } from './api'
 import { API_URL } from './config'
 
 const TOKEN_KEY = 'quelbus-admin-token'
@@ -128,6 +129,43 @@ export type AdminStats = {
     stops: number
   }
   days: DayStat[]
+}
+
+export type InsightLine = { ref: string | null; name: string; slug: string; type: LineType }
+type InsightPlace = { area: string; name: string | null }
+
+export type Insights = {
+  days: number
+  summary: {
+    searches: number
+    previous_searches: number
+    growth: number | null
+    direct: number
+    combination: number
+    walk: number
+    none: number
+    answered_rate: number | null
+    gps_rate: number | null
+    filtered_rate: number | null
+    routes: number
+    routes_indexed: number
+    routes_published: number
+    visits: number
+    searches_per_visit: number | null
+    reports: number
+    reports_per_1000: number | null
+    line_views: number
+  }
+  routes: { slug: string; from: string; to: string; count: number; outcome: string | null; options: InsightLine[][] }[]
+  departures: { name: string; slug: string; count: number }[]
+  destinations: { name: string; slug: string; count: number }[]
+  lines_proposed: { line: InsightLine; count: number; first: number }[]
+  lines_viewed: { line: InsightLine; count: number }[]
+  combinations: { lines: InsightLine[]; count: number }[]
+  unanswered: { from: InsightPlace; to: InsightPlace; count: number }[]
+  hours: number[]
+  weekdays: number[]
+  types: { types: string; count: number }[]
 }
 
 export type Page<T> = { data: T[]; current_page: number; last_page: number; total: number }
