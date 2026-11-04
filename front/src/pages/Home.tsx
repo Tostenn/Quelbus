@@ -4,8 +4,8 @@ import SearchForm from '../components/SearchForm'
 import MeetMeHere from '../components/MeetMeHere'
 import PresentationVideo from '../components/PresentationVideo'
 import StatsBand from '../components/StatsBand'
-import { ArrowRight, GithubLogo, Heart } from '@phosphor-icons/react'
-import { DONATIONS_ENABLED, REPO_URL } from '../lib/config'
+import { ArrowRight, GithubLogo } from '@phosphor-icons/react'
+import { REPO_URL } from '../lib/config'
 import { useState } from 'react'
 import { usePageMeta } from '../lib/usePageMeta'
 
@@ -172,15 +172,6 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <Creator />
-          {DONATIONS_ENABLED && (
-            <Link className="support-card" to="/soutenir">
-              <Heart size={26} weight="fill" aria-hidden="true" />
-              <span>
-                <strong>QuelBus vous a aidé&nbsp;?</strong> Offrez un garba à l’équipe, par Mobile Money ou carte.
-              </span>
-              <ArrowRight aria-hidden="true" />
-            </Link>
-          )}
         </div>
       </section>
 

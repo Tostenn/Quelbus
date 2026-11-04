@@ -106,29 +106,6 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 - `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
 - La logique est dans `app/Services/Transit/RouteSearchService.php`.
 
-### Dons (Paystack)
-
-La page `/soutenir` encaisse les dons par [Paystack](https://paystack.com) : Wave, Orange Money, MTN et carte bancaire, en francs CFA.
-
-1. Le donateur choisit un montant (200 F minimum) ; `POST /api/donations` crée le don « en attente » et renvoie la page de paiement Paystack.
-2. Après le paiement, Paystack le renvoie sur `/soutenir/merci?reference=…`. Le front interroge `GET /api/donations/{reference}`, qui **vérifie le paiement auprès de Paystack** (statut, montant et devise) : l'URL de retour ne suffit jamais à confirmer un don.
-3. En parallèle, le webhook `POST /api/paystack/webhook` (signature HMAC-SHA512 vérifiée) confirme le don même si le donateur ferme la page.
-4. Les dons se suivent dans le tableau de bord, onglet « Dons ».
-
-Mise en place :
-
-```sh
-# back/.env
-PAYSTACK_SECRET_KEY=sk_live_…                      # Paystack > Settings > API Keys & Webhooks
-PAYSTACK_CALLBACK_URL=https://quelbus.ci/soutenir/merci
-PAYSTACK_FALLBACK_EMAIL=contact@monradar.ci        # Paystack exige un email ; utilisé si le donateur n'en donne pas
-php artisan migrate
-```
-
-Dans le tableau de bord Paystack, déclarer l'URL de webhook `https://api.quelbus.ci/api/paystack/webhook`. Tester d'abord avec la clé `sk_test_…`.
-
-Côté front, les liens et le formulaire « Soutenir » n'apparaissent qu'avec `VITE_DONATIONS=on` au build (à activer une fois le compte Paystack validé, et générer alors le sitemap avec `php artisan sitemap:generate --soutenir`). Sans clé Paystack, l'API refuse les dons (503).
-
 ### Référencement
 
 Chaque page met à jour son titre, sa description, son adresse canonique et ses balises Open Graph. `index.html` contient les données structurées du site ; les fiches ligne et arrêt ajoutent les leurs. L'image de partage `front/public/og-image.png` se régénère depuis `Maquette/og-image.html` (capture 1200×630).

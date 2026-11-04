@@ -124,8 +124,6 @@ export type AdminStats = {
     searches: number
     reports: number
     subscribers: number
-    donations: number
-    donations_amount: number
     lines: number
     stops: number
   }
@@ -145,21 +143,6 @@ export type AdminReport = {
   line_name: string | null
   stop_name: string | null
 }
-
-export type AdminDonation = {
-  id: number
-  reference: string
-  amount: number
-  status: 'pending' | 'success' | 'failed' | 'abandoned'
-  name: string | null
-  email: string | null
-  message: string | null
-  channel: string | null
-  paid_at: string | null
-  created_at: string
-}
-
-export type DonationsPage = Page<AdminDonation> & { totals: { amount: number; count: number; pending: number } }
 
 export type AdminSubscriber = {
   id: number

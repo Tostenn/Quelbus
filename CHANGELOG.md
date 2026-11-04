@@ -6,6 +6,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Retiré
+
+- Dons par Paystack mis de côté pour le moment : page `/soutenir`, page de remerciement, encart de l'accueil, onglet « Dons » du tableau de bord, routes `/api/donations` et webhook Paystack, réglages `PAYSTACK_*` et `VITE_DONATIONS`. La table `donations` reste en base, intacte.
+
 ### Modifié
 
 - Email d'inscription réécrit : les contributeurs sont invités sur le groupe WhatsApp et à vérifier une ligne ; les utilisateurs apprennent qu'ils seront prévenus des nouveautés par email et qu'un groupe WhatsApp existe pour échanger.
