@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\SearchedRouteController;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\SubscriberController;
 use App\Http\Controllers\Api\TransitController;
@@ -30,6 +31,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(functi
     Route::get('/me', [AuthController::class, 'me'])->name('me');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/stats', [AdminController::class, 'stats'])->name('stats');
+    Route::get('/insights', [AdminController::class, 'insights'])->name('insights');
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::get('/subscribers', [AdminController::class, 'subscribers'])->name('subscribers');
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
@@ -49,5 +51,6 @@ Route::middleware('throttle:120,1')->group(function () {
     Route::get('/nearest-stop', [SearchController::class, 'nearestStop'])->name('nearest-stop');
     Route::get('/lines', [TransitController::class, 'lines'])->name('lines.index');
     Route::get('/lines/{line:slug}', [TransitController::class, 'line'])->name('lines.show');
+    Route::get('/routes/{slug}', [SearchedRouteController::class, 'show'])->name('routes.show');
     Route::get('/stops/{stop:slug}', [TransitController::class, 'stop'])->name('stops.show');
 });

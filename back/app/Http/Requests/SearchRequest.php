@@ -28,6 +28,9 @@ class SearchRequest extends FormRequest
             'radius' => ['nullable', 'integer', Rule::in(RouteSearchService::RADII)],
             'types' => ['nullable', 'array'],
             'types.*' => [Rule::in(Line::TYPES)],
+            // Noms affichés du départ et de l'arrivée, pour l'index des recherches
+            'from_name' => ['nullable', 'string', 'max:120'],
+            'to_name' => ['nullable', 'string', 'max:120'],
         ];
     }
 

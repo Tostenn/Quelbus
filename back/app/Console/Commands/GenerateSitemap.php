@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Line;
+use App\Models\SearchedRoute;
 use App\Models\Stop;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -11,7 +12,7 @@ use Illuminate\Console\Command;
 #[Signature('sitemap:generate
     {path=../front/public/sitemap.xml : Fichier de sortie}
     {--url=https://quelbus.ci : Adresse du site}')]
-#[Description('Génère le sitemap du front : pages fixes, lignes et arrêts')]
+#[Description('Génère le sitemap du front : pages fixes, lignes, arrêts et trajets souvent recherchés')]
 class GenerateSitemap extends Command
 {
     public function handle(): int
@@ -25,6 +26,13 @@ class GenerateSitemap extends Command
         Stop::query()->orderBy('id')->each(function (Stop $stop) use (&$paths) {
             $paths[] = '/arrets/'.$stop->slug;
         });
+        SearchedRoute::query()
+            ->where('searches_count', '>=', SearchedRoute::SITEMAP_MIN_SEARCHES)
+            ->orderByDesc('searches_count')
+            ->orderBy('id')
+            ->each(function (SearchedRoute $route) use (&$paths) {
+                $paths[] = '/trajets/'.$route->slug;
+            });
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";

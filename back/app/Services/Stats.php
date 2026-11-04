@@ -24,6 +24,18 @@ class Stats
     }
 
     /**
+     * Une consultation de la fiche d'une ligne.
+     */
+    public static function lineView(int $lineId): void
+    {
+        DB::table('line_views')->upsert(
+            ['date' => now()->toDateString(), 'line_id' => $lineId, 'views' => 1],
+            ['date', 'line_id'],
+            ['views' => DB::raw('line_views.views + 1')],
+        );
+    }
+
+    /**
      * @return array{visits: int, searches: int}
      */
     public static function totals(): array
