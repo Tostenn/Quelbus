@@ -120,6 +120,9 @@ export async function fetchSearch({ from, to, radius, types }: SearchParams, sig
     to_lat: String(to.lat),
     to_lng: String(to.lng),
     radius: String(radius),
+    // Pour l'index des trajets recherchés
+    from_name: from.name.slice(0, 120),
+    to_name: to.name.slice(0, 120),
   })
   types.forEach((type) => query.append('types[]', type))
 
@@ -127,6 +130,18 @@ export async function fetchSearch({ from, to, radius, types }: SearchParams, sig
   if (response.status === 429) throw new Error('Trop de recherches. Patientez une minute puis réessayez.')
   if (!response.ok) throw new Error('La recherche a échoué. Réessayez dans un instant.')
   return response.json()
+}
+
+export type RouteStop = { id: number; name: string; slug: string; lat: number; lng: number }
+
+// Trajet déjà recherché, page /trajets/:slug
+export type RouteDetail = {
+  slug: string
+  from: RouteStop
+  to: RouteStop
+  search: SearchResponse
+  to_same_place: { slug: string; name: string }[]
+  from_same_place: { slug: string; name: string }[]
 }
 
 export type LineSummary = {

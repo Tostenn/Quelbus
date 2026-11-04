@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SearchRequest;
+use App\Jobs\RecordSearch;
 use App\Models\Stop;
 use App\Services\Stats;
 use App\Services\Transit\RouteSearchService;
+use App\Services\Transit\SearchIndex;
 use App\Services\Transit\StopSuggester;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,14 +19,24 @@ class SearchController extends Controller
     {
         Stats::record('searches');
 
-        return response()->json($search->search(
-            (float) $request->validated('from_lat'),
-            (float) $request->validated('from_lng'),
-            (float) $request->validated('to_lat'),
-            (float) $request->validated('to_lng'),
-            (int) ($request->validated('radius') ?? RouteSearchService::RADII[0]),
-            $request->validated('types'),
-        ));
+        $from = ['lat' => (float) $request->validated('from_lat'), 'lng' => (float) $request->validated('from_lng'), 'name' => $request->validated('from_name')];
+        $to = ['lat' => (float) $request->validated('to_lat'), 'lng' => (float) $request->validated('to_lng'), 'name' => $request->validated('to_name')];
+        $radius = (int) ($request->validated('radius') ?? RouteSearchService::RADII[0]);
+        $types = $request->validated('types');
+
+        $result = $search->search($from['lat'], $from['lng'], $to['lat'], $to['lng'], $radius, $types);
+
+        // Indexation en file d'attente : la réponse n'attend pas
+        RecordSearch::dispatch([
+            'from' => $from,
+            'to' => $to,
+            'radius' => $radius,
+            'types' => $types ?: null,
+            'at' => now()->toIso8601String(),
+            ...SearchIndex::summarize($result),
+        ]);
+
+        return response()->json($result);
     }
 
     public function suggest(Request $request, StopSuggester $suggester): JsonResponse

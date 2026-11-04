@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import { Check, PaperPlaneTilt, Trash, UserPlus, WarningCircle } from '@phosphor-icons/react'
 import DayChart from '../components/DayChart'
+import InsightsPanel from '../components/InsightsPanel'
 import NewsletterTab from '../components/NewsletterTab'
 import {
   adminSend,
@@ -109,6 +110,7 @@ function StatsTab() {
         Depuis le lancement · Données&nbsp;:{' '}
         {totals.lines.toLocaleString('fr-FR')} lignes, {totals.stops.toLocaleString('fr-FR')} arrêts
       </p>
+      <InsightsPanel />
     </>
   )
 }

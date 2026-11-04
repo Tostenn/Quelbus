@@ -103,8 +103,30 @@ Modèle : `lines` (une ligne) → `line_directions` (ses sens, un par relation O
 - `GET /api/nearest-stop?lat=&lng=` : arrêt le plus proche d'une position (500 m au plus), ou `null`. Sert au bouton « Rejoins-moi ici ».
 - `GET /api/lines`, `GET /api/lines/{slug}`, `GET /api/stops/{slug}` : index des lignes, fiche d'une ligne (sens et arrêts ordonnés), fiche d'un arrêt.
 - `POST /api/reports` : signalement d'erreur (`page`, `kind`, `message`, `email` facultatif, `line_id` ou `stop_id`). Lecture : `php artisan reports:export` écrit `storage/app/reports.csv`.
-- `php artisan sitemap:generate` réécrit `front/public/sitemap.xml` (pages fixes, lignes et arrêts) ; à relancer après chaque import.
+- `php artisan sitemap:generate` réécrit le sitemap du front (pages fixes, lignes, arrêts et trajets souvent recherchés). Il tourne **toutes les heures** via le planificateur Laravel, et le fichier n'est réécrit que s'il a changé. Emplacement : `SITEMAP_PATH` dans `back/.env` (par défaut `front/public/sitemap.xml` du dépôt). En production, viser le fichier servi :
+
+  ```sh
+  # back/.env
+  SITEMAP_PATH=/home/c2846100c/public_html/quelbus.ci/sitemap.xml
+  ```
+
+  Et une seule tâche cron (cPanel > Tâches cron), qui lance le planificateur chaque minute :
+
+  ```sh
+  * * * * * cd /home/c2846100c/quelbus_remote/back && php artisan schedule:run >> /dev/null 2>&1
+  ```
+
+  `deploy.sh front` rend d'abord la version du dépôt (sinon le `git pull` échouerait), puis régénère le sitemap aussitôt.
 - La logique est dans `app/Services/Transit/RouteSearchService.php`.
+
+### Index des recherches
+
+Chaque recherche est enregistrée **en file d'attente** (job `RecordSearch`, même worker que les emails) : la réponse n'attend pas. Le job rattache le départ et l'arrivée à l'arrêt le plus proche (500 m au plus ; les quais homonymes d'une même gare comptent comme un seul arrêt), qu'il s'agisse d'une position GPS ou d'un lieu saisi.
+
+- `searched_routes` : un trajet départ → arrivée (ex. Terminus Angré → Gare Sud Plateau), son nombre de recherches et les lignes proposées la dernière fois. Une recherche filtrée par type de transport compte, mais ne remplace pas cette réponse.
+- `search_logs` et `search_log_lines` : une ligne par recherche, sans IP ni position exacte (zone d'environ 1 km), avec les lignes proposées. Servent aux statistiques.
+- `GET /api/routes/{depart--arrivee}` : page publique `/trajets/{slug}`, « Quel bus pour aller de A à B ? », réponse recalculée à chaque visite. Les trajets recherchés au moins 3 fois entrent dans le sitemap à la mise à jour horaire suivante.
+- Logique : `app/Services/Transit/SearchIndex.php`.
 
 ### Référencement
 
@@ -115,6 +137,8 @@ Limite : le front est une application monopage, donc les aperçus WhatsApp ou Fa
 ### Tableau de bord
 
 Accès privé sur `/connexion` puis `/admin` : visites et recherches par jour, signalements d'erreurs, retours des inscrits.
+
+Section « Usage de l'appli » (7, 30 ou 90 jours, `GET /api/admin/insights?jours=30`) : recherches et croissance, part des recherches avec une réponse, trajets différents, recherches par visite, part du GPS, signalements pour 1 000 recherches ; trajets, départs et destinations les plus demandés ; lignes les plus proposées et fiches ligne les plus consultées ; combinaisons de lignes ; trajets sans réponse (là où compléter les données) ; recherches par heure et par jour de la semaine.
 
 ```sh
 cd back

@@ -23,6 +23,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Ajouté
 
+- Sitemap mis à jour chaque heure par le planificateur Laravel (`sitemap:generate`), dans le fichier servi (`SITEMAP_PATH`), réécrit seulement s'il change. Le déploiement du front le régénère aussi.
+- Index des recherches : chaque recherche est enregistrée en file d'attente et rattachée à un arrêt de départ et un arrêt d'arrivée (position GPS comprise), avec les lignes proposées. Aucune IP ni position exacte n'est gardée.
+- Pages trajet `/trajets/depart--arrivee` : « Quel bus pour aller de A à B ? », avec la réponse, les autres trajets vers la même destination et depuis le même départ. Dans le sitemap à partir de 3 recherches.
+- Tableau de bord, « Usage de l'appli » sur 7, 30 ou 90 jours : trajets, départs et destinations les plus recherchés, lignes les plus proposées et les plus consultées, combinaisons, trajets sans réponse, heures et jours de recherche, taux de réponse, croissance.
+
 - Page « trajet » pour les combinaisons : tout le trajet sur une seule carte (une couleur par transport, la marche en pointillés, les changements marqués) et une frise montée → bus → changement → bus → arrivée, avec suivi de position sur l'ensemble du trajet. Plus besoin d'ouvrir chaque ligne.
 - Skill de design « Impeccable » dans `.claude/skills/` pour garder une interface soignée lors des prochaines évolutions.
 - Combinaisons de lignes : sans ligne directe à moins de 500 m à pied, QuelBus propose où changer de bus (un changement, deux en dernier recours). Les propositions imitent un habitué : bus SOTRA d'abord, changement dans les grandes gares, peu de marche, pas de détour ni de bus pour quelques centaines de mètres.

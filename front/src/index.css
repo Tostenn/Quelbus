@@ -2210,6 +2210,122 @@ dialog.report-sheet::backdrop {
   margin-top: 8px;
 }
 
+/* ---------- Usage de l'appli (tableau de bord) ---------- */
+
+.insights {
+  display: grid;
+  gap: 16px;
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.insights-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.insights-head .admin-section-title {
+  margin: 0;
+}
+
+.insight-period legend {
+  margin-right: 4px;
+}
+
+.stat-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.insight-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.insight-card {
+  min-width: 0;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.insight-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.insight-note {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.rank-list {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rank-list li {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rank-head {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.rank-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.rank-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-bar {
+  display: block;
+  height: 6px;
+  min-width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+
+.rank-detail {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.rank-line {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.rank-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.rank-badges {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
 @media (min-width: 720px) {
   dialog.report-sheet {
     inset: 0;
@@ -3501,6 +3617,10 @@ dialog.arrival h2 {
   }
 
   .charts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .insight-grid {
     grid-template-columns: 1fr 1fr;
   }
   .hero {

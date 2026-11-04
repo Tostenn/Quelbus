@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Line;
 use App\Models\Stop;
+use App\Services\Stats;
 use App\Services\Transit\RouteSearchService;
 use Illuminate\Http\JsonResponse;
 
@@ -24,6 +25,7 @@ class TransitController extends Controller
 
     public function line(Line $line): JsonResponse
     {
+        Stats::lineView($line->id);
         $line->load(['directions' => fn ($q) => $q->orderBy('id'), 'directions.stops:id,name,slug,lat,lng']);
 
         return response()->json(['data' => [

@@ -7,8 +7,10 @@ use App\Models\Line;
 use App\Models\Report;
 use App\Models\Stop;
 use App\Models\Subscriber;
+use App\Services\Insights;
 use App\Services\Stats;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
@@ -40,6 +42,16 @@ class AdminController extends Controller
             ],
             'days' => $days,
         ]]);
+    }
+
+    /**
+     * Usage de l'appli sur 7, 30 ou 90 jours : trajets, lignes, combinaisons, réponses manquantes.
+     */
+    public function insights(Request $request): JsonResponse
+    {
+        $days = (int) $request->query('jours', 30);
+
+        return response()->json(['data' => (new Insights(in_array($days, Insights::PERIODS, true) ? $days : 30))->all()]);
     }
 
     public function reports(): JsonResponse
