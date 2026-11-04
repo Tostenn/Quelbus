@@ -7,7 +7,7 @@ import LoadError from '../components/LoadError'
 import NotFound from '../components/NotFound'
 import type { Place } from '../lib/api'
 import { distance } from '../lib/geo'
-import { lineTitle, TYPE_LABELS, walkLabel } from '../lib/search'
+import { de, lineShort, lineTitle, SAME_STOP_M, sameName, TYPE_LABELS, walkLabel } from '../lib/search'
 import { fetchTrip, readLegs, type TripLeg } from '../lib/trip'
 import { useLiveLocation } from '../lib/useLiveLocation'
 import { usePageMeta } from '../lib/usePageMeta'
@@ -53,6 +53,8 @@ export default function Trip() {
   const legs = loading ? undefined : state.legs
   const first = legs?.[0].stops[0]
   const last = legs?.at(-1)?.stops.at(-1)
+  const startWalk = from && first ? Math.round(distance(from.lat, from.lng, first.lat, first.lng)) : 0
+  const endWalk = to && last ? Math.round(distance(last.lat, last.lng, to.lat, to.lng)) : 0
   const title = from && to ? `${from.name}\u00a0→ ${to.name}` : first && last ? `${first.name}\u00a0→ ${last.name}` : 'Votre trajet'
 
   usePageMeta(
@@ -176,7 +178,15 @@ export default function Trip() {
                 <li className="trip-walk">
                   <PersonSimpleWalk size={18} aria-hidden="true" />
                   <span>
-                    De <strong>{from.name}</strong>, {walkLabel(Math.round(distance(from.lat, from.lng, first.lat, first.lng)))} jusqu’à l’arrêt
+                    {from.name === 'Ma position' ? (
+                      <>Depuis votre position, {walkLabel(startWalk)} jusqu’à l’arrêt</>
+                    ) : sameName(from.name, first.name) ? (
+                      <>L’arrêt est à {walkLabel(startWalk)}</>
+                    ) : (
+                      <>
+                        De <strong>{from.name}</strong>, {walkLabel(startWalk)} jusqu’à l’arrêt
+                      </>
+                    )}
                   </span>
                 </li>
               )}
@@ -196,13 +206,19 @@ export default function Trip() {
                           <ArrowsLeftRight size={16} weight="bold" />
                         </span>
                         <span>
-                          <strong>Changement</strong>
-                          {walk > 0 ? (
+                          {walk < SAME_STOP_M ? (
                             <>
-                              {' '}· {walkLabel(walk)} de {previous.name} à {board.name}
+                              <strong>Changement</strong> au même arrêt
+                            </>
+                          ) : sameName(previous.name, board.name) ? (
+                            // Même arrêt des deux côtés de la route : on dit où aller, pas deux fois le même nom
+                            <>
+                              <strong>Changement à {board.name}</strong> · l’arrêt du {lineShort(leg.line)} est à {walkLabel(walk)}
                             </>
                           ) : (
-                            <> au même arrêt</>
+                            <>
+                              <strong>Changement</strong> · {walkLabel(walk)} {de(previous.name)} à {board.name}
+                            </>
                           )}
                         </span>
                       </li>
@@ -271,7 +287,13 @@ export default function Trip() {
                 <li className="trip-walk">
                   <PersonSimpleWalk size={18} aria-hidden="true" />
                   <span>
-                    {walkLabel(Math.round(distance(last.lat, last.lng, to.lat, to.lng)))} jusqu’à <strong>{to.name}</strong>
+                    {sameName(to.name, last.name) ? (
+                      <>Votre destination est à {walkLabel(endWalk)}</>
+                    ) : (
+                      <>
+                        {walkLabel(endWalk)} jusqu’à <strong>{to.name}</strong>
+                      </>
+                    )}
                   </span>
                 </li>
               )}

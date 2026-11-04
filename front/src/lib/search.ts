@@ -28,6 +28,27 @@ export function walkLabel(meters: number): string {
   return meters < 40 ? `${meters} m à pied` : `${meters} m à pied · ${Math.round(meters / 80) || 1} min`
 }
 
+/** En dessous, deux arrêts se confondent sur place : on parle du « même arrêt ». */
+export const SAME_STOP_M = 40
+
+const normalizeName = (name: string) =>
+  name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+
+/** Un même arrêt existe souvent deux fois, une de chaque côté de la route : mêmes noms, positions proches. */
+export function sameName(a: string, b: string): boolean {
+  return normalizeName(a) === normalizeName(b)
+}
+
+/** « de Plateau », mais « d’Adjamé ». */
+export function de(name: string): string {
+  return /^[aeiouyàâäéèêëîïôöùûüh]/i.test(name) ? `d’${name}` : `de ${name}`
+}
+
+/** Comment on nomme une ligne à l'oral : « le 90 », « le gbaka », « le wôrô-wôrô ». */
+export function lineShort(line: { ref: string | null; type: LineType }): string {
+  return line.ref ?? (line.type === 'gbaka' ? 'gbaka' : line.type === 'woro-woro' ? 'wôrô-wôrô' : 'bus')
+}
+
 export function formatDistance(meters: number): string {
   return meters < 1000 ? `${meters} m` : `${(meters / 1000).toFixed(1).replace('.', ',')} km`
 }

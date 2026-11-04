@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { ArrowRight, ArrowsLeftRight, PersonSimpleWalk } from '@phosphor-icons/react'
 import LineBadge from './LineBadge'
 import type { Combination, Place } from '../lib/api'
-import { TYPE_LABELS, walkLabel } from '../lib/search'
+import { lineShort, SAME_STOP_M, sameName, TYPE_LABELS, walkLabel } from '../lib/search'
 import { tripUrl } from '../lib/trip'
 
 type Props = { combination: Combination; from: Place; to: Place; best?: boolean }
@@ -53,13 +53,15 @@ export default function CombinationCard({ combination, from, to, best = false }:
                   </span>
                   <span className="result-stop">{leg.board.name}</span>
                   <span className="muted walk">
-                    {leg.board.walk > 0 ? (
+                    {leg.board.walk < SAME_STOP_M ? (
+                      'Au même arrêt'
+                    ) : (
                       <>
                         <PersonSimpleWalk size={16} aria-hidden="true" />
-                        {walkLabel(leg.board.walk)} depuis {legs[i - 1].alight.name}
+                        {sameName(legs[i - 1].alight.name, leg.board.name)
+                          ? `L’arrêt du ${lineShort(leg.line)} est à ${walkLabel(leg.board.walk)}`
+                          : `${walkLabel(leg.board.walk)} depuis ${legs[i - 1].alight.name}`}
                       </>
-                    ) : (
-                      'Au même arrêt'
                     )}
                     {leg.lines_here >= 5 && ` · ${leg.lines_here} lignes y passent`}
                   </span>
