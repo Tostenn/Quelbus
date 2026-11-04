@@ -26,6 +26,13 @@ php artisan serve        # http://localhost:8000
 
 Les emails partent en file d'attente : lancer `php artisan queue:work` à côté du serveur, en local comme en production.
 
+Correspondances : `app/Services/Transit/TransferPlanner.php` (règles et poids en tête du fichier) s'appuie sur `TransitNetwork.php`, le réseau en mémoire, mis en cache dans un fichier (≈ 4 Mo) et reconstruit automatiquement après un import. Pour vérifier les propositions :
+
+```bash
+php artisan transit:route "Yopougon Siporex" "Cocody Centre"
+php artisan transit:route 5.3405,-4.0905 5.3515,-3.99 --types=sotra
+```
+
 Newsletter : un email par inscrit, espacés de `NEWSLETTER_DELAY` secondes (2 par défaut) pour respecter les limites d'envoi de l'hébergeur. Les personnes désinscrites sont exclues. Le lien de désinscription est signé avec `APP_URL` : en production, `APP_URL` doit être l'adresse publique de l'API (`https://api.quelbus.ci`), sinon les liens ne fonctionnent pas. Le lien du groupe WhatsApp se règle avec `WHATSAPP_GROUP_URL`.
 
 Le logo des emails est une image PNG servie par le site : `front/public/email/quelbus-logo.png`, chargée depuis `FRONTEND_URL`. Les clients mail (Gmail, Outlook) n'affichent pas les SVG.

@@ -73,6 +73,11 @@ export type SearchResult = {
   walk: number
 }
 
+/** Une étape d'une combinaison : `board.walk` est la marche pour rejoindre l'arrêt (depuis le départ ou la ligne précédente). */
+export type CombinationLeg = Omit<SearchResult, 'walk'> & { lines_here: number }
+
+export type Combination = { legs: CombinationLeg[]; changes: number; walk: number; stops: number; score: number }
+
 export type SearchResponse = {
   radius: number
   requested_radius: number
@@ -80,6 +85,10 @@ export type SearchResponse = {
   walkable: boolean
   distance: number
   results: SearchResult[]
+  /** Lignes à combiner, quand il n'y a pas de ligne directe à moins de 500 m à pied */
+  combinations: Combination[]
+  /** Ce qui est le plus pratique et s'affiche en premier */
+  prefer: 'direct' | 'combinations'
 }
 
 export type SearchParams = { from: Place; to: Place; radius: number; types: LineType[] }

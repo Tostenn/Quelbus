@@ -1569,6 +1569,77 @@ main {
   line-height: 1.3;
 }
 
+.combination-head {
+  display: grid;
+  gap: 8px;
+}
+
+.combination-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--faint);
+}
+
+.combination-steps {
+  display: grid;
+  margin: 0;
+  padding: 14px 0 0;
+  list-style: none;
+  border-top: 1px solid #efe9df;
+}
+
+.combination-stop,
+.combination-ride {
+  display: grid;
+  grid-template-columns: 13px 1fr;
+  column-gap: 12px;
+}
+
+.combination-stop > div,
+.combination-ride > div {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+}
+
+.combination-stop .field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pin-change {
+  background: var(--surface);
+  border: 3px solid var(--ink);
+}
+
+/* Le trait du trajet, de la couleur du transport */
+.combination-ride {
+  padding: 4px 0;
+}
+
+.combination-track {
+  justify-self: center;
+  width: 4px;
+  border-radius: 2px;
+  margin: -2px 0;
+  background: var(--ride, var(--accent));
+}
+
+.combination-ride > div {
+  padding: 10px 0 12px;
+  gap: 4px;
+}
+
+.combination-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .skeleton {
   height: 190px;
   background: linear-gradient(90deg, var(--surface) 0%, var(--surface-soft) 50%, var(--surface) 100%);
@@ -2291,6 +2362,294 @@ a.result-card:active {
 
 .stop-item.is-current {
   opacity: 1;
+}
+
+/* ---------- Page trajet (combinaison de lignes) ---------- */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--accent-ink);
+  cursor: pointer;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.trip-title {
+  font-size: 1.6rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.trip-lines {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--faint);
+}
+
+.trip-lines .muted {
+  margin-left: 4px;
+}
+
+.trip-steps {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Couleur du trajet selon le transport, la même que sur la carte */
+.ride-sotra {
+  --ride: var(--accent);
+}
+
+.ride-gbaka {
+  --ride: #2f5d7d;
+}
+
+.ride-woro-woro {
+  --ride: #2f7d4a;
+}
+
+.ride-autre {
+  --ride: var(--muted);
+}
+
+.trip-walk {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  color: var(--muted);
+}
+
+.trip-walk svg {
+  justify-self: center;
+}
+
+.trip-leg {
+  padding: 18px 0 14px;
+  border-top: 1px solid var(--border);
+}
+
+.trip-walk + .trip-leg {
+  border-top: 0;
+}
+
+.trip-leg-head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.trip-leg-head p {
+  margin: 0;
+}
+
+.trip-leg-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.trip-stops {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trip-stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 8px 0;
+}
+
+/* Le trait du trajet relie la montée à la descente */
+.trip-stop::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--ride);
+}
+
+.trip-stop:first-child::before {
+  top: 18px;
+}
+
+.trip-stop:last-child::before {
+  bottom: calc(100% - 18px);
+}
+
+.trip-dot {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 3px solid var(--ride);
+}
+
+.trip-stop.is-key .trip-dot {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+}
+
+.trip-stop.is-board .trip-dot {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.trip-stop.is-alight .trip-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.trip-stop.is-change .trip-dot {
+  background: var(--surface);
+  border: 4px solid var(--ink);
+}
+
+.trip-stop.is-key > span:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.trip-stop.is-key .stop-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.trip-stop.is-board .stop-role {
+  color: var(--success);
+}
+
+.trip-stop.is-change .stop-role {
+  color: var(--ink);
+}
+
+.trip-middle summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.trip-middle summary::-webkit-details-marker {
+  display: none;
+}
+
+.trip-middle summary:hover {
+  color: var(--ink);
+}
+
+.trip-middle summary svg {
+  transition: transform 0.2s ease-out;
+}
+
+.trip-middle details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.trip-middle details ol {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 6px;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+}
+
+.trip-middle details li.is-current {
+  color: #1f6fd1;
+  font-weight: 800;
+}
+
+.trip-line-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 6px 0 0 38px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.trip-line-link:hover {
+  text-decoration: underline;
+}
+
+.trip-change {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin: 4px 0;
+  padding: 12px 12px 12px 0;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  line-height: 1.35;
+}
+
+.trip-change-icon {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.trip-change + .trip-leg {
+  border-top: 0;
+}
+
+.trip-leg.is-active .trip-leg-title {
+  color: #1f6fd1;
+}
+
+.trip-note {
+  margin-top: 18px;
+}
+
+.map-pin-change {
+  background: var(--ink);
+}
+
+.legend-walk {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 4px dotted var(--muted);
 }
 
 dialog.arrival {
@@ -3347,6 +3706,10 @@ fieldset.amounts legend {
 
   .line-map {
     height: 420px;
+  }
+
+  .trip-title {
+    font-size: 2rem;
   }
 
   .result-legs {

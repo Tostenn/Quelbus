@@ -6,7 +6,8 @@ use App\Models\Stop;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Lignes directes entre deux points (voir le cahier des charges, section 5).
+ * Lignes directes entre deux points (voir le cahier des charges, section 5), et combinaisons de lignes
+ * quand il n'y en a pas.
  */
 class RouteSearchService
 {
@@ -14,11 +15,18 @@ class RouteSearchService
 
     private const EARTH_RADIUS_M = 6371000;
 
+    /** Au-delà, une ligne directe impose trop de marche : on propose aussi des combinaisons. */
+    public const DIRECT_MAX_RADIUS = 500;
+
+    /** En dessous, mieux vaut marcher que changer de bus. */
+    private const COMBINATIONS_MIN_DISTANCE_M = 1200;
+
     /**
-     * Élargit le rayon (500 puis 800 m) tant qu'aucune ligne n'est trouvée.
+     * Élargit le rayon (500 puis 800 m) tant qu'aucune ligne n'est trouvée. Sans ligne directe à 500 m
+     * au plus, cherche aussi des combinaisons de lignes (voir TransferPlanner).
      *
      * @param  list<string>|null  $types  sotra, gbaka, woro-woro… (null = tous)
-     * @return array{radius: int, requested_radius: int, expanded: bool, walkable: bool, distance: int, results: list<array>}
+     * @return array{radius: int, requested_radius: int, expanded: bool, walkable: bool, distance: int, results: list<array>, combinations: list<array>, prefer: string}
      */
     public function search(float $fromLat, float $fromLng, float $toLat, float $toLng, int $radius = 300, ?array $types = null): array
     {
@@ -35,6 +43,24 @@ class RouteSearchService
             }
         }
 
+        $combinations = [];
+        $prefer = 'direct';
+        $comboRadius = max($radius, self::DIRECT_MAX_RADIUS);
+        if ((! $results || $r > $comboRadius) && $distance > self::COMBINATIONS_MIN_DISTANCE_M) {
+            $planner = app(TransferPlanner::class);
+            $combinations = $planner->plan(
+                $fromLat, $fromLng, $toLat, $toLng,
+                $this->nearbyStops($fromLat, $fromLng, $comboRadius),
+                $this->nearbyStops($toLat, $toLng, $comboRadius),
+                $types,
+            );
+            // Une ligne directe très éloignée à pied peut être moins pratique qu'un changement
+            if ($combinations) {
+                $direct = $results ? $planner->directCost($results[0]) : null;
+                $prefer = $direct === null || $combinations[0]['score'] < $direct ? 'combinations' : 'direct';
+            }
+        }
+
         return [
             'radius' => $r,
             'requested_radius' => $radius,
@@ -42,6 +68,8 @@ class RouteSearchService
             'walkable' => $distance <= $radius,
             'distance' => $distance,
             'results' => $results,
+            'combinations' => $combinations,
+            'prefer' => $prefer,
         ];
     }
 

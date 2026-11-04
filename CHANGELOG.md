@@ -19,6 +19,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Ajouté
 
+- Page « trajet » pour les combinaisons : tout le trajet sur une seule carte (une couleur par transport, la marche en pointillés, les changements marqués) et une frise montée → bus → changement → bus → arrivée, avec suivi de position sur l'ensemble du trajet. Plus besoin d'ouvrir chaque ligne.
+- Skill de design « Impeccable » dans `.claude/skills/` pour garder une interface soignée lors des prochaines évolutions.
+- Combinaisons de lignes : sans ligne directe à moins de 500 m à pied, QuelBus propose où changer de bus (un changement, deux en dernier recours). Les propositions imitent un habitué : bus SOTRA d'abord, changement dans les grandes gares, peu de marche, pas de détour ni de bus pour quelques centaines de mètres.
+- Commande `php artisan transit:route "départ" "arrivée"` pour vérifier les propositions sur les vraies données.
 - Newsletter dans le tableau de bord : rédaction en Markdown avec aperçu en direct, `{prenom}` remplacé par le prénom, email de test à soi-même, choix du public (tous, utilisateurs, contributeurs), historique des envois.
 - Lien de désinscription dans chaque email (page de confirmation et désinscription « en un clic » de Gmail / Outlook). Une personne désinscrite qui se réinscrit est réactivée.
 - Bouton « Rejoins-moi ici » (accueil et recherche) : partage sa position sur WhatsApp sans définir de trajet, avec l'arrêt le plus proche comme repère. La personne qui reçoit le lien voit quel bus prendre pour venir.
