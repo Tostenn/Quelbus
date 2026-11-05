@@ -24,7 +24,22 @@ body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-f
 #trip .to{background:var(--accent)}
 #trip .arr{color:var(--accent);font-weight:900}
 #hook{position:absolute;left:90px;right:90px;top:800px;font-size:136px;line-height:1;font-weight:900;letter-spacing:-.045em}
-#nodirect{position:absolute;left:90px;top:1170px;display:flex;align-items:center;gap:18px;font-size:44px;font-weight:700;color:#cfc6ba}
+#nodirect{position:absolute;left:90px;right:90px;top:250px;display:flex;align-items:center;gap:24px;font-size:72px;line-height:1.02;font-weight:900;letter-spacing:-.035em;color:var(--cream)}
+#nodirect .x{flex:none}
+/* S1b : les lignes qui s'arrêtent en route */
+#pmap{position:absolute;left:0;top:470px;width:1080px;height:1000px}
+#pmap .city{font:800 46px Archivo,sans-serif;fill:var(--cream)}
+#pmap .city.to{fill:var(--peach)}
+.px{position:absolute;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:#3a2a22;border:4px solid var(--peach);display:grid;place-items:center;color:var(--peach)}
+#pcap{position:absolute;left:90px;right:90px;top:1530px;font-size:44px;font-weight:700;color:#cfc6ba;line-height:1.25}
+/* S1c : les conseils qui se contredisent */
+#ask1{position:absolute;left:90px;right:90px;top:250px;font-size:80px;line-height:1.02;font-weight:900;letter-spacing:-.035em}
+#ask2{position:absolute;left:90px;right:90px;top:1500px;font-size:76px;line-height:1.02;font-weight:900;letter-spacing:-.035em;color:var(--accent)}
+.bub{position:absolute;max-width:760px;padding:30px 40px;border-radius:44px;background:var(--cream);color:var(--ink);font-size:50px;font-weight:800;letter-spacing:-.02em;line-height:1.1;box-shadow:0 30px 60px -30px rgba(0,0,0,.8)}
+.bub.r{border-bottom-right-radius:10px}
+.bub.l{border-bottom-left-radius:10px}
+.bub.o{background:var(--accent);color:#fff}
+.bub.g{background:#3a322c;color:var(--cream)}
 #nodirect .x{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#3a2a22;color:var(--peach);font-size:40px;font-weight:900}
 
 /* ---------- S2 révélation ---------- */
@@ -123,7 +138,30 @@ body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-f
 <div class="layer" id="dark"><div class="stripes"></div>
   <div id="trip"><span class="pl"><span class="dot from"></span>Angré</span><span class="arr">→</span><span class="pl"><span class="dot to"></span>Gonzagueville</span></div>
   <h1 id="hook"><span class="l" id="h1"></span><br><span class="l" id="h2"></span></h1>
-  <div id="nodirect"><span class="x"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span><span>Aucune ligne ne fait tout le trajet</span></div>
+  <div id="nodirect"><span class="x px" style="position:static;margin:0"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span><span>Aucun bus ne fait tout le trajet.</span></div>
+  <svg id="pmap" viewBox="0 0 1080 1000">
+    <g stroke="rgba(250,247,242,.07)" stroke-width="18" fill="none"><path d="M-20 300 C 300 260, 700 340, 1100 280"/><path d="M-20 640 C 340 600, 640 700, 1100 620"/><path d="M260 -20 C 300 300, 230 650, 300 1020"/><path d="M720 -20 C 680 360, 760 640, 700 1020"/></g>
+    <path d="M-20 860 C 200 820, 420 900, 640 870 C 820 845, 960 900, 1100 880 L 1100 1020 L -20 1020 Z" fill="rgba(120,170,190,.18)"/>
+    <path id="pl1" d="M330 150 C 300 260, 230 360, 170 470" fill="none" stroke="#2f5d7d" stroke-width="16" stroke-linecap="round"/>
+    <path id="pl2" d="M330 150 C 380 300, 440 420, 520 520" fill="none" stroke="#ce5b22" stroke-width="16" stroke-linecap="round"/>
+    <path id="pl3" d="M330 150 C 480 160, 640 200, 820 250" fill="none" stroke="#2f7d4a" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="330" cy="150" r="28" fill="#1a1613" stroke="#faf7f2" stroke-width="12"/>
+    <text class="city" x="380" y="120">Angré</text>
+    <circle id="pgz" cx="820" cy="760" r="34" fill="#ce5b22"/>
+    <text class="city to" x="560" y="850">Gonzagueville</text>
+  </svg>
+  <span class="px" id="px1" style="left:170px;top:940px"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+  <span class="px" id="px2" style="left:520px;top:990px"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+  <span class="px" id="px3" style="left:820px;top:720px"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+  <p id="pcap">Il faut changer de bus en route… mais où&nbsp;?</p>
+
+  <h2 id="ask1">On demande à tout le monde…</h2>
+  <div class="bub r" id="q1" style="left:300px;top:520px">Prends le 81&nbsp;!</div>
+  <div class="bub l g" id="q2" style="left:90px;top:700px">Non, descends à Adjamé.</div>
+  <div class="bub r o" id="q3" style="left:230px;top:890px">Va d’abord à la Gare Sud…</div>
+  <div class="bub l" id="q4" style="left:90px;top:1080px">Demande au chauffeur.</div>
+  <div class="bub r g" id="q5" style="left:320px;top:1270px">Moi je connais pas hein.</div>
+  <h2 id="ask2">…et chacun dit autre chose.</h2>
 </div>
 
 <!-- S2 : révélation orange -->
@@ -253,15 +291,15 @@ function words(el, html) {
 const CHECK = '<svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path class="ckp" d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
 document.querySelectorAll('.ck').forEach((c) => (c.innerHTML = CHECK))
 
-const w1 = words($('h1'), 'Pas de bus')
-const w2 = words($('h2'), 'direct&nbsp;?')
+const w1 = words($('h1'), 'Je prends')
+const w2 = words($('h2'), 'quel bus&nbsp;?')
 $('h2').querySelectorAll('.w').forEach((w) => (w.style.color = 'var(--accent)'))
 const rw = words($('rH'), 'Les correspondances')
 
 /* ---------- temps (en s) : une mesure = 2 s ---------- */
-const T = { trip: 0.15, hook: 0.9, nod: 2.2, s1Out: 3.7, wipe: 4.0, revOut: 5.75, demo: 6.0,
-  type1: 6.45, type2: 7.2, tapGo: 8.25, results: 8.6, card: 8.9, tapCard: 10.55, trip3: 10.9,
-  benefits: 15.0, cta: 19.5, end: 24.0 }
+const T = { trip: 0.15, hook: 0.7, s1Out: 2.8, map: 3.0, nod: 3.1, mapOut: 5.75, ask: 6.0, askOut: 8.7, wipe: 9.0, revOut: 10.75, demo: 11.0,
+  type1: 11.45, type2: 12.2, tapGo: 13.25, results: 13.6, card: 13.9, tapCard: 15.55, trip3: 15.9,
+  benefits: 20.0, cta: 24.5, end: 29.0 }
 window.DURATION = T.end
 
 const legs = ['leg1', 'walk', 'leg2'].map((id) => { const el = $(id); const L = el.getTotalLength(); el.style.strokeDasharray = id === 'walk' ? '1 11' : `${L} ${L}`; return { el, L, id } })
@@ -286,9 +324,32 @@ window.render = function (t) {
     const a = p(t, T.hook + i * 0.12, 0.55, E.backOut), b = p(t, T.s1Out + 0.05, 0.3, E.expoIn)
     st(w, { y: (1 - a) * 90 - b * 80, o: clamp(a * 1.4) * (1 - b) })
   })
-  inOut($('nodirect'), t, T.nod, T.s1Out, 40)
-  const shake = t > T.nod && t < T.nod + 0.45 ? Math.sin((t - T.nod) * 60) * 10 * (1 - (t - T.nod) / 0.45) : 0
-  $('nodirect').querySelector('.x').style.transform = `translateX(${shake}px)`
+  // S1b : trois lignes partent d'Angré… et s'arrêtent en route
+  inOut($('nodirect'), t, T.nod, T.mapOut, 40)
+  const mo = p(t, T.mapOut, 0.3, E.expoIn)
+  const mi = p(t, T.map, 0.4)
+  $('pmap').style.opacity = mi * (1 - mo)
+  inOut($('pcap'), t, T.map + 1.9, T.mapOut, 30)
+  ;['pl1', 'pl2', 'pl3'].forEach((id, i) => {
+    const el = $(id), L = el.getTotalLength(), at = T.map + 0.35 + i * 0.5
+    el.style.strokeDasharray = `${L} ${L}`
+    el.style.strokeDashoffset = L * (1 - p(t, at, 0.55, E.inOut))
+    const x = $('px' + (i + 1)), k = p(t, at + 0.5, 0.35, E.backOut)
+    const sh = t > at + 0.5 && t < at + 0.9 ? Math.sin((t - at - 0.5) * 70) * 8 * (1 - (t - at - 0.5) / 0.4) : 0
+    x.style.transform = `translateX(${sh}px) scale(${k})`
+    x.style.opacity = clamp(k * 2) * (1 - mo)
+  })
+  // Gonzagueville clignote : on n'y arrive pas
+  $('pgz').setAttribute('r', 34 + 6 * Math.max(0, Math.sin((t - T.map) * Math.PI * 2)))
+
+  // S1c : les conseils qui se contredisent
+  inOut($('ask1'), t, T.ask + 0.05, T.askOut, 40)
+  ;['q1', 'q2', 'q3', 'q4', 'q5'].forEach((id, i) => {
+    const at = T.ask + 0.3 + i * 0.32, k = p(t, at, 0.45, E.backOut), out = p(t, T.askOut, 0.3, E.expoIn)
+    const wob = Math.sin((t + i) * 5) * 1.5
+    st($(id), { y: (1 - k) * 60 + out * 120, s: 0.7 + 0.3 * k, r: (i % 2 ? -2 : 2) + wob, o: clamp(k * 2) * (1 - out) })
+  })
+  inOut($('ask2'), t, T.ask + 1.95, T.askOut, 40)
 
   /* --- S2 révélation : disque orange qui envahit l'écran --- */
   const wk = p(t, T.wipe, 0.55, E.inOut)

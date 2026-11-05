@@ -1,8 +1,8 @@
 """Musique de la vidéo « correspondances », synthétisée de zéro (libre de droits).
 
 120 BPM : une mesure = 2 s, les changements de scène tombent sur les mesures (voir T dans scene.template.html).
-Deux « drops » : la révélation orange (4 s) et l'appel à l'action (19,5 s). Petits sons sur les touches,
-les apparitions de la carte et les coches.
+Le problème (0-9 s) reste en tension, sans grosse caisse pleine ; la solution arrive sur un « drop »
+(révélation orange, 9 s), puis le groove porte la démo ; second drop sur l'appel à l'action (24,5 s).
 
     python3 music.py            # écrit music.wav
 """
@@ -10,7 +10,7 @@ import numpy as np
 import wave
 
 SR = 44100
-DUR = 24.0
+DUR = 29.0
 N = int(SR * DUR)
 rng = np.random.default_rng(7)
 BEAT = 0.5  # 120 BPM
@@ -210,37 +210,44 @@ def chord(name, up=False):
     return [f * 2 for f in fs] if up else fs
 
 
-# accroche (0-4) : la question, en suspens, avec battement de cœur
-for bar, ch in enumerate(['Dm', 'Bb']):
+# problème (0-9) : tension, battement de cœur, accords mineurs suspendus
+for bar, ch in enumerate(['Dm', 'Bb', 'Gm', 'Dm']):
     music.add(pad(chord(ch), 2.3), bar * 2, 0.5)
     for k in (0, 2):
-        K(bar * 2 + k * BEAT, 0.5)
-    music.add(bass(note(ROOT[ch]), 0.9), bar * 2, 0.45)
-for at, n in [(0.5, 'A4'), (1.0, 'C5'), (1.5, 'D5'), (2.5, 'F5'), (3.0, 'E5')]:
-    music.add(marimba(note(n)), at, 0.24, pan=0.2)
-sfx.add(pop(380, 0.3), 2.2, 0.3)  # « aucune ligne… »
-roll = [3.0 + i * 0.25 for i in range(2)] + [3.5 + i * 0.125 for i in range(4)]
+        K(bar * 2 + k * BEAT, 0.45 + 0.04 * bar)
+    music.add(bass(note(ROOT[ch]), 0.9), bar * 2, 0.42)
+music.add(pad(chord('Csus'), 1.2), 8.0, 0.5)
+for at, n in [(0.5, 'A4'), (1.0, 'C5'), (1.5, 'D5'), (2.4, 'E5')]:  # la question
+    music.add(marimba(note(n)), at, 0.22, pan=0.2)
+for i in range(16):  # tic-tac : on perd du temps
+    drums.add(shaker(0.04, 9000), 3.0 + i * 0.375, 0.07 + 0.08 * i / 16, pan=0.4 if i % 2 else -0.4)
+for i in range(3):  # chaque ligne s'arrête en route : petit « buzz » grave
+    sfx.add(pop(220 - 20 * i, 0.32), 3.35 + i * 0.5 + 0.5, 0.32)
+for i in range(5):  # bulles de conseils
+    sfx.add(pop(650 + 90 * i, 0.12), 6.3 + i * 0.32, 0.2, pan=-0.4 + 0.2 * i)
+roll = [7.75 + i * 0.125 for i in range(4)] + [8.25 + i * 0.0625 for i in range(8)]
 for i, at in enumerate(roll):
-    drums.add(snare(0.15), at, 0.12 + 0.3 * i / len(roll))
-sfx.add(riser(1.0), 2.95, 0.28)
+    drums.add(snare(0.12), at, 0.1 + 0.32 * i / len(roll))
+sfx.add(riser(1.3), 7.55, 0.3)
+# (8.8-9.0 : silence avant le drop)
 
-# révélation (4) : DROP
-sfx.add(impact(), 4.0, 0.7)
-drums.add(crash(3.0), 4.0, 0.22)
-music.add(subdrop(1.8), 4.0, 0.65)
-K(4.0, 0.9)
-music.add(stab([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 0.5), 4.0, 0.8)
+# solution (9) : DROP
+sfx.add(impact(), 9.0, 0.75)
+drums.add(crash(3.0), 9.0, 0.22)
+music.add(subdrop(1.8), 9.0, 0.65)
+K(9.0, 0.9)
+music.add(stab([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 0.5), 9.0, 0.8)
+music.add(pad([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 2.2, att=0.05, rel=0.8), 9.0, 0.45)
 for i, n in enumerate(['C5', 'F5', 'A5']):
-    music.add(marimba(note(n), 1.2), 4.42 + i * 0.13, 0.35)
-for at in (5.0,):
-    K(at, 0.7)
-    drums.add(snare(), at + 0.5, 0.3)
+    music.add(marimba(note(n), 1.2), 9.42 + i * 0.13, 0.35)
+K(10.0, 0.7)
+drums.add(snare(), 10.5, 0.3)
 
-# démo et atouts (6-19.5) : I-V-vi-IV, basse syncopée, stabs à contretemps
+# démo et atouts (11-24.5) : I-V-vi-IV, basse syncopée, stabs à contretemps
 prog = ['F', 'C', 'Dm', 'Bb']
 melody = [(0, 'C5'), (0.75, 'A4'), (1.5, 'C5'), (2.0, 'D5'), (2.75, 'C5'),
           (4, 'A4'), (4.75, 'G4'), (5.5, 'A4'), (6.0, 'C5'), (7.0, 'F5')]
-start, stop = 6.0, 19.5
+start, stop = 11.0, 24.5
 for b in range(7):
     t0 = start + b * 2
     ch = prog[b % 4]
@@ -268,44 +275,44 @@ for b in range(7):
             ta = start + (b // 2) * 4 + at * BEAT
             if (b % 2 == 0 and at < 4 or b % 2 == 1 and at >= 4) and t0 <= ta < t0 + lim:
                 music.add(marimba(note(n)), ta, 0.26, pan=0.15)
-    if b >= 4:  # couche en plus pour les atouts
+    if b >= 4:
         for k in range(8):
             if k * BEAT / 2 < lim:
                 music.add(marimba(note(CH[ch][k % 3]) * 2, 0.3), t0 + k * BEAT / 2, 0.09, pan=-0.4)
-drums.add(crash(2.0), 6.0, 0.14)
-drums.add(crash(1.8), 15.0, 0.13)
+drums.add(crash(2.0), 11.0, 0.14)
+drums.add(crash(1.8), 20.0, 0.13)
 
 # sons de l'interface
 for i in range(18):  # frappe « Petro Ivoire Angré »
-    sfx.add(click(3800 + rng.random() * 600, 0.025), 6.45 + i / 26, 0.1)
+    sfx.add(click(3800 + rng.random() * 600, 0.025), 11.45 + i / 26, 0.1)
 for i in range(22):  # frappe « Terminus Gonzagueville »
-    sfx.add(click(3800 + rng.random() * 600, 0.025), 7.2 + i / 26, 0.1)
-for at in (8.25, 10.55):  # taps
+    sfx.add(click(3800 + rng.random() * 600, 0.025), 12.2 + i / 26, 0.1)
+for at in (13.25, 15.55):  # taps
     sfx.add(click(), at, 0.32)
-sfx.add(pop(900), 8.9, 0.2)  # la combinaison arrive
-for i, at in enumerate((11.4, 12.35, 13.3)):  # repères de la carte
+sfx.add(pop(900), 13.9, 0.2)  # la combinaison arrive
+for i, at in enumerate((16.4, 17.35, 18.3)):  # repères de la carte
     sfx.add(pop(700 + 120 * i, 0.15), at, 0.18)
 for i in range(4):  # coches des atouts
-    sfx.add(pop(800 + i * 120, 0.15), 15.8 + i * 0.75 + 0.1, 0.18)
+    sfx.add(pop(800 + i * 120, 0.15), 20.8 + i * 0.75 + 0.1, 0.18)
 
-# appel à l'action (19.5) : second drop, accord final sur la tonique
-for i, at in enumerate([18.5 + i * 0.125 for i in range(8)]):
+# appel à l'action (24.5) : second drop, accord final sur la tonique
+for i, at in enumerate([23.5 + i * 0.125 for i in range(8)]):
     drums.add(snare(0.12), at, 0.12 + 0.04 * i)
-sfx.add(riser(1.0), 18.5, 0.22)
-sfx.add(impact(3.5), 19.5, 0.6)
-drums.add(crash(3.0), 19.5, 0.22)
-music.add(subdrop(1.8), 19.5, 0.6)
-K(19.5, 0.9)
-music.add(stab(chord('Bb', True), 0.4), 19.5, 0.6)
-music.add(stab(chord('C', True), 0.4), 20.25, 0.55)
-K(20.25, 0.7)
-music.add(pad([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 3.2, att=0.05, rel=2.0), 21.0, 0.7)
-music.add(stab([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 0.6), 21.0, 0.7)
-music.add(bass(note('F1'), 2.2), 21.0, 0.5)
+sfx.add(riser(1.0), 23.5, 0.22)
+sfx.add(impact(3.5), 24.5, 0.6)
+drums.add(crash(3.0), 24.5, 0.22)
+music.add(subdrop(1.8), 24.5, 0.6)
+K(24.5, 0.9)
+music.add(stab(chord('Bb', True), 0.4), 24.5, 0.6)
+music.add(stab(chord('C', True), 0.4), 25.25, 0.55)
+K(25.25, 0.7)
+music.add(pad([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 3.2, att=0.05, rel=2.0), 26.0, 0.7)
+music.add(stab([note(n) for n in ['F3', 'A3', 'C4', 'F4']], 0.6), 26.0, 0.7)
+music.add(bass(note('F1'), 2.2), 26.0, 0.5)
 for i, n in enumerate(['C5', 'F5', 'A5', 'C6']):
-    music.add(marimba(note(n), 1.6), 20.6 + i * 0.12, 0.25, pan=-0.3 + 0.2 * i)
-K(21.0, 0.8)
-drums.add(crash(2.4), 21.0, 0.15)
+    music.add(marimba(note(n), 1.6), 25.6 + i * 0.12, 0.25, pan=-0.3 + 0.2 * i)
+K(26.0, 0.8)
+drums.add(crash(2.4), 26.0, 0.15)
 
 # ---------- mixage ----------
 t = np.arange(N) / SR
@@ -317,7 +324,7 @@ music.l *= pump
 music.r *= pump
 L = reverb(music.l, mix=0.25) + drums.l + reverb(sfx.l, 1.0, 0.15)
 R = reverb(music.r, mix=0.25) + drums.r + reverb(sfx.r, 1.0, 0.15)
-gap = 1 - 0.97 * ((t > 3.8) & (t < 4.0))  # coupure avant le drop
+gap = 1 - 0.97 * ((t > 8.8) & (t < 9.0))  # coupure avant le drop
 L, R = L * gap, R * gap
 fade = np.minimum(1, t / 0.05) * np.minimum(1, (DUR - t) / 1.5)
 L, R = L * fade, R * fade
