@@ -13,16 +13,16 @@ import subprocess
 here = pathlib.Path(__file__).parent
 
 # (début, fin à ne pas dépasser) en secondes, une ligne par phrase de voix-off.md
-CUES = [
-    (0.15, 3.1),    # 01 accroche
-    (3.2, 5.95),    # 02 aucun bus ne fait tout le trajet
-    (6.05, 8.85),   # 03 chacun dit autre chose
-    (9.3, 11.25),   # 04 révélation
-    (11.3, 13.65),  # 05 saisie
-    (13.7, 16.05),  # 06 résultat
-    (16.1, 19.9),   # 07 page trajet
-    (20.2, 24.35),  # 08 atouts
-    (24.7, 28.7),   # 09 appel à l'action
+CUES = [  # calés sur T (scene.template.html), voix à vitesse naturelle
+    (0.3, 3.6),     # 01 accroche
+    (3.85, 7.6),    # 02 aucun bus ne fait tout le trajet
+    (7.8, 11.7),    # 03 chacun dit autre chose
+    (12.1, 14.8),   # 04 révélation
+    (15.15, 17.75), # 05 saisie
+    (17.9, 20.95),  # 06 résultat
+    (21.4, 26.7),   # 07 page trajet
+    (27.0, 31.2),   # 08 atouts
+    (31.7, 35.8),   # 09 appel à l'action
 ]
 SIL = 'start_periods=1:start_threshold=-45dB:start_silence=0.03'
 

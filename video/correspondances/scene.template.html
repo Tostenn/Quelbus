@@ -297,9 +297,9 @@ $('h2').querySelectorAll('.w').forEach((w) => (w.style.color = 'var(--accent)'))
 const rw = words($('rH'), 'Les correspondances')
 
 /* ---------- temps (en s) : une mesure = 2 s ---------- */
-const T = { trip: 0.15, hook: 0.7, s1Out: 2.8, map: 3.0, nod: 3.1, mapOut: 5.75, ask: 6.0, askOut: 8.7, wipe: 9.0, revOut: 10.75, demo: 11.0,
-  type1: 11.45, type2: 12.2, tapGo: 13.25, results: 13.6, card: 13.9, tapCard: 15.55, trip3: 15.9,
-  benefits: 20.0, cta: 24.5, end: 29.0 }
+const T = { trip: 0.15, hook: 0.6, s1Out: 3.45, map: 3.65, nod: 3.75, mapOut: 7.5, ask: 7.7, askOut: 11.55, wipe: 11.85, revOut: 14.65, demo: 14.9,
+  type1: 15.4, type2: 16.15, tapGo: 17.2, results: 17.55, card: 17.85, tapCard: 20.95, trip3: 21.3,
+  benefits: 26.8, cta: 31.4, end: 36.5 }
 window.DURATION = T.end
 
 const legs = ['leg1', 'walk', 'leg2'].map((id) => { const el = $(id); const L = el.getTotalLength(); el.style.strokeDasharray = id === 'walk' ? '1 11' : `${L} ${L}`; return { el, L, id } })
