@@ -12,6 +12,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Modifié
 
+- Changements de bus plus lisibles : quand les deux arrêts portent le même nom (un de chaque côté de la route), QuelBus écrit « Changement à Station Mobile · l’arrêt du 90 est à 47 m » au lieu de « de Station Mobile à Station Mobile ». Même logique au départ et à l’arrivée, et élision des noms (« d’Adjamé »).
 - Email d'inscription réécrit : les contributeurs sont invités sur le groupe WhatsApp et à vérifier une ligne ; les utilisateurs apprennent qu'ils seront prévenus des nouveautés par email et qu'un groupe WhatsApp existe pour échanger.
 - La vidéo de présentation de l'accueil est maintenant celle de YouTube (lecteur chargé au clic, sans cookies) ; les fichiers vidéo locaux sont retirés.
 - Bandeau de chiffres : sur ordinateur, les quatre chiffres tiennent sur une ligne (le bloc « 3 transports » n'est plus affiché que sur mobile).

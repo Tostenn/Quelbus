@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../fonts.css">
+<style>
+/* Vidéo TikTok 1080×1920 : les correspondances sur QuelBus.
+   Mouvement : entrées expoOut, sorties expoIn, « pops » en backOut léger ; une scène par mesure (120 BPM). */
+:root{--ink:#1A1613;--cream:#FAF7F2;--soft:#F6F1E9;--border:#E6DFD5;--border2:#DCD3C6;--muted:#6B6259;--faint:#8A8175;--accent:#CE5B22;--accent-ink:#9E4014;--ok:#2f7d4a;--peach:#F0A27A}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--ink)}
+body{font-family:Archivo,Helvetica,Arial,sans-serif;color:var(--cream);-webkit-font-smoothing:antialiased}
+.layer{position:absolute;inset:0;overflow:hidden}
+.abs{position:absolute}
+.w{display:inline-block;will-change:transform}
+.stripes{position:absolute;inset:0;background:repeating-linear-gradient(-12deg,transparent 0 74px,rgba(255,255,255,.035) 74px 80px)}
+.stripes.light{background:repeating-linear-gradient(-12deg,transparent 0 74px,rgba(26,22,19,.035) 74px 80px)}
+
+/* ---------- S1 accroche ---------- */
+#trip{position:absolute;left:90px;top:640px;display:flex;align-items:center;gap:22px;font-size:58px;font-weight:800;letter-spacing:-.02em}
+#trip .pl{display:flex;align-items:center;gap:18px;padding:18px 30px;border-radius:999px;background:rgba(250,247,242,.08)}
+#trip .dot{width:26px;height:26px;border-radius:50%}
+#trip .from{border:7px solid var(--cream)}
+#trip .to{background:var(--accent)}
+#trip .arr{color:var(--accent);font-weight:900}
+#hook{position:absolute;left:90px;right:90px;top:800px;font-size:136px;line-height:1;font-weight:900;letter-spacing:-.045em}
+#nodirect{position:absolute;left:90px;right:90px;top:250px;display:flex;align-items:center;gap:24px;font-size:72px;line-height:1.02;font-weight:900;letter-spacing:-.035em;color:var(--cream)}
+#nodirect .x{flex:none}
+/* S1b : les lignes qui s'arrêtent en route */
+#pmap{position:absolute;left:0;top:470px;width:1080px;height:1000px}
+#pmap .city{font:800 46px Archivo,sans-serif;fill:var(--cream)}
+#pmap .city.to{fill:var(--peach)}
+.px{position:absolute;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:#3a2a22;border:4px solid var(--peach);display:grid;place-items:center;color:var(--peach)}
+#pcap{position:absolute;left:90px;right:90px;top:1530px;font-size:44px;font-weight:700;color:#cfc6ba;line-height:1.25}
+/* S1c : les conseils qui se contredisent */
+#ask1{position:absolute;left:90px;right:90px;top:250px;font-size:80px;line-height:1.02;font-weight:900;letter-spacing:-.035em}
+#ask2{position:absolute;left:90px;right:90px;top:1500px;font-size:76px;line-height:1.02;font-weight:900;letter-spacing:-.035em;color:var(--accent)}
+.bub{position:absolute;max-width:760px;padding:30px 40px;border-radius:44px;background:var(--cream);color:var(--ink);font-size:50px;font-weight:800;letter-spacing:-.02em;line-height:1.1;box-shadow:0 30px 60px -30px rgba(0,0,0,.8)}
+.bub.r{border-bottom-right-radius:10px}
+.bub.l{border-bottom-left-radius:10px}
+.bub.o{background:var(--accent);color:#fff}
+.bub.g{background:#3a322c;color:var(--cream)}
+#nodirect .x{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#3a2a22;color:var(--peach);font-size:40px;font-weight:900}
+
+/* ---------- S2 révélation ---------- */
+#wipe{position:absolute;left:540px;top:960px;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;background:var(--accent)}
+#reveal{position:absolute;left:90px;right:90px;top:620px;color:#fff}
+#reveal .new{display:inline-block;font-size:40px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--peach);padding:16px 28px;border-radius:999px}
+#reveal h2{margin-top:44px;font-size:100px;line-height:.98;font-weight:900;letter-spacing:-.045em}
+#reveal p{margin-top:40px;font-size:52px;line-height:1.2;font-weight:700;color:#fff5ee}
+#revLogo{position:absolute;left:90px;top:300px;height:60px}
+
+/* ---------- S3 démo ---------- */
+#light{background:var(--cream);color:var(--ink)}
+#cap{position:absolute;left:90px;right:90px;top:250px;height:300px}
+.capt{position:absolute;left:0;right:0;top:0;font-size:76px;line-height:1.04;font-weight:900;letter-spacing:-.035em}
+.capt .n{display:inline-grid;place-items:center;width:84px;height:84px;margin-right:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:48px;vertical-align:10px}
+.capt em{font-style:normal;color:var(--accent)}
+#phone{position:absolute;left:250px;top:610px;width:580px;height:1200px;border-radius:84px;background:#121010;padding:16px;box-shadow:0 0 0 3px #2b2522,0 60px 120px -40px rgba(26,22,19,.55)}
+#screen{position:relative;width:100%;height:100%;border-radius:70px;background:var(--cream);overflow:hidden}
+#notch{position:absolute;left:50%;top:16px;width:150px;height:38px;margin-left:-75px;border-radius:20px;background:#121010;z-index:9}
+.scr{position:absolute;inset:0;padding:60px 22px 0;zoom:1.32}
+.appbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.appbar svg{height:26px;width:auto}
+.appbar .btn{font-size:17px;font-weight:800;background:var(--ink);color:var(--cream);padding:10px 16px;border-radius:10px}
+.h3{font-size:40px;font-weight:900;letter-spacing:-.03em;line-height:1.05}
+.lead{font-size:20px;color:var(--muted);margin:10px 0 24px}
+.card{background:#fff;border:1px solid var(--border);border-radius:24px;padding:22px}
+.fld{display:flex;align-items:center;gap:14px;background:var(--soft);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.fld .lab{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.fld .val{font-size:24px;font-weight:800;min-height:30px}
+.caret{display:inline-block;width:3px;height:26px;background:var(--accent);margin-left:2px;vertical-align:-4px}
+.pin{width:18px;height:18px;border-radius:50%;flex:none}
+.pin.from{border:4px solid var(--ink)}
+.pin.to{background:var(--accent)}
+.pin.board{background:var(--ok)}
+.cta{margin-top:10px;background:var(--accent);color:#fff;border-radius:14px;text-align:center;font-size:24px;font-weight:800;padding:18px}
+.badge{display:inline-grid;place-items:center;height:60px;min-width:84px;padding:0 14px;border-radius:14px;background:var(--accent);color:#fff;font-size:26px;font-weight:800}
+.badge.sm{height:36px;min-width:52px;font-size:16px;border-radius:9px;padding:0 9px}
+.muted{color:var(--muted)}
+.lbl{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stopn{display:block;font-size:21px;font-weight:800;line-height:1.2}
+.small{font-size:15px;color:var(--muted)}
+/* résultats */
+.notice{display:flex;gap:12px;align-items:flex-start;background:var(--soft);border:1px solid var(--border);border-radius:16px;padding:16px;font-size:18px;line-height:1.35;margin-bottom:18px}
+.notice b{font-weight:800}
+.notice .ic{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:18px;font-weight:900}
+.combo{border:3px solid var(--accent);box-shadow:0 30px 60px -30px rgba(26,22,19,.4)}
+.combo .bd{display:flex;align-items:center;gap:10px;color:var(--faint);font-size:24px}
+.combo .meta{font-size:16px;color:var(--muted);margin:10px 0 14px}
+.steps{border-top:1px solid #efe9df;padding-top:12px}
+.st{display:grid;grid-template-columns:18px 1fr;column-gap:14px;align-items:start}
+.st .track{justify-self:center;width:5px;border-radius:3px;background:var(--accent);margin:-2px 0}
+.st .ride{padding:8px 0 10px;font-size:16px}
+.st .ride b{font-weight:800}
+.ring{width:18px;height:18px;border-radius:50%;border:4px solid var(--ink);background:#fff;margin-top:3px}
+.more{margin-top:14px;font-size:17px;font-weight:800;color:var(--accent-ink)}
+/* page trajet */
+.ttl{font-size:27px;font-weight:900;letter-spacing:-.03em;line-height:1.05}
+.tl{display:flex;align-items:center;gap:8px;margin:12px 0 16px;color:var(--faint);font-size:16px}
+#map{position:relative;height:270px;border-radius:22px;overflow:hidden;background:#ece6dc;border:1px solid var(--border)}
+#map svg{position:absolute;inset:0;width:100%;height:100%}
+.mk{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:4px solid #fff;box-shadow:0 3px 10px rgba(26,22,19,.35);display:grid;place-items:center;color:#fff}
+.mk svg{position:static;width:18px;height:18px}
+.mk.b{background:var(--ok)}.mk.c{background:var(--ink)}.mk.a{background:var(--accent)}
+.fr{margin-top:18px}
+.fr .row{display:grid;grid-template-columns:30px 1fr;column-gap:12px;align-items:start;padding:7px 0}
+.fr .d{justify-self:center;width:20px;height:20px;border-radius:50%;margin-top:2px}
+.fr .d.b{background:var(--ok)}.fr .d.a{background:var(--accent)}.fr .d.c{border:4px solid var(--ink);background:#fff}
+.fr .lg{display:flex;align-items:center;gap:12px;padding:10px 0}
+.fr .lg .t{font-size:19px;font-weight:800}
+.fr .chg{display:grid;grid-template-columns:30px 1fr;column-gap:12px;align-items:center;background:var(--soft);border-radius:14px;padding:12px 12px 12px 0;margin:6px 0;font-size:16px;line-height:1.3}
+.fr .chg .ic{justify-self:center;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--cream);display:grid;place-items:center;font-size:15px;font-weight:900}
+.fr .chg b{font-weight:800}
+.fr .rail{position:absolute;left:44px;width:5px;border-radius:3px;background:var(--accent)}
+#finger{position:absolute;width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;background:rgba(26,22,19,.18);border:4px solid rgba(26,22,19,.35);z-index:20}
+
+/* ---------- S4 atouts ---------- */
+#benefits{background:var(--ink)}
+#bTitle{position:absolute;left:90px;right:90px;top:330px;font-size:100px;line-height:1;font-weight:900;letter-spacing:-.04em}
+#bTitle span{color:var(--accent)}
+.ben{position:absolute;left:90px;right:90px;display:flex;align-items:center;gap:30px;font-size:54px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.ben .ck{flex:none;width:84px;height:84px;border-radius:24px;background:var(--accent);display:grid;place-items:center}
+.ben small{display:block;font-size:34px;font-weight:600;color:#cfc6ba;margin-top:6px;letter-spacing:0}
+
+/* ---------- S5 appel à l'action ---------- */
+#cta{background:var(--ink)}
+#ctaLogo{position:absolute;left:50%;top:640px;width:700px;margin-left:-350px}
+#ctaLine{position:absolute;left:90px;right:90px;top:860px;text-align:center;font-size:76px;line-height:1.05;font-weight:900;letter-spacing:-.035em}
+#ctaLine span{color:var(--accent)}
+#url{position:absolute;left:50%;top:1100px;transform:translateX(-50%);font-size:96px;font-weight:900;letter-spacing:-.03em;color:var(--ink);background:var(--peach);padding:24px 56px;border-radius:999px;white-space:nowrap}
+#ctaSub{position:absolute;left:0;right:0;top:1300px;text-align:center;font-size:40px;font-weight:700;color:#cfc6ba}
+</style>
+</head>
+<body>
+
+<!-- S1 + S4 + S5 : fond sombre -->
+<div class="layer" id="dark"><div class="stripes"></div>
+  <div id="trip"><span class="pl"><span class="dot from"></span>Angré</span><span class="arr">→</span><span class="pl"><span class="dot to"></span>Gonzagueville</span></div>
+  <h1 id="hook"><span class="l" id="h1"></span><br><span class="l" id="h2"></span></h1>
+  <div id="nodirect"><span class="x px" style="position:static;margin:0"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span><span>Aucun bus ne fait tout le trajet.</span></div>
+  <svg id="pmap" viewBox="0 0 1080 1000">
+    <g stroke="rgba(250,247,242,.07)" stroke-width="18" fill="none"><path d="M-20 300 C 300 260, 700 340, 1100 280"/><path d="M-20 640 C 340 600, 640 700, 1100 620"/><path d="M260 -20 C 300 300, 230 650, 300 1020"/><path d="M720 -20 C 680 360, 760 640, 700 1020"/></g>
+    <path d="M-20 860 C 200 820, 420 900, 640 870 C 820 845, 960 900, 1100 880 L 1100 1020 L -20 1020 Z" fill="rgba(120,170,190,.18)"/>
+    <path id="pl1" d="M330 150 C 300 260, 230 360, 170 470" fill="none" stroke="#2f5d7d" stroke-width="16" stroke-linecap="round"/>
+    <path id="pl2" d="M330 150 C 380 300, 440 420, 520 520" fill="none" stroke="#ce5b22" stroke-width="16" stroke-linecap="round"/>
+    <path id="pl3" d="M330 150 C 480 160, 640 200, 820 250" fill="none" stroke="#2f7d4a" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="330" cy="150" r="28" fill="#1a1613" stroke="#faf7f2" stroke-width="12"/>
+    <text class="city" x="380" y="120">Angré</text>
+    <circle id="pgz" cx="820" cy="760" r="34" fill="#ce5b22"/>
+    <text class="city to" x="560" y="850">Gonzagueville</text>
+  </svg>
+  <span class="px" id="px1" style="left:170px;top:940px"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+  <span class="px" id="px2" style="left:520px;top:990px"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+  <span class="px" id="px3" style="left:820px;top:720px"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+  <p id="pcap">Il faut changer de bus en route… mais où&nbsp;?</p>
+
+  <h2 id="ask1">On demande à tout le monde…</h2>
+  <div class="bub r" id="q1" style="left:300px;top:520px">Prends le 81&nbsp;!</div>
+  <div class="bub l g" id="q2" style="left:90px;top:700px">Non, descends à Adjamé.</div>
+  <div class="bub r o" id="q3" style="left:230px;top:890px">Va d’abord à la Gare Sud…</div>
+  <div class="bub l" id="q4" style="left:90px;top:1080px">Demande au chauffeur.</div>
+  <div class="bub r g" id="q5" style="left:320px;top:1270px">Moi je connais pas hein.</div>
+  <h2 id="ask2">…et chacun dit autre chose.</h2>
+</div>
+
+<!-- S2 : révélation orange -->
+<div class="layer" id="rev">
+  <div id="wipe"></div>
+  <div id="revLogo">{{LOGO_DARK}}</div>
+  <div id="reveal">
+    <span class="new" id="rNew">Nouveau sur QuelBus</span>
+    <h2 id="rH"></h2>
+    <p id="rP">QuelBus vous dit où descendre et quel bus reprendre.</p>
+  </div>
+</div>
+
+<!-- S3 : démo -->
+<div class="layer" id="light"><div class="stripes light"></div>
+  <div id="cap">
+    <div class="capt" id="c1"><span class="n">1</span>Votre départ, votre destination</div>
+    <div class="capt" id="c2"><span class="n">2</span>Pas de direct&nbsp;? <em>QuelBus combine les lignes</em></div>
+    <div class="capt" id="c3"><span class="n">3</span>Tout le trajet <em>sur une seule page</em></div>
+  </div>
+  <div id="phone"><div id="screen"><div id="notch"></div>
+
+    <!-- écran 1 : recherche -->
+    <div class="scr" id="sA">
+      <div class="appbar">{{LOGO}}<span class="btn">Rechercher</span></div>
+      <p class="h3">Quel bus prendre&nbsp;?</p>
+      <p class="lead">Indiquez d’où vous partez et où vous allez.</p>
+      <div class="card">
+        <div class="fld"><span class="pin from"></span><div><span class="lab">Départ</span><div class="val" id="vFrom"></div></div></div>
+        <div class="fld"><span class="pin to"></span><div><span class="lab">Arrivée</span><div class="val" id="vTo"></div></div></div>
+        <div class="cta" id="go">Trouver mon bus</div>
+      </div>
+    </div>
+
+    <!-- écran 2 : résultats -->
+    <div class="scr" id="sB">
+      <div class="appbar">{{LOGO}}<span class="btn">Rechercher</span></div>
+      <div class="notice" id="bN"><span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span><span>Aucune ligne directe pour ce trajet. QuelBus vous propose de <b>combiner deux lignes</b>, comme le font les habitués.</span></div>
+      <div class="card combo" id="bC">
+        <div class="bd"><span class="badge">775</span>→<span class="badge">53</span></div>
+        <p class="meta">1 changement · 38 arrêts · 107 m à pied au total</p>
+        <div class="steps">
+          <div class="st"><span class="pin board" style="margin-top:3px"></span><span><span class="lbl">Montez à</span><span class="stopn">Petro Ivoire Angré</span></span></div>
+          <div class="st"><span class="track"></span><span class="ride"><b>Bus SOTRA</b> direction CHU Treichville · 16 arrêts</span></div>
+          <div class="st"><span class="ring"></span><span><span class="lbl">Changez à</span><span class="stopn">Pont Lycée Technique</span><span class="small">Au même arrêt · 45 lignes y passent</span></span></div>
+          <div class="st"><span class="track"></span><span class="ride"><b>Bus SOTRA</b> direction Gonzagueville · 22 arrêts</span></div>
+          <div class="st"><span class="pin to" style="margin-top:3px"></span><span><span class="lbl">Arrivée</span><span class="stopn">Terminus Gonzagueville</span></span></div>
+        </div>
+        <p class="more">Voir tout le trajet sur la carte →</p>
+      </div>
+    </div>
+
+    <!-- écran 3 : page trajet -->
+    <div class="scr" id="sC">
+      <div class="appbar">{{LOGO}}<span class="btn">Rechercher</span></div>
+      <p class="ttl">Petro Ivoire Angré&nbsp;→ Terminus Gonzagueville</p>
+      <p class="tl"><span class="badge sm">775</span>→<span class="badge sm">53</span><span>1 changement · 38 arrêts</span></p>
+      <div id="map">
+        <svg viewBox="0 0 520 330" preserveAspectRatio="none">
+          <g stroke="#fff" stroke-width="10" fill="none" opacity=".9">
+            <path d="M-10 250 C 120 230, 200 260, 530 200"/><path d="M60 -10 C 90 120, 70 220, 110 340"/>
+            <path d="M300 -10 C 280 120, 330 230, 310 340"/><path d="M-10 90 C 160 110, 330 70, 530 110"/>
+          </g>
+          <path d="M-10 230 C 80 215, 120 260, 220 280 C 300 296, 330 250, 420 262 C 470 268, 500 250, 530 245 L 530 340 L -10 340 Z" fill="#cfe0e6"/>
+          <path id="leg1" d="M300 28 L 285 62 L 262 96 L 236 124 L 205 150" fill="none" stroke="#CE5B22" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <path id="walk" d="M285 140 L 305 128" fill="none" stroke="#6B6259" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 11"/>
+          <path id="leg2" d="M205 150 L 240 178 L 290 200 L 345 214 L 400 222 L 455 236" fill="none" stroke="#CE5B22" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="mk b" id="m1" style="left:57.7%;top:8.5%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="2"/><path d="M5 11h14M8 21v-3M16 21v-3"/></svg></span>
+        <span class="mk c" id="m2" style="left:39.4%;top:45.5%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span>
+        <span class="mk a" id="m3" style="left:87.5%;top:71.5%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></svg></span>
+      </div>
+      <div class="fr" id="fr">
+        <div class="row" id="f1"><span class="d b"></span><span><span class="lbl" style="color:var(--ok)">Montez à</span><span class="stopn">Petro Ivoire Angré</span></span></div>
+        <div class="lg" id="f2"><span class="badge sm">775</span><span class="t">Bus SOTRA direction CHU Treichville</span></div>
+        <div class="chg" id="f3"><span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span><span><b>Changement à Pont Lycée Technique</b>, au même arrêt</span></div>
+        <div class="lg" id="f4"><span class="badge sm">53</span><span class="t">Bus SOTRA direction Gonzagueville</span></div>
+        <div class="row" id="f5"><span class="d a"></span><span><span class="lbl" style="color:var(--accent-ink)">Descendez à</span><span class="stopn">Terminus Gonzagueville</span></span></div>
+      </div>
+    </div>
+
+    <div id="finger"></div>
+  </div></div>
+</div>
+
+<!-- S4 : atouts -->
+<div class="layer" id="benefits"><div class="stripes"></div>
+  <h2 id="bTitle">Des trajets <span>comme les habitués</span></h2>
+  <div class="ben" id="b1" style="top:690px"><span class="ck">CK</span><span>Le bus SOTRA d’abord<small>puis gbaka et wôrô-wôrô si besoin</small></span></div>
+  <div class="ben" id="b2" style="top:900px"><span class="ck">CK</span><span>Changement dans les grandes gares<small>Pont Lycée Technique&nbsp;: 45 lignes</small></span></div>
+  <div class="ben" id="b3" style="top:1140px"><span class="ck">CK</span><span>Le moins de marche possible<small>et pas de détour inutile</small></span></div>
+  <div class="ben" id="b4" style="top:1350px"><span class="ck">CK</span><span>Suivi jusqu’à l’arrivée<small>« Descendez ici, puis… »</small></span></div>
+</div>
+
+<!-- S5 : appel à l'action -->
+<div class="layer" id="cta"><div class="stripes"></div>
+  <div id="ctaLogo">{{LOGO_DARK}}</div>
+  <p id="ctaLine">Pas de bus direct&nbsp;?<br><span>On vous dit où changer.</span></p>
+  <div id="url">quelbus.ci</div>
+  <p id="ctaSub">Gratuit · sans inscription · dans le navigateur</p>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id)
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x))
+const E = {
+  expoOut: (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+  expoIn: (x) => (x <= 0 ? 0 : Math.pow(2, 10 * x - 10)),
+  inOut: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  backOut: (x) => { const c1 = 1.25, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2) },
+}
+const p = (t, s, d, e = E.expoOut) => e(clamp((t - s) / d))
+function st(el, { x = 0, y = 0, s = 1, r = 0, o } = {}) {
+  el.style.transform = `translate(${x}px,${y}px) rotate(${r}deg) scale(${s})`
+  if (o !== undefined) el.style.opacity = o
+}
+/* entrée : montée + fondu ; sortie : remontée accélérée */
+function inOut(el, t, tin, tout, dist = 50, din = 0.6, dout = 0.35) {
+  const a = p(t, tin, din), b = p(t, tout, dout, E.expoIn)
+  st(el, { y: (1 - a) * dist - b * dist, o: a * (1 - b) })
+}
+const vis = (el, on) => (el.style.visibility = on ? 'visible' : 'hidden')
+function words(el, html) {
+  el.innerHTML = html.split(' ').map((w) => `<span class="w">${w}</span>`).join(' ')
+  return [...el.children]
+}
+const CHECK = '<svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path class="ckp" d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+document.querySelectorAll('.ck').forEach((c) => (c.innerHTML = CHECK))
+
+const w1 = words($('h1'), 'Je prends')
+const w2 = words($('h2'), 'quel bus&nbsp;?')
+$('h2').querySelectorAll('.w').forEach((w) => (w.style.color = 'var(--accent)'))
+const rw = words($('rH'), 'Les correspondances')
+
+/* ---------- temps (en s) : une mesure = 2 s ---------- */
+const T = { trip: 0.15, hook: 0.6, s1Out: 3.45, map: 3.65, nod: 3.75, mapOut: 7.5, ask: 7.7, askOut: 11.55, wipe: 11.85, revOut: 14.65, demo: 14.9,
+  type1: 15.4, type2: 16.15, tapGo: 17.2, results: 17.55, card: 17.85, tapCard: 20.95, trip3: 21.3,
+  benefits: 26.8, cta: 31.4, end: 36.5 }
+window.DURATION = T.end
+
+const legs = ['leg1', 'walk', 'leg2'].map((id) => { const el = $(id); const L = el.getTotalLength(); el.style.strokeDasharray = id === 'walk' ? '1 11' : `${L} ${L}`; return { el, L, id } })
+/* centre d'un élément, en px de l'écran du téléphone (mesuré sans transformation) */
+function center(el) {
+  const a = el.getBoundingClientRect(), b = $('screen').getBoundingClientRect()
+  return [a.left - b.left + a.width / 2, a.top - b.top + a.height / 2]
+}
+const typed = (s, t, t0, cps = 26) => s.slice(0, Math.floor(clamp((t - t0) * cps, 0, s.length)))
+
+window.render = function (t) {
+  /* --- couches visibles --- */
+  vis($('dark'), t < T.wipe + 0.6)
+  vis($('rev'), t >= T.wipe && t < T.demo + 0.5)
+  vis($('light'), t >= T.revOut && t < T.benefits + 0.6)
+  vis($('benefits'), t >= T.benefits && t < T.cta + 0.6)
+  vis($('cta'), t >= T.cta)
+
+  /* --- S1 accroche --- */
+  inOut($('trip'), t, T.trip, T.s1Out, 50)
+  ;[...w1, ...w2].forEach((w, i) => {
+    const a = p(t, T.hook + i * 0.12, 0.55, E.backOut), b = p(t, T.s1Out + 0.05, 0.3, E.expoIn)
+    st(w, { y: (1 - a) * 90 - b * 80, o: clamp(a * 1.4) * (1 - b) })
+  })
+  // S1b : trois lignes partent d'Angré… et s'arrêtent en route
+  inOut($('nodirect'), t, T.nod, T.mapOut, 40)
+  const mo = p(t, T.mapOut, 0.3, E.expoIn)
+  const mi = p(t, T.map, 0.4)
+  $('pmap').style.opacity = mi * (1 - mo)
+  inOut($('pcap'), t, T.map + 1.9, T.mapOut, 30)
+  ;['pl1', 'pl2', 'pl3'].forEach((id, i) => {
+    const el = $(id), L = el.getTotalLength(), at = T.map + 0.35 + i * 0.5
+    el.style.strokeDasharray = `${L} ${L}`
+    el.style.strokeDashoffset = L * (1 - p(t, at, 0.55, E.inOut))
+    const x = $('px' + (i + 1)), k = p(t, at + 0.5, 0.35, E.backOut)
+    const sh = t > at + 0.5 && t < at + 0.9 ? Math.sin((t - at - 0.5) * 70) * 8 * (1 - (t - at - 0.5) / 0.4) : 0
+    x.style.transform = `translateX(${sh}px) scale(${k})`
+    x.style.opacity = clamp(k * 2) * (1 - mo)
+  })
+  // Gonzagueville clignote : on n'y arrive pas
+  $('pgz').setAttribute('r', 34 + 6 * Math.max(0, Math.sin((t - T.map) * Math.PI * 2)))
+
+  // S1c : les conseils qui se contredisent
+  inOut($('ask1'), t, T.ask + 0.05, T.askOut, 40)
+  ;['q1', 'q2', 'q3', 'q4', 'q5'].forEach((id, i) => {
+    const at = T.ask + 0.3 + i * 0.32, k = p(t, at, 0.45, E.backOut), out = p(t, T.askOut, 0.3, E.expoIn)
+    const wob = Math.sin((t + i) * 5) * 1.5
+    st($(id), { y: (1 - k) * 60 + out * 120, s: 0.7 + 0.3 * k, r: (i % 2 ? -2 : 2) + wob, o: clamp(k * 2) * (1 - out) })
+  })
+  inOut($('ask2'), t, T.ask + 1.95, T.askOut, 40)
+
+  /* --- S2 révélation : disque orange qui envahit l'écran --- */
+  const wk = p(t, T.wipe, 0.55, E.inOut)
+  st($('wipe'), { s: wk * 24 })
+  const out2 = p(t, T.revOut, 0.4, E.expoIn)
+  $('rev').style.opacity = 1 - out2
+  inOut($('revLogo'), t, T.wipe + 0.25, T.revOut, 30)
+  inOut($('rNew'), t, T.wipe + 0.3, T.revOut, 40)
+  rw.forEach((w, i) => {
+    const a = p(t, T.wipe + 0.42 + i * 0.13, 0.55, E.backOut)
+    st(w, { y: (1 - a) * 120, o: clamp(a * 1.5) })
+  })
+  inOut($('rP'), t, T.wipe + 0.85, T.revOut, 40)
+
+  /* --- S3 démo --- */
+  const inD = p(t, T.demo - 0.25, 0.7)
+  st($('phone'), { y: (1 - inD) * 900, r: (1 - inD) * 6, o: 1 })
+  const outD = p(t, T.benefits - 0.35, 0.4, E.expoIn)
+  $('light').style.opacity = 1 - outD
+  inOut($('c1'), t, T.demo + 0.1, T.results - 0.1, 50)
+  inOut($('c2'), t, T.results + 0.05, T.trip3 - 0.15, 50)
+  inOut($('c3'), t, T.trip3 + 0.05, T.benefits + 2, 50)
+
+  // écran 1 : saisie
+  const f = $('vFrom'), tt = $('vTo')
+  const s1 = typed('Petro Ivoire Angré', t, T.type1), s2 = typed('Terminus Gonzagueville', t, T.type2)
+  f.innerHTML = s1 + (t >= T.type1 && t < T.type2 ? '<span class="caret"></span>' : '')
+  tt.innerHTML = s2 + (t >= T.type2 && t < T.tapGo ? '<span class="caret"></span>' : '')
+  $('go').style.transform = `scale(${1 - 0.06 * Math.sin(Math.PI * clamp((t - T.tapGo) / 0.25))})`
+  const sAout = p(t, T.results, 0.35)
+  st($('sA'), { x: -sAout * 120, o: 1 - sAout })
+
+  // écran 2 : résultats
+  const sBin = p(t, T.results, 0.45), sBout = p(t, T.trip3, 0.35)
+  st($('sB'), { x: (1 - sBin) * 140 - sBout * 120, o: sBin * (1 - sBout) })
+  inOut($('bN'), t, T.results + 0.1, 99, 30)
+  const ca = p(t, T.card, 0.7, E.backOut)
+  st($('bC'), { y: (1 - ca) * 160, s: 1 - 0.03 * Math.sin(Math.PI * clamp((t - T.tapCard) / 0.25)), o: clamp(ca * 1.5) })
+
+  // écran 3 : page trajet, la carte se dessine puis les étapes
+  const sCin = p(t, T.trip3, 0.45)
+  st($('sC'), { x: (1 - sCin) * 140, o: sCin })
+  const d0 = T.trip3 + 0.5
+  legs.forEach(({ el, L, id }, i) => {
+    const k = p(t, d0 + [0, 0.95, 1.15][i], [0.9, 0.2, 0.75][i], E.inOut)
+    if (id === 'walk') el.style.opacity = 0 // changement au même arrêt : pas de marche
+    else el.style.strokeDashoffset = L * (1 - k)
+  })
+  ;[['m1', d0], ['m2', d0 + 0.95], ['m3', d0 + 1.9]].forEach(([id, at]) => {
+    const k = p(t, at, 0.4, E.backOut)
+    st($(id), { s: k, o: clamp(k * 2) })
+  })
+  ;['f1', 'f2', 'f3', 'f4', 'f5'].forEach((id, i) => inOut($(id), t, d0 + 0.3 + i * 0.42, 99, 30, 0.5))
+
+  // doigt : tape sur « Trouver mon bus », puis sur la combinaison
+  const fg = $('finger')
+  const taps = [[T.tapGo, ...center($('go'))], [T.tapCard, ...center($('bC').querySelector('.more'))]]
+  let fo = 0, fx = 274, fy = 900, fs = 1
+  for (const [at, x, y] of taps) {
+    if (t > at - 0.5 && t < at + 0.4) {
+      const k = p(t, at - 0.5, 0.45)
+      fo = Math.min(k, 1 - p(t, at + 0.15, 0.25))
+      fx = x + (1 - k) * 60; fy = y + (1 - k) * 160
+      fs = 1 - 0.25 * Math.sin(Math.PI * clamp((t - at) / 0.22))
+    }
+  }
+  st(fg, { x: fx, y: fy, s: fs, o: fo })
+  fg.style.left = '0px'; fg.style.top = '0px'
+
+  /* --- S4 atouts --- */
+  const bin = p(t, T.benefits, 0.5), bout = p(t, T.cta - 0.3, 0.35, E.expoIn)
+  $('benefits').style.opacity = bin * (1 - bout)
+  inOut($('bTitle'), t, T.benefits + 0.1, 99, 60)
+  ;['b1', 'b2', 'b3', 'b4'].forEach((id, i) => {
+    const at = T.benefits + 0.7 + i * 0.75
+    inOut($(id), t, at, 99, 60)
+    const ck = $(id).querySelector('.ck')
+    st(ck, { s: p(t, at + 0.1, 0.45, E.backOut) })
+    const path = ck.querySelector('.ckp'); const L = 22
+    path.style.strokeDasharray = L; path.style.strokeDashoffset = L * (1 - p(t, at + 0.25, 0.4))
+  })
+
+  /* --- S5 appel à l'action --- */
+  $('cta').style.opacity = p(t, T.cta, 0.4)
+  const lg = p(t, T.cta + 0.1, 0.7, E.backOut)
+  st($('ctaLogo'), { s: 0.8 + 0.2 * lg, o: clamp(lg * 1.5) })
+  inOut($('ctaLine'), t, T.cta + 0.5, 99, 50)
+  const u = p(t, T.cta + 1.0, 0.6, E.backOut)
+  $('url').style.transform = `translateX(-50%) scale(${0.6 + 0.4 * u})`
+  $('url').style.opacity = clamp(u * 1.5)
+  inOut($('ctaSub'), t, T.cta + 1.5, 99, 30)
+  // léger battement de l'adresse sur les temps
+  if (t > T.cta + 1.6) $('url').style.transform += ` scale(${1 + 0.025 * Math.max(0, Math.cos((t - T.cta) * Math.PI * 2)) ** 8})`
+}
+render(0)
+</script>
+</body>
+</html>
