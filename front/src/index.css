@@ -997,7 +997,8 @@ main {
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   font: 500 1.05rem/1.4 var(--sans);
   color: var(--ink);
@@ -1018,7 +1019,8 @@ main {
 }
 
 .field input:focus,
-.field textarea:focus {
+.field textarea:focus,
+.field select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
   background: var(--surface);
@@ -3786,8 +3788,10 @@ button.line-row {
 }
 
 .editor-pin {
-  display: grid;
-  place-items: center;
+  /* Leaflet impose display: block aux icônes : on centre le numéro par la hauteur de ligne */
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 22px;
   border-radius: 50%;
   border: 2px solid #fff;
   background: var(--ink);
@@ -3871,4 +3875,171 @@ button.line-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+/* Tarifs et horaires */
+.fare-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: center;
+  margin-top: 4px;
+  color: var(--ink);
+}
+
+.fare-info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.92rem;
+}
+
+.student-yes {
+  color: var(--success);
+}
+
+.student-no {
+  color: var(--muted);
+}
+
+.service-line {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.service-line.is-termine,
+.service-state.is-termine {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.fare-total {
+  color: var(--ink);
+}
+
+.service-hours {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.service-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+.service-state {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.service-state.is-avant {
+  color: var(--muted);
+}
+
+.service-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.service-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.service-list div.is-today {
+  font-weight: 700;
+}
+
+.service-list dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.service-unknown {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.admin-card {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.admin-card .admin-section-title {
+  margin: 0;
+}
+
+.fare-editor-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.schedule-rows {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.schedule-rows li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.schedule-rows select,
+.schedule-rows input {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.schedule-rows input:not([type='time']) {
+  flex: 1 1 180px;
+}
+
+.schedule-rows .field-error {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.change-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.change-list li {
+  display: grid;
+  gap: 2px;
 }

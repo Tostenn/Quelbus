@@ -81,17 +81,22 @@ Bonus : verser les tracés validés dans OpenStreetMap (licence ODbL compatible)
 
 ### Tâches
 
-- [ ] Migration `lines` : `fare` (FCFA, entier), `fare_type` (MONBUS, WIBUS…), `accepts_student_card` (booléen, null = inconnu)
-- [ ] Migration `line_schedules` : sens de ligne, type de jour (semaine / samedi / dimanche-férié), premier départ, dernier départ, source, date du relevé
-- [ ] Import des tarifs depuis le PDF (rapprochement par numéro de ligne)
-- [ ] Import des horaires depuis l'Excel
-- [ ] Admin : modifier tarif, type et carte étudiant d'une ligne (avec historique : qui, quand)
-- [ ] Admin : saisir / modifier les horaires par sens et type de jour
-- [ ] API : tarif, carte étudiant et horaires dans `/lines/{slug}` et dans les résultats de `/search`
-- [ ] Front : prix et pictogramme carte étudiant sur les cartes de résultat et la fiche ligne
-- [ ] Front : « Roule de 5 h 30 à 21 h 45 », et « Service terminé » / « Pas encore commencé » selon l'heure
-- [ ] Trajet avec correspondance : afficher le prix total
-- [ ] Tests
+- [x] Migration `lines` : `fare` (FCFA), `fare_type` (MONBUS, WIBUS…), `accepts_student_card` (null = inconnu), `fare_edited_at`
+- [x] Migration `line_schedules` : sens, type de jour (tous / semaine / samedi / dimanche-férié), premier et dernier départ, source, lien, date du relevé, admin qui l'a saisi
+- [x] Migration `transit_changes` : historique des modifications du tableau de bord (tarif, horaires, arrêts)
+- [x] Script `scraper/fares.py` (PDF + tableur) et commande `php artisan transit:fares` : 132 tarifs et 22 horaires importés sur la base de dev
+- [x] Rattachement des horaires au bon sens par les noms des terminus ; « à vérifier » quand un seul terminus correspond
+- [x] L'import n'écrase jamais un tarif ou des horaires saisis dans le tableau de bord
+- [x] Admin : tarif, type, carte étudiant ; horaires par sens et type de jour ; historique (qui, quand, quoi)
+- [x] API : tarif, carte étudiant et horaires dans `/lines`, `/lines/{slug}` et les résultats de `/search` (directs et correspondances)
+- [x] Front : prix et carte étudiant sur les résultats et la fiche ligne
+- [x] Front : départs du terminus sur la fiche ligne, avec l'état du service à l'heure d'Abidjan (pas commencé / en service / plus de départ)
+- [x] Trajet avec correspondance : prix total quand le prix de chaque ligne est connu
+- [x] Tests
+- [ ] Carte étudiant : on ne sait pour aucune ligne, à renseigner dans le tableau de bord
+- [ ] 23 lignes du PDF absentes des données OpenStreetMap (9, 65, 88, 98, 405 à 408, 412, 501 à 503, 600, 618, 623, 632, 633, 730 à 733, 776) : à créer, avec les lignes 603 et 604
+- [ ] Vérifier les 4 horaires rattachés sur un seul terminus (lignes 50 et 715)
+- [ ] Jours fériés : comptés comme des jours de semaine pour l'instant (pas de calendrier)
 
 ---
 
@@ -156,3 +161,4 @@ Niveaux de [VISION.md](VISION.md), on affiche toujours le niveau de confiance :
 | 07/11/2026 | Plan écrit. Recherche des sources pour l'intérieur : rien à scraper, voir lot 1 |
 | 07/11/2026 | Lot 1, première partie : villes en base, 24 lignes de l'intérieur lues dans le PDF, API et front |
 | 07/11/2026 | Lot 1, deuxième partie : ville dans le formulaire de recherche, éditeur d'arrêts dans le tableau de bord |
+| 07/11/2026 | Base de dev à jour (migrations, lignes de l'intérieur). Lot 2 : tarifs, carte étudiant, horaires, historique. Écrans vérifiés en local |

@@ -83,3 +83,15 @@ python interior.py <pdf> --no-geocode   # sans appel réseau (cache + correction
   terminus n'a pas de position est importée sans arrêts.
 - Import : `php artisan transit:import ../scraper/data/interior_bus.json` (`--prune` ne touche
   qu'aux villes du fichier).
+
+## Tarifs et horaires : `fares.py`
+
+```bash
+python fares.py "../Lignes et tarifs SOTRA_Juillet 2024.pdf" "../horaires_sotra_avec_prix_liens_copiables (1).xlsx"
+```
+
+- Tarifs : numéro, prix et type de chaque ligne du document SOTRA (Abidjan et intérieur).
+- Horaires : premier et dernier départ par sens, tirés du tableur (une ligne par sens, colonne
+  « Sens » au format « Aller (A -> B) » ou « A -> B »).
+- Sortie : `data/fares.json`. Import : `php artisan transit:fares ../scraper/data/fares.json`.
+  Un tarif ou des horaires saisis dans le tableau de bord ne sont jamais écrasés.

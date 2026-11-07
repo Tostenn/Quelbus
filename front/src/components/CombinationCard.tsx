@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { ArrowRight, ArrowsLeftRight, PersonSimpleWalk } from '@phosphor-icons/react'
 import LineBadge from './LineBadge'
 import type { Combination, Place } from '../lib/api'
+import { fareLabel, totalFare } from '../lib/fares'
 import { lineShort, SAME_STOP_M, sameName, TYPE_LABELS, walkLabel } from '../lib/search'
 import { tripUrl } from '../lib/trip'
 
@@ -13,6 +14,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? 's' : ''}`
 export default function CombinationCard({ combination, from, to, best = false }: Props) {
   const { legs, changes } = combination
   const last = legs[legs.length - 1]
+  const total = totalFare(legs.map((l) => ({ fare: l.line.fare ?? null, accepts_student_card: null })))
   return (
     <Link className={`result-card combination-card${best ? ' is-best' : ''}`} to={tripUrl(combination, from, to)}>
       <div className="combination-head">
@@ -26,6 +28,12 @@ export default function CombinationCard({ combination, from, to, best = false }:
         </span>
         <span className="muted">
           {plural(changes, 'changement')} · {plural(combination.stops, 'arrêt')} · {combination.walk} m à pied au total
+          {total !== null && (
+            <>
+              {' · '}
+              <strong className="fare-total">{fareLabel(total)} en tout</strong>
+            </>
+          )}
         </span>
       </div>
 

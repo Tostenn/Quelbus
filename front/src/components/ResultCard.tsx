@@ -1,7 +1,9 @@
 import { Link } from 'react-router'
 import { ArrowRight, PersonSimpleWalk } from '@phosphor-icons/react'
+import FareInfo from './FareInfo'
 import LineBadge from './LineBadge'
 import type { Place, SearchResult } from '../lib/api'
+import { serviceLabel, serviceState } from '../lib/fares'
 import { TYPE_LABELS, walkLabel } from '../lib/search'
 
 type Props = { result: SearchResult; from: Place; best?: boolean }
@@ -9,6 +11,7 @@ type Props = { result: SearchResult; from: Place; best?: boolean }
 export default function ResultCard({ result, from, best = false }: Props) {
   const { line, direction, board, alight, stops } = result
   // Seule une vraie position GPS est montrée sur la carte de la ligne
+  const service = serviceState(direction.schedules)
   const here = from.name === 'Ma position' ? `&ici=${from.lat.toFixed(6)},${from.lng.toFixed(6)}` : ''
 
   return (
@@ -23,6 +26,8 @@ export default function ResultCard({ result, from, best = false }: Props) {
           <span className="muted">
             {TYPE_LABELS[line.type]} · {stops} arrêt{stops > 1 ? 's' : ''} entre montée et descente
           </span>
+          <FareInfo fare={line.fare} accepts_student_card={line.accepts_student_card} />
+          {service && <span className={`service-line is-${service.state}`}>{serviceLabel(service)}</span>}
         </span>
       </span>
       <span className="result-legs">

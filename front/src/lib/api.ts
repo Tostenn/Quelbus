@@ -1,4 +1,5 @@
 import { API_URL } from './config'
+import type { Fare, Schedule } from './fares'
 
 export type Profile = 'utilisateur' | 'contributeur' | 'les_deux'
 
@@ -65,8 +66,15 @@ export type Suggestion = Place & { stops: number }
 export type ResultStop = { id: number; name: string; slug: string; lat: number; lng: number; walk: number }
 
 export type SearchResult = {
-  line: { id: number; ref: string | null; name: string; slug: string; type: LineType }
-  direction: { id: number; name: string; origin_label: string | null; destination_label: string | null }
+  line: { id: number; ref: string | null; name: string; slug: string; type: LineType } & Partial<Fare>
+  direction: {
+    id: number
+    name: string
+    origin_label: string | null
+    destination_label: string | null
+    /** Absent des recherches enregistrées avant les horaires */
+    schedules?: Schedule[]
+  }
   board: ResultStop
   alight: ResultStop
   stops: number
@@ -154,6 +162,8 @@ export type LineSummary = {
   category: string | null
   directions_count: number
   city: string | null
+  fare: number | null
+  accepts_student_card: boolean | null
 }
 
 export type StopSummary = { id: number; name: string; slug: string; lat: number; lng: number }
@@ -163,12 +173,14 @@ export type CityRef = { slug: string; name: string; bounds: [number, number, num
 export type LineDetail = Omit<LineSummary, 'directions_count' | 'city'> & {
   operator: string | null
   city: CityRef | null
+  fare_type: string | null
   directions: {
     id: number
     name: string
     is_loop: boolean
     /** Seuls les terminus sont connus : arrêts intermédiaires et tracé restent à relever. */
     is_partial: boolean
+    schedules: Schedule[]
     geometry?: [number, number][][]
     stops: StopSummary[]
   }[]

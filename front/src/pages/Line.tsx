@@ -2,12 +2,14 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { ArrowsLeftRight, Crosshair, MapTrifold, NavigationArrow } from '@phosphor-icons/react'
 import ArrivalDialog from '../components/ArrivalDialog'
+import FareInfo from '../components/FareInfo'
 import JsonLd from '../components/JsonLd'
 import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
 import MeetingShare from '../components/MeetingShare'
 import NotFound from '../components/NotFound'
 import ReportForm from '../components/ReportForm'
+import ServiceHours from '../components/ServiceHours'
 import type { LineDetail } from '../lib/api'
 import { inCity } from '../lib/cities'
 import { distance } from '../lib/geo'
@@ -124,6 +126,7 @@ export default function Line() {
                     {partial ? ' · terminus seulement' : ` · ${stops.length} arrêts`}
                     {direction.is_loop ? ' · boucle' : ''}
                   </p>
+                  <FareInfo fare={line.fare} accepts_student_card={line.accepts_student_card} />
                 </div>
               </header>
 
@@ -223,6 +226,7 @@ export default function Line() {
                   </p>
                 </div>
               )}
+              <ServiceHours schedules={direction.schedules ?? []} />
               <ol className="stop-list">
                 {stops.map((stop, i) => {
                   const ride = trip && i > board && i < alight

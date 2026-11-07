@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { ArrowDown, ArrowsClockwise, ArrowUp, Check, FloppyDisk, MagnifyingGlass, Trash, WarningCircle } from '@phosphor-icons/react'
 import LineBadge from './LineBadge'
 import type { EditorStop } from './EditorMap'
+import { ChangesList, FareEditor, SchedulesEditor } from './FareEditors'
 import type { LineDetail, LineSummary } from '../lib/api'
 import { adminSend, Unauthorized } from '../lib/admin'
 import { CITIES } from '../lib/cities'
@@ -11,6 +12,7 @@ import { useApi } from '../lib/useApi'
 import { setCity, useCity } from '../lib/useCity'
 
 const EditorMap = lazy(() => import('./EditorMap'))
+const MAX_SHOWN = 50
 
 type Direction = LineDetail['directions'][number]
 
@@ -25,7 +27,9 @@ export default function LineEditorTab() {
   const [slug, setSlug] = useState<string | null>(null)
 
   const words = normalize(query).split(/\s+/).filter(Boolean)
-  const shown = (lines ?? []).filter((line) => words.every((w) => normalize(`${line.ref ?? ''} ${line.name}`).includes(w)))
+  const matching = (lines ?? []).filter((line) => words.every((w) => normalize(`${line.ref ?? ''} ${line.name}`).includes(w)))
+  // Abidjan compte des centaines de lignes : on en montre 50, la recherche fait le reste
+  const shown = matching.slice(0, MAX_SHOWN)
 
   return (
     <div className="line-editor">
@@ -59,6 +63,12 @@ export default function LineEditorTab() {
         <p className="muted">Aucune ligne à {city.name} pour l’instant : importez d’abord le fichier des lignes de l’intérieur.</p>
       )}
 
+      {!slug && matching.length > MAX_SHOWN && (
+        <p className="muted">
+          {matching.length} lignes : les {MAX_SHOWN} premières sont affichées, cherchez par numéro ou par terminus.
+        </p>
+      )}
+
       {slug ? (
         <LineEditor key={slug} slug={slug} bounds={city.bounds} onBack={() => setSlug(null)} />
       ) : (
@@ -80,6 +90,12 @@ export default function LineEditorTab() {
 function LineEditor({ slug, bounds, onBack }: { slug: string; bounds: [number, number, number, number]; onBack: () => void }) {
   const { data: line, error, loading, retry } = useApi<LineDetail>(`/lines/${encodeURIComponent(slug)}`)
   const [directionId, setDirectionId] = useState<number | null>(null)
+  // Chaque enregistrement recharge la ligne et l'historique
+  const [version, setVersion] = useState(0)
+  const saved = () => {
+    setVersion((v) => v + 1)
+    retry()
+  }
 
   if (loading) return <p className="muted">Chargement de la ligne…</p>
   if (error || !line) return <p className="form-alert">{error ?? 'Ligne introuvable.'}</p>
@@ -96,6 +112,7 @@ function LineEditor({ slug, bounds, onBack }: { slug: string; bounds: [number, n
         <LineBadge refNumber={line.ref} type={line.type} accent size="lg" />
         <h2 className="admin-section-title">{line.name}</h2>
       </header>
+      <FareEditor key={`fare-${version}`} line={line} onSaved={saved} />
       {line.directions.length > 1 && (
         <div className="segmented" role="group" aria-label="Sens">
           {line.directions.map((d) => (
@@ -112,7 +129,9 @@ function LineEditor({ slug, bounds, onBack }: { slug: string; bounds: [number, n
         </div>
       )}
       {/* Clé : changer de sens ou recharger repart des arrêts enregistrés */}
-      <StopsEditor key={`${direction.id}-${direction.stops.length}`} direction={direction} other={other} bounds={bounds} onSaved={retry} />
+      <SchedulesEditor key={`horaires-${direction.id}-${version}`} direction={direction} onSaved={saved} />
+      <StopsEditor key={`${direction.id}-${version}`} direction={direction} other={other} bounds={bounds} onSaved={saved} />
+      <ChangesList lineId={line.id} version={version} />
     </div>
   )
 }
