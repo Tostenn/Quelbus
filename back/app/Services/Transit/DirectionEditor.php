@@ -4,6 +4,7 @@ namespace App\Services\Transit;
 
 use App\Models\LineDirection;
 use App\Models\Stop;
+use App\Models\TransitChange;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -25,6 +26,7 @@ class DirectionEditor
     {
         return DB::transaction(function () use ($direction, $items, $complete, $editor) {
             $cityId = $direction->line->city_id;
+            $before = $direction->stops->map(fn (Stop $s) => $s->only(['id', 'name', 'lat', 'lng']))->all();
             $sequence = [];
 
             foreach ($items as $item) {
@@ -69,7 +71,10 @@ class DirectionEditor
                 'edited_by' => $editor->id,
             ])->save();
 
-            return $direction->refresh();
+            $direction->refresh();
+            TransitChange::record($editor, $direction, 'stops', $before, $direction->stops->map(fn (Stop $s) => $s->only(['id', 'name', 'lat', 'lng']))->all());
+
+            return $direction;
         });
     }
 

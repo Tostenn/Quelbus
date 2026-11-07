@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['line_id', 'external_id', 'osm_relation_id', 'name', 'origin_label', 'destination_label', 'is_loop', 'is_partial', 'stops_count', 'geometry', 'edited_at', 'edited_by'])]
 class LineDirection extends Model
@@ -36,5 +37,14 @@ class LineDirection extends Model
         return $this->belongsToMany(Stop::class, 'direction_stops')
             ->withPivot('sequence')
             ->orderByPivot('sequence');
+    }
+
+    /**
+     * @return HasMany<LineSchedule, $this>
+     */
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(LineSchedule::class)
+            ->orderByRaw("case day_type when 'tous' then 0 when 'semaine' then 1 when 'samedi' then 2 else 3 end");
     }
 }

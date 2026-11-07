@@ -32,9 +32,9 @@ class TransitController extends Controller
             ->orderBy('type')
             ->orderByRaw('length(ref), ref')
             ->orderBy('name')
-            ->get(['id', 'city_id', 'ref', 'name', 'slug', 'type', 'category'])
+            ->get(['id', 'city_id', 'ref', 'name', 'slug', 'type', 'category', 'fare', 'accepts_student_card'])
             ->map(fn (Line $line) => [
-                ...$line->only(['id', 'ref', 'name', 'slug', 'type', 'category', 'directions_count']),
+                ...$line->only(['id', 'ref', 'name', 'slug', 'type', 'category', 'directions_count', 'fare', 'accepts_student_card']),
                 'city' => $cityIds[$line->city_id] ?? null,
             ]);
 
@@ -44,7 +44,7 @@ class TransitController extends Controller
     public function line(Line $line): JsonResponse
     {
         Stats::lineView($line->id);
-        $line->load(['city', 'directions' => fn ($q) => $q->orderBy('id'), 'directions.stops:id,name,slug,lat,lng']);
+        $line->load(['city', 'directions' => fn ($q) => $q->orderBy('id'), 'directions.stops:id,name,slug,lat,lng', 'directions.schedules']);
 
         return response()->json(['data' => [
             'id' => $line->id,
@@ -55,11 +55,13 @@ class TransitController extends Controller
             'category' => $line->category,
             'operator' => $line->operator,
             'city' => $line->city?->summary(),
+            ...$line->fareSummary(),
             'directions' => $line->directions->map(fn ($direction) => [
                 'id' => $direction->id,
                 'name' => $direction->name,
                 'is_loop' => $direction->is_loop,
                 'is_partial' => $direction->is_partial,
+                'schedules' => $direction->schedules->map->summary(),
                 'geometry' => $direction->geometry ?? [],
                 'stops' => $direction->stops->map(fn ($stop) => $stop->only(['id', 'name', 'slug', 'lat', 'lng'])),
             ]),

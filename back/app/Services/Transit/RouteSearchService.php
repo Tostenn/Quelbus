@@ -2,6 +2,7 @@
 
 namespace App\Services\Transit;
 
+use App\Models\LineSchedule;
 use App\Models\Stop;
 use Illuminate\Support\Facades\DB;
 
@@ -165,9 +166,10 @@ class RouteSearchService
         }
 
         $lines = DB::table('lines')->whereIn('id', array_map(fn ($b) => $b['pair']->line_id, $best))
-            ->get(['id', 'ref', 'name', 'slug', 'type'])->keyBy('id');
+            ->get(['id', 'ref', 'name', 'slug', 'type', 'fare', 'accepts_student_card'])->keyBy('id');
         $directions = DB::table('line_directions')->whereIn('id', array_map(fn ($b) => $b['pair']->direction_id, $best))
             ->get(['id', 'name', 'origin_label', 'destination_label'])->keyBy('id');
+        $schedules = LineSchedule::query()->whereIn('line_direction_id', $directions->keys())->get()->groupBy('line_direction_id');
         $stopIds = array_merge(...array_map(fn ($b) => [$b['pair']->board_id, $b['pair']->alight_id], $best));
         $stops = Stop::query()->whereIn('id', $stopIds)->get(['id', 'name', 'slug', 'lat', 'lng'])->keyBy('id');
 
@@ -182,7 +184,10 @@ class RouteSearchService
 
         return array_map(fn ($b) => [
             'line' => (array) $lines[$b['pair']->line_id],
-            'direction' => (array) $directions[$b['pair']->direction_id],
+            'direction' => [
+                ...(array) $directions[$b['pair']->direction_id],
+                'schedules' => ($schedules[$b['pair']->direction_id] ?? collect())->map->summary()->values()->all(),
+            ],
             'board' => $stop($b['pair']->board_id, $origins[$b['pair']->board_id]),
             'alight' => $stop($b['pair']->alight_id, $destinations[$b['pair']->alight_id]),
             'stops' => $b['stops'],
