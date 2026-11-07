@@ -1,20 +1,25 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
-import { ArrowsLeftRight, Crosshair, NavigationArrow } from '@phosphor-icons/react'
+import { ArrowsLeftRight, Crosshair, MapTrifold, NavigationArrow } from '@phosphor-icons/react'
 import ArrivalDialog from '../components/ArrivalDialog'
+import FareInfo from '../components/FareInfo'
 import JsonLd from '../components/JsonLd'
 import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
 import MeetingShare from '../components/MeetingShare'
 import NotFound from '../components/NotFound'
 import ReportForm from '../components/ReportForm'
+import ServiceHours from '../components/ServiceHours'
+import TripShare from '../components/TripShare'
 import type { LineDetail } from '../lib/api'
+import { inCity } from '../lib/cities'
 import { distance } from '../lib/geo'
 import { lastDestination, wasShared } from '../lib/meeting'
 import { lineTitle, TYPE_LABELS } from '../lib/search'
 import { breadcrumb } from '../lib/seo'
 import { useApi } from '../lib/useApi'
 import { useLiveLocation } from '../lib/useLiveLocation'
+import { seenLabel, useLiveBuses } from '../lib/trips'
 import { usePageMeta } from '../lib/usePageMeta'
 
 const LineMap = lazy(() => import('../components/LineMap'))
@@ -28,14 +33,31 @@ export default function Line() {
 
   const direction = line?.directions.find((d) => String(d.id) === query.get('sens')) ?? line?.directions[0]
   const stops = direction?.stops ?? []
+  const partial = direction?.is_partial ?? false
+
+  // Bus en direct sur ce sens, et partage de position par l'usager à bord
+  const [sharing, setSharing] = useState(false)
+  const live = useLiveBuses(slug, stops.length > 1)
+  const buses = useMemo(() => live.filter((b) => b.direction_id === direction?.id), [live, direction?.id])
+  const busPins = useMemo(
+    () =>
+      buses.map((b) => ({
+        lat: b.lat,
+        lng: b.lng,
+        label: `Bus ${b.last_stop ? `passé à ${b.last_stop.name}` : 'au départ'} ${seenLabel(b.seen_seconds_ago)}`,
+      })),
+    [buses],
+  )
 
   usePageMeta(
     line ? `${lineTitle(line)} : ${line.name}, tous les arrêts | QuelBus` : 'Ligne de bus | QuelBus',
     line && direction
-      ? `${lineTitle(line)} (${TYPE_LABELS[line.type]}) à Abidjan, ${direction.name} : ${stops.length} arrêts, de ${stops
-          .slice(0, 4)
-          .map((s) => s.name)
-          .join(', ')}… jusqu’à ${stops.at(-1)?.name}.`
+      ? partial
+        ? `${lineTitle(line)} (${TYPE_LABELS[line.type]}) ${inCity(line.city?.slug)}, ${direction.name}. Arrêts en cours de relevé.`
+        : `${lineTitle(line)} (${TYPE_LABELS[line.type]}) ${inCity(line.city?.slug)}, ${direction.name} : ${stops.length} arrêts, de ${stops
+            .slice(0, 4)
+            .map((s) => s.name)
+            .join(', ')}… jusqu’à ${stops.at(-1)?.name}.`
       : undefined,
   )
 
@@ -115,9 +137,12 @@ export default function Line() {
                   <h1 className="line-title">{direction.name}</h1>
                   <p className="muted">
                     {TYPE_LABELS[line.type]}
-                    {line.category && line.type !== 'sotra' ? ` · ${line.category}` : ''} · {stops.length} arrêts
+                    {line.category && line.type !== 'sotra' ? ` · ${line.category}` : ''}
+                    {line.city && line.city.slug !== 'abidjan' ? ` · ${line.city.name}` : ''}
+                    {partial ? ' · terminus seulement' : ` · ${stops.length} arrêts`}
                     {direction.is_loop ? ' · boucle' : ''}
                   </p>
+                  <FareInfo fare={line.fare} accepts_student_card={line.accepts_student_card} />
                 </div>
               </header>
 
@@ -130,7 +155,10 @@ export default function Line() {
                       type="button"
                       className={d.id === direction.id ? 'is-selected' : ''}
                       aria-pressed={d.id === direction.id}
-                      onClick={() => setQuery({ sens: String(d.id) })}
+                      onClick={() => {
+                        setSharing(false)
+                        setQuery({ sens: String(d.id) })
+                      }}
                     >
                       {d.name}
                     </button>
@@ -171,18 +199,21 @@ export default function Line() {
                 </div>
               )}
 
-              <Suspense fallback={<div className="line-map" />}>
-                <LineMap
-                  stops={stops}
-                  geometry={direction.geometry ?? NO_GEOMETRY}
-                  board={board}
-                  alight={alight}
-                  userLat={userLat}
-                  userLng={userLng}
-                  follow={tracking && position !== null}
-                  onBoard={onBoard}
-                />
-              </Suspense>
+              {stops.length > 0 && (
+                <Suspense fallback={<div className="line-map" />}>
+                  <LineMap
+                    stops={stops}
+                    geometry={direction.geometry ?? NO_GEOMETRY}
+                    board={board}
+                    alight={alight}
+                    userLat={userLat}
+                    userLng={userLng}
+                    follow={tracking && position !== null}
+                    onBoard={onBoard}
+                    buses={busPins}
+                  />
+                </Suspense>
+              )}
 
               {(trip || userLat !== undefined) && (
                 <ul className="map-legend">
@@ -201,9 +232,31 @@ export default function Line() {
                   )}
                 </ul>
               )}
+
+              {stops.length > 1 && (
+                <TripShare
+                  key={direction.id}
+                  directionId={direction.id}
+                  buses={buses}
+                  sharing={sharing}
+                  onSharingChange={setSharing}
+                />
+              )}
             </aside>
 
             <div className="line-main">
+              {partial && (
+                <div className="notice partial-notice">
+                  <MapTrifold aria-hidden="true" size={22} />
+                  <p>
+                    {stops.length
+                      ? 'On connaît seulement les terminus de cette ligne, et leur position est approximative. Les arrêts intermédiaires et le tracé sont en cours de relevé.'
+                      : 'Les arrêts de cette ligne sont en cours de relevé : on n’a pas encore la position de ses terminus.'}{' '}
+                    Vous la prenez&nbsp;? Signalez-nous ses arrêts ci-dessous.
+                  </p>
+                </div>
+              )}
+              <ServiceHours schedules={direction.schedules ?? []} />
               <ol className="stop-list">
                 {stops.map((stop, i) => {
                   const ride = trip && i > board && i < alight
@@ -242,9 +295,13 @@ export default function Line() {
 
               <p className="form-note">
                 Données&nbsp;:{' '}
-                <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-                  © OpenStreetMap contributors
-                </a>
+                {partial ? (
+                  'SOTRA, « Lignes et tarifs », juillet 2024 ; positions des terminus d’après OpenStreetMap'
+                ) : (
+                  <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+                    © OpenStreetMap contributors
+                  </a>
+                )}
                 . Elles peuvent être incomplètes ou dépassées.
               </p>
               <ReportForm lineId={line.id} />

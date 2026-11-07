@@ -1,4 +1,5 @@
 import { API_URL } from './config'
+import type { Fare, Schedule } from './fares'
 
 export type Profile = 'utilisateur' | 'contributeur' | 'les_deux'
 
@@ -65,8 +66,15 @@ export type Suggestion = Place & { stops: number }
 export type ResultStop = { id: number; name: string; slug: string; lat: number; lng: number; walk: number }
 
 export type SearchResult = {
-  line: { id: number; ref: string | null; name: string; slug: string; type: LineType }
-  direction: { id: number; name: string; origin_label: string | null; destination_label: string | null }
+  line: { id: number; ref: string | null; name: string; slug: string; type: LineType } & Partial<Fare>
+  direction: {
+    id: number
+    name: string
+    origin_label: string | null
+    destination_label: string | null
+    /** Absent des recherches enregistrées avant les horaires */
+    schedules?: Schedule[]
+  }
   board: ResultStop
   alight: ResultStop
   stops: number
@@ -93,8 +101,9 @@ export type SearchResponse = {
 
 export type SearchParams = { from: Place; to: Place; radius: number; types: LineType[] }
 
-export async function fetchSuggestions(query: string, signal?: AbortSignal): Promise<Suggestion[]> {
-  const response = await fetch(`${API_URL}/api/suggest?${new URLSearchParams({ q: query })}`, {
+export async function fetchSuggestions(query: string, city?: string, signal?: AbortSignal): Promise<Suggestion[]> {
+  const params = new URLSearchParams({ q: query, ...(city ? { city } : {}) })
+  const response = await fetch(`${API_URL}/api/suggest?${params}`, {
     headers: { Accept: 'application/json' },
     signal,
   })
@@ -152,16 +161,33 @@ export type LineSummary = {
   type: LineType
   category: string | null
   directions_count: number
+  city: string | null
+  fare: number | null
+  accepts_student_card: boolean | null
 }
 
 export type StopSummary = { id: number; name: string; slug: string; lat: number; lng: number }
 
-export type LineDetail = Omit<LineSummary, 'directions_count'> & {
+export type CityRef = { slug: string; name: string; bounds: [number, number, number, number] }
+
+export type LineDetail = Omit<LineSummary, 'directions_count' | 'city'> & {
   operator: string | null
-  directions: { id: number; name: string; is_loop: boolean; geometry?: [number, number][][]; stops: StopSummary[] }[]
+  city: CityRef | null
+  fare_type: string | null
+  directions: {
+    id: number
+    name: string
+    is_loop: boolean
+    /** Seuls les terminus sont connus : arrêts intermédiaires et tracé restent à relever. */
+    is_partial: boolean
+    schedules: Schedule[]
+    geometry?: [number, number][][]
+    stops: StopSummary[]
+  }[]
 }
 
 export type StopDetail = StopSummary & {
+  city: CityRef | null
   lines: { line: Pick<LineSummary, 'id' | 'ref' | 'name' | 'slug' | 'type'>; direction: { id: number; name: string } }[]
   nearby: { id: number; name: string; slug: string; walk: number }[]
 }

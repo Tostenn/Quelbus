@@ -997,7 +997,8 @@ main {
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   font: 500 1.05rem/1.4 var(--sans);
   color: var(--ink);
@@ -1018,7 +1019,8 @@ main {
 }
 
 .field input:focus,
-.field textarea:focus {
+.field textarea:focus,
+.field select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
   background: var(--surface);
@@ -1674,6 +1676,14 @@ main {
   justify-items: start;
 }
 
+.partial-notice {
+  margin-bottom: 18px;
+}
+
+.partial-notice p {
+  margin: 0;
+}
+
 .notice-error {
   background: #fdf1f0;
   border-color: #f1c7c3;
@@ -1753,6 +1763,27 @@ main {
 
 .breadcrumb a {
   font-weight: 700;
+}
+
+.city-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.city-select select {
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 0.95rem/1 var(--sans);
+}
+
+.city-filter {
+  margin-top: 22px;
 }
 
 .line-filters {
@@ -3702,4 +3733,388 @@ dialog.arrival h2 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Éditeur de lignes (tableau de bord) */
+.line-editor {
+  display: grid;
+  gap: 16px;
+}
+
+.line-editor-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.line-editor-pick .filter-search {
+  flex: 1 1 220px;
+}
+
+button.line-row {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.line-editor-body,
+.stops-editor {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+
+.stops-editor > * {
+  width: 100%;
+}
+
+.editor-map-wrap {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.editor-map {
+  width: 100%;
+  height: 420px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  overflow: hidden;
+  z-index: 0;
+  cursor: crosshair;
+}
+
+.editor-pin {
+  /* Leaflet impose display: block aux icônes : on centre le numéro par la hauteur de ligne */
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: var(--ink);
+  color: #fff;
+  font: 700 0.75rem/1 var(--sans);
+  box-shadow: 0 2px 6px rgba(26, 22, 19, 0.35);
+}
+
+.editor-pin.is-selected {
+  background: var(--accent);
+}
+
+.editor-stops {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editor-stops li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.editor-stops li.is-selected {
+  border-color: var(--accent);
+}
+
+.editor-stops input {
+  flex: 1;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.editor-stop-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.btn-icon:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.editor-complete {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-weight: 600;
+}
+
+.editor-complete input {
+  margin-top: 4px;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Tarifs et horaires */
+.fare-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: center;
+  margin-top: 4px;
+  color: var(--ink);
+}
+
+.fare-info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.92rem;
+}
+
+.student-yes {
+  color: var(--success);
+}
+
+.student-no {
+  color: var(--muted);
+}
+
+.service-line {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.service-line.is-termine,
+.service-state.is-termine {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.fare-total {
+  color: var(--ink);
+}
+
+.service-hours {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.service-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+.service-state {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.service-state.is-avant {
+  color: var(--muted);
+}
+
+.service-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.service-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.service-list div.is-today {
+  font-weight: 700;
+}
+
+.service-list dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.service-unknown {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.admin-card {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.admin-card .admin-section-title {
+  margin: 0;
+}
+
+.fare-editor-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.schedule-rows {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.schedule-rows li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.schedule-rows select,
+.schedule-rows input {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.schedule-rows input:not([type='time']) {
+  flex: 1 1 180px;
+}
+
+.schedule-rows .field-error {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.change-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.change-list li {
+  display: grid;
+  gap: 2px;
+}
+
+/* Bus en direct */
+.map-pin-bus {
+  background: var(--ink);
+  animation: bus-pulse 2s ease-out infinite;
+}
+
+@keyframes bus-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(26, 22, 19, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(26, 22, 19, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-pin-bus {
+    animation: none;
+  }
+}
+
+/* Partage de position (« Je suis dans ce bus ») */
+.trip-share {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.trip-share-offer {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.trip-share-offer p {
+  margin: 0;
+}
+
+.trip-share-live {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.trip-share-live > span {
+  flex: 1;
+}
+
+.trip-share-live .muted {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.live-buses {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.live-buses li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-weight: 600;
 }

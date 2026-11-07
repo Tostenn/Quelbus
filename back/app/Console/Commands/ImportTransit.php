@@ -54,6 +54,10 @@ class ImportTransit extends Command
             ['Arrêts', $report->stopsCreated, '-', $report->stopsDeleted],
         ]);
 
+        if ($report->directionsKept) {
+            $this->line("{$report->directionsKept} sens modifié(s) dans le tableau de bord, gardé(s) tels quels.");
+        }
+
         if ($report->anomalies) {
             $this->warn(count($report->anomalies).' anomalie(s) :');
             foreach ($report->anomalies as $anomaly) {

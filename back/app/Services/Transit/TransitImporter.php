@@ -2,6 +2,7 @@
 
 namespace App\Services\Transit;
 
+use App\Models\City;
 use App\Models\Line;
 use App\Models\LineDirection;
 use App\Models\Stop;
@@ -12,14 +13,20 @@ use InvalidArgumentException;
 /**
  * Importe le JSON de scraper/scrape.py. Chaque entrée de « lines » y est un sens (A → B) :
  * les sens d'une même ligne sont regroupés (même numéro SOTRA, ou mêmes terminus pour gbaka et woro-woro).
+ *
+ * Le fichier peut couvrir plusieurs villes (clé « cities », et « city » sur chaque arrêt et chaque sens) ;
+ * sans indication, tout est rattaché à Abidjan.
  */
 class TransitImporter
 {
     /** @var array<string, true> */
     private array $usedSlugs = [];
 
+    /** @var array<string, int> slug de la ville => id */
+    private array $cityIds = [];
+
     /**
-     * @param  array{stops: list<array>, lines: list<array>}  $data
+     * @param  array{stops: list<array>, lines: list<array>, cities?: list<array>}  $data
      */
     public function import(array $data, bool $prune = false): ImportReport
     {
@@ -30,6 +37,7 @@ class TransitImporter
         $report = new ImportReport;
 
         DB::transaction(function () use ($data, $prune, $report) {
+            $this->importCities($data['cities'] ?? []);
             $stopIds = $this->importStops($data['stops'], $report);
             $this->importDirections($data['lines'], $stopIds, $report);
 
@@ -39,6 +47,29 @@ class TransitImporter
         });
 
         return $report;
+    }
+
+    /**
+     * @param  list<array{slug: string, name: string, bbox: array{float, float, float, float}, position?: int}>  $cities  bbox : sud, ouest, nord, est
+     */
+    private function importCities(array $cities): void
+    {
+        foreach ($cities as $i => $city) {
+            [$south, $west, $north, $east] = $city['bbox'];
+            City::query()->updateOrCreate(['slug' => $city['slug']], [
+                'name' => $city['name'],
+                'min_lat' => $south, 'min_lng' => $west, 'max_lat' => $north, 'max_lng' => $east,
+                'position' => $city['position'] ?? $i + 1,
+            ]);
+        }
+        $this->cityIds = City::query()->pluck('id', 'slug')->all();
+    }
+
+    private function cityId(?string $slug): int
+    {
+        $slug ??= City::DEFAULT;
+
+        return $this->cityIds[$slug] ?? throw new InvalidArgumentException("Ville inconnue : « {$slug} » (à déclarer dans la clé « cities »).");
     }
 
     /**
@@ -60,10 +91,12 @@ class TransitImporter
             if (isset($existing[$key]) || isset($toInsert[$key])) {
                 continue;
             }
+            $city = $stop['city'] ?? null;
             $toInsert[$key] = [
+                'city_id' => $this->cityId($city),
                 'name' => $stop['name'],
                 'search_name' => self::normalize($stop['name']),
-                'slug' => $this->uniqueSlug('stop', $stop['name']),
+                'slug' => $this->uniqueSlug('stop', $this->withCity($stop['name'], $city)),
                 'lat' => round($stop['lat'], 6),
                 'lng' => round($stop['lon'], 6),
                 'created_at' => $now,
@@ -113,11 +146,12 @@ class TransitImporter
 
             if (! isset($lineIds[$key]) && ! isset($newLines[$key])) {
                 $newLines[$key] = [
+                    'city_id' => $this->cityId($entry['city'] ?? null),
                     'key' => $key,
                     'type' => $type,
                     'ref' => $entry['ref'] ?? null,
                     'name' => $this->lineName($entry),
-                    'slug' => $this->uniqueSlug('line', $this->lineSlugSource($type, $entry)),
+                    'slug' => $this->uniqueSlug('line', $this->withCity($this->lineSlugSource($type, $entry), $entry['city'] ?? null)),
                     'category' => $entry['category'] ?? null,
                     'operator' => $entry['operator'] ?? null,
                     'created_at' => $now,
@@ -133,10 +167,17 @@ class TransitImporter
             $lineIds = Line::query()->pluck('id', 'key')->all();
         }
 
-        $existingDirections = array_flip(LineDirection::query()->pluck('osm_relation_id')->all());
+        $existingDirections = array_flip(LineDirection::query()->whereNotNull('external_id')->pluck('external_id')->all());
+        // Arrêts saisis dans le tableau de bord : plus fiables que le fichier, on n'y touche pas
+        $edited = array_flip(LineDirection::query()->whereNotNull('edited_at')->whereNotNull('external_id')->pluck('external_id')->all());
         $directions = [];
         $sequences = [];
         foreach ($entries as $entry) {
+            if (isset($edited[self::externalId($entry['id'])])) {
+                $report->directionsKept++;
+
+                continue;
+            }
             $sequence = [];
             foreach ($entry['stops'] as $fileStopId) {
                 if (! isset($stopIds[$fileStopId])) {
@@ -147,44 +188,49 @@ class TransitImporter
                 $sequence[] = $stopIds[$fileStopId];
             }
 
-            if (count($sequence) < 2) {
+            // Un sens « partiel » n'a que ses terminus, voire rien : c'est attendu, pas une anomalie
+            $partial = (bool) ($entry['partial'] ?? false);
+            if (count($sequence) < 2 && ! $partial) {
                 $report->anomaly("{$entry['name']} : moins de 2 arrêts, ce sens ne pourra pas servir à la recherche.");
             }
             if ($entry['_type'] === 'sotra' && empty($entry['ref'])) {
                 $report->anomaly("{$entry['name']} : ligne SOTRA sans numéro.");
             }
 
-            isset($existingDirections[$entry['id']]) ? $report->directionsUpdated++ : $report->directionsCreated++;
-            $sequences[$entry['id']] = $sequence;
+            $externalId = self::externalId($entry['id']);
+            isset($existingDirections[$externalId]) ? $report->directionsUpdated++ : $report->directionsCreated++;
+            $sequences[$externalId] = $sequence;
             $directions[] = [
-                'osm_relation_id' => $entry['id'],
+                'external_id' => $externalId,
+                'osm_relation_id' => is_int($entry['id']) ? $entry['id'] : null,
                 'line_id' => $lineIds[$entry['_key']],
                 'name' => $entry['from'] && $entry['to'] ? "{$entry['from']} → {$entry['to']}" : $entry['name'],
                 'origin_label' => $entry['from'] ?? null,
                 'destination_label' => $entry['to'] ?? null,
                 'is_loop' => count($sequence) > 1 && $sequence[0] === end($sequence),
+                'is_partial' => $partial,
                 'stops_count' => count($sequence),
                 'geometry' => isset($entry['geometry']) ? json_encode($entry['geometry']) : null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
         }
-        $columns = ['line_id', 'name', 'origin_label', 'destination_label', 'is_loop', 'stops_count', 'geometry', 'updated_at'];
+        $columns = ['line_id', 'osm_relation_id', 'name', 'origin_label', 'destination_label', 'is_loop', 'is_partial', 'stops_count', 'geometry', 'updated_at'];
         foreach (array_chunk($directions, 200) as $chunk) {
-            LineDirection::query()->toBase()->upsert($chunk, ['osm_relation_id'], $columns);
+            LineDirection::query()->toBase()->upsert($chunk, ['external_id'], $columns);
         }
 
-        $directionIds = LineDirection::query()
-            ->whereIn('osm_relation_id', array_keys($sequences))
-            ->pluck('id', 'osm_relation_id')
-            ->all();
+        $directionIds = [];
+        foreach (array_chunk(array_keys($sequences), 1000) as $chunk) {
+            $directionIds += LineDirection::query()->whereIn('external_id', $chunk)->pluck('id', 'external_id')->all();
+        }
         foreach (array_chunk(array_values($directionIds), 1000) as $chunk) {
             DB::table('direction_stops')->whereIn('line_direction_id', $chunk)->delete();
         }
         $rows = [];
-        foreach ($sequences as $osmId => $sequence) {
+        foreach ($sequences as $externalId => $sequence) {
             foreach ($sequence as $i => $stopId) {
-                $rows[] = ['line_direction_id' => $directionIds[$osmId], 'stop_id' => $stopId, 'sequence' => $i + 1];
+                $rows[] = ['line_direction_id' => $directionIds[$externalId], 'stop_id' => $stopId, 'sequence' => $i + 1];
             }
         }
         foreach (array_chunk($rows, 1000) as $chunk) {
@@ -193,18 +239,42 @@ class TransitImporter
     }
 
     /**
+     * Ne touche qu'aux villes présentes dans le fichier : importer l'intérieur ne vide pas Abidjan.
+     *
      * @param  list<array>  $entries
      */
     private function prune(array $entries, ImportReport $report): void
     {
+        $cities = array_values(array_unique(array_map(fn ($entry) => $this->cityId($entry['city'] ?? null), $entries)));
         $report->directionsDeleted = LineDirection::query()
-            ->whereNotIn('osm_relation_id', array_column($entries, 'id'))
+            ->whereHas('line', fn ($q) => $q->whereIn('city_id', $cities))
+            ->whereNotIn('external_id', array_map(self::externalId(...), array_column($entries, 'id')))
+            ->whereNull('edited_at')
             ->delete();
-        $report->linesDeleted = Line::query()->whereDoesntHave('directions')->delete();
-        $report->stopsDeleted = Stop::query()->whereDoesntHave('directions')->delete();
+        $report->linesDeleted = Line::query()->whereIn('city_id', $cities)->whereDoesntHave('directions')->delete();
+        $report->stopsDeleted = Stop::query()->whereIn('city_id', $cities)->whereDoesntHave('directions')->delete();
     }
 
+    /**
+     * Un entier est un id de relation OpenStreetMap ; une chaîne porte déjà sa source (« sotra-pdf:301:aller »).
+     */
+    public static function externalId(int|string $id): string
+    {
+        return is_int($id) ? "osm:{$id}" : $id;
+    }
+
+    /**
+     * Les clés d'Abidjan restent celles d'avant l'arrivée des autres villes.
+     */
     private function lineKey(string $type, array $entry): string
+    {
+        $city = $entry['city'] ?? City::DEFAULT;
+        $key = $this->baseLineKey($type, $entry);
+
+        return $city === City::DEFAULT ? $key : "{$city}:{$key}";
+    }
+
+    private function baseLineKey(string $type, array $entry): string
     {
         if ($type === 'sotra' && ! empty($entry['ref'])) {
             return 'sotra:'.(ltrim(Str::lower($entry['ref']), '0') ?: '0');
@@ -216,7 +286,7 @@ class TransitImporter
             return $type.':'.Str::slug($entry['category'] ?? '').':'.implode('|', $ends);
         }
 
-        return $type.':osm:'.$entry['id'];
+        return $type.':'.self::externalId($entry['id']);
     }
 
     private function lineName(array $entry): string
@@ -233,6 +303,14 @@ class TransitImporter
             'gbaka', 'woro-woro' => "{$type} {$ends}",
             default => $entry['name'],
         };
+    }
+
+    /**
+     * « Terminus Kennedy » existe à Abidjan et à Bouaké : hors d'Abidjan, le slug porte le nom de la ville.
+     */
+    private function withCity(string $source, ?string $city): string
+    {
+        return $city && $city !== City::DEFAULT ? "{$source} {$city}" : $source;
     }
 
     private function uniqueSlug(string $scope, string $source): string

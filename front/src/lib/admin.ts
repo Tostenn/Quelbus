@@ -91,7 +91,7 @@ export function resetPassword(payload: { token: string; email: string; password:
 }
 
 /** Appels d'écriture du tableau de bord (admins, newsletter…). */
-export function adminSend(path: string, body: object = {}, method: 'POST' | 'DELETE' = 'POST') {
+export function adminSend(path: string, body: object = {}, method: 'POST' | 'PUT' | 'DELETE' = 'POST') {
   return postForm(`/admin${path}`, body, getToken() ?? '', method)
 }
 

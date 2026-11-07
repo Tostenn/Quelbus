@@ -10,9 +10,11 @@ type Props = {
   pin: 'from' | 'to'
   error?: string
   action?: ReactNode
+  /** Ville où chercher les suggestions (slug) */
+  city?: string
 }
 
-export default function PlaceInput({ label, placeholder, value, onChange, pin, error, action }: Props) {
+export default function PlaceInput({ label, placeholder, value, onChange, pin, error, action, city }: Props) {
   const id = useId()
   const [text, setText] = useState(value?.name ?? '')
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
@@ -41,7 +43,7 @@ export default function PlaceInput({ label, placeholder, value, onChange, pin, e
     timer.current = window.setTimeout(() => {
       const controller = new AbortController()
       request.current = controller
-      fetchSuggestions(query, controller.signal)
+      fetchSuggestions(query, city, controller.signal)
         .then((items) => {
           setSuggestions(items)
           setActive(items.length ? 0 : -1)

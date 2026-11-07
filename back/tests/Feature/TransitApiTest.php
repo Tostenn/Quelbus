@@ -44,6 +44,62 @@ class TransitApiTest extends TestCase
             ->assertJsonPath('data.0.directions_count', 2);
     }
 
+    private function importBouake(): void
+    {
+        app(TransitImporter::class)->import([
+            'cities' => [['slug' => 'bouake', 'name' => 'Bouaké', 'bbox' => [7.60, -5.12, 7.78, -4.95]]],
+            'stops' => [
+                ['id' => 1, 'name' => 'Terminus Ahougnanssou', 'lat' => 7.683119, 'lon' => -5.054179, 'city' => 'bouake'],
+                ['id' => 2, 'name' => 'Terminus Kennedy', 'lat' => 7.683397, 'lon' => -5.004097, 'city' => 'bouake'],
+            ],
+            'lines' => [[
+                'id' => 'sotra-pdf:304:aller', 'name' => 'bus 304 : Ahougnanssou → Kennedy', 'type' => 'sotra', 'ref' => '304',
+                'from' => 'Ahougnanssou', 'to' => 'Kennedy', 'category' => 'monbus', 'operator' => 'SOTRA',
+                'city' => 'bouake', 'stops' => [1, 2], 'geometry' => null, 'partial' => true,
+            ]],
+        ]);
+    }
+
+    public function test_cities_are_listed_with_their_bounds(): void
+    {
+        $this->importBouake();
+
+        $this->getJson('/api/cities')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.slug', 'abidjan')
+            ->assertJsonPath('data.0.lines_count', 1)
+            ->assertJsonPath('data.1.name', 'Bouaké')
+            ->assertJsonPath('data.1.bounds', [7.6, -5.12, 7.78, -4.95]);
+    }
+
+    public function test_lines_and_suggestions_can_be_filtered_by_city(): void
+    {
+        $this->importBouake();
+
+        $this->getJson('/api/lines')->assertJsonCount(2, 'data');
+        $this->getJson('/api/lines?city=bouake')
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.ref', '304')
+            ->assertJsonPath('data.0.city', 'bouake');
+
+        $this->getJson('/api/suggest?q=terminus')->assertJsonCount(3, 'data');
+        $this->getJson('/api/suggest?q=terminus&city=abidjan')
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Terminus Angré');
+    }
+
+    public function test_a_partial_line_says_so(): void
+    {
+        $this->importBouake();
+        $slug = Line::where('ref', '304')->value('slug');
+
+        $this->getJson("/api/lines/{$slug}")
+            ->assertOk()
+            ->assertJsonPath('data.city.slug', 'bouake')
+            ->assertJsonPath('data.directions.0.is_partial', true);
+    }
+
     public function test_a_line_shows_its_directions_with_ordered_stops(): void
     {
         $slug = Line::firstOrFail()->slug;

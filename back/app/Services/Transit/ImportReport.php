@@ -14,6 +14,9 @@ class ImportReport
 
     public int $directionsDeleted = 0;
 
+    /** Sens modifiés dans le tableau de bord, laissés tels quels */
+    public int $directionsKept = 0;
+
     public int $stopsCreated = 0;
 
     public int $stopsDeleted = 0;

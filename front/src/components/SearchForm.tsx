@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowsDownUp, Crosshair, MagnifyingGlass, SpinnerGap } from '@phosphor-icons/react'
 import PlaceInput from './PlaceInput'
 import type { LineType, Place } from '../lib/api'
-import { isInAbidjan, RADII, searchToQuery } from '../lib/search'
+import { CITIES, cityAt } from '../lib/cities'
+import { RADII, searchToQuery } from '../lib/search'
+import { setCity, useCity } from '../lib/useCity'
 
 type Props = {
   initialFrom?: Place | null
@@ -20,7 +22,7 @@ type GeoState = 'idle' | 'locating' | 'denied' | 'unavailable' | 'outside'
 const geoMessages: Record<Exclude<GeoState, 'idle' | 'locating'>, string> = {
   denied: 'Localisation refusée. Tapez votre quartier ou un arrêt.',
   unavailable: 'Position introuvable. Tapez votre quartier ou un arrêt.',
-  outside: 'Vous semblez être hors d’Abidjan. Tapez votre point de départ.',
+  outside: 'Vous semblez être hors des villes couvertes par QuelBus. Tapez votre point de départ.',
 }
 
 export default function SearchForm({
@@ -37,6 +39,14 @@ export default function SearchForm({
   const [geo, setGeo] = useState<GeoState>('idle')
   const [errors, setErrors] = useState<{ from?: string; to?: string }>({})
   const [swapKey, setSwapKey] = useState(0)
+  const city = useCity()
+  const abidjan = city.slug === 'abidjan'
+
+  // Recherche ouverte depuis un lien : on se place dans la ville du départ
+  useEffect(() => {
+    const linked = initialFrom && cityAt(initialFrom)
+    if (linked) setCity(linked.slug)
+  }, [initialFrom])
 
   function go(start: Place, end: Place) {
     navigate(`/recherche?${searchToQuery({ from: start, to: end, radius, types })}`)
@@ -59,11 +69,18 @@ export default function SearchForm({
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const place = { name: 'Ma position', lat: coords.latitude, lng: coords.longitude }
-        if (!isInAbidjan(place)) {
+        const here = cityAt(place)
+        if (!here) {
           setGeo('outside')
           return
         }
         setGeo('idle')
+        if (here.slug !== city.slug) {
+          // Autre ville : la destination tapée avant n'y est sûrement pas
+          setCity(here.slug)
+          setTo(null)
+          setSwapKey((k) => k + 1)
+        }
         chooseFrom(place)
       },
       (error) => setGeo(error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable'),
@@ -85,8 +102,29 @@ export default function SearchForm({
 
   return (
     <form className="search-form" onSubmit={submit} noValidate>
+      <label className="city-select">
+        <span>Ville</span>
+        <select
+          value={city.slug}
+          onChange={(e) => {
+            setCity(e.target.value)
+            setFrom(null)
+            setTo(null)
+            setErrors({})
+            setSwapKey((k) => k + 1)
+          }}
+        >
+          {CITIES.map((c) => (
+            <option key={c.slug} value={c.slug}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
       <PlaceInput
-        key={`from-${swapKey}`}
+        key={`from-${city.slug}-${swapKey}`}
+        city={city.slug}
         label="Où êtes-vous ?"
         placeholder="Quartier, carrefour, arrêt…"
         pin="from"
@@ -125,9 +163,10 @@ export default function SearchForm({
       />
 
       <PlaceInput
-        key={`to-${swapKey}`}
+        key={`to-${city.slug}-${swapKey}`}
+        city={city.slug}
         label="Où allez-vous ?"
-        placeholder="Mosquée d’Adjamé, Gare Nord…"
+        placeholder={abidjan ? 'Mosquée d’Adjamé, Gare Nord…' : 'Quartier, terminus…'}
         pin="to"
         value={to}
         onChange={(place) => {

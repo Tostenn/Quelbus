@@ -1,0 +1,25 @@
+{
+  "_lisez_moi": "Positions des terminus de l'intérieur, prioritaires sur le géocodage automatique. Mettre lat/lon à null tant qu'on ne sait pas. « verifie » passe à true quand quelqu'un a confirmé sur place ou sur une affiche SOTRA.",
+  "bouake": {
+    "Tchelekro": { "lat": null, "lon": null, "verifie": false, "note": "Lignes 301 et 309. Quartier près de la base aérienne" },
+    "Kahankro": { "lat": null, "lon": null, "verifie": false, "note": "Ligne 302" },
+    "CIDT": { "lat": null, "lon": null, "verifie": false, "note": "Ligne 302, quartier Cité CIDT, à moins de 5 km d'Allokokro (Koaci, 2024)" },
+    "Corridor Sud": { "lat": null, "lon": null, "verifie": false, "note": "Ligne 303, sortie sud vers Yamoussoukro" },
+    "Tolakouadiokro": { "lat": null, "lon": null, "verifie": false, "note": "Ligne 307" }
+  },
+  "korhogo": {
+    "Katiofi": { "lat": null, "lon": null, "verifie": false, "note": "Ligne 371" },
+    "Torgokaha": { "lat": null, "lon": null, "verifie": false, "note": "Lignes 371, 372, 374, 375" },
+    "Waraniéné": { "lat": 9.446762, "lon": -5.67493, "verifie": false, "note": "Nominatim : un lieu dans le quartier Waraniéné" },
+    "COIC CIDT": { "lat": 9.466686, "lon": -5.62628, "verifie": false, "note": "Nominatim : Direction générale de COIC. Autre candidat : EPP Cité CIDT (9.471307, -5.59962)" }
+  },
+  "san-pedro": {
+    "Mosquée de la cité": { "lat": null, "lon": null, "verifie": false, "note": "Lignes 351 et 353. Plusieurs mosquées « cité » dans OSM, à confirmer" },
+    "Prison civile": { "lat": 4.761796, "lon": -6.72078, "verifie": false, "note": "Nominatim : Maison d'arrêt et de correction de San-Pédro" }
+  },
+  "yamoussoukro": {
+    "Morofé Corridor Nord": { "lat": 6.843307, "lon": -5.29284, "verifie": false, "note": "Nominatim : village de Morofé" },
+    "Fondation FHB": { "lat": 6.796691, "lon": -5.26475, "verifie": false, "note": "Nominatim : Fondation Félix Houphouët-Boigny" },
+    "Sahabo": { "lat": 6.847791, "lon": -5.38286, "verifie": false, "note": "Nominatim : Sahabo" }
+  }
+}

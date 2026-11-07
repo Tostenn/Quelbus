@@ -2,6 +2,7 @@
 
 namespace App\Services\Transit;
 
+use App\Models\LineSchedule;
 use App\Models\Stop;
 use Illuminate\Support\Facades\DB;
 
@@ -361,16 +362,17 @@ class TransferPlanner
             }
         }
         $stops = Stop::query()->whereIn('id', array_unique($stopIds))->get(['id', 'name', 'slug', 'lat', 'lng'])->keyBy('id');
-        $lines = DB::table('lines')->whereIn('id', array_unique($lineIds))->get(['id', 'ref', 'name', 'slug', 'type'])->keyBy('id');
+        $lines = DB::table('lines')->whereIn('id', array_unique($lineIds))->get(['id', 'ref', 'name', 'slug', 'type', 'fare', 'accepts_student_card'])->keyBy('id');
         $directions = DB::table('line_directions')->whereIn('id', array_unique($dirIds))
             ->get(['id', 'name', 'origin_label', 'destination_label'])->keyBy('id');
+        $schedules = LineSchedule::query()->whereIn('line_direction_id', $directions->keys())->get()->groupBy('line_direction_id');
 
         $stop = fn (int $id, int $walk) => [
             'id' => $id, 'name' => $stops[$id]->name, 'slug' => $stops[$id]->slug,
             'lat' => $stops[$id]->lat, 'lng' => $stops[$id]->lng, 'walk' => $walk,
         ];
 
-        return array_map(function (array $plan) use ($stop, $lines, $directions, $origins, $destinations) {
+        return array_map(function (array $plan) use ($stop, $lines, $directions, $schedules, $origins, $destinations) {
             $count = count($plan['legs']);
             $legs = [];
             $walk = 0;
@@ -385,7 +387,10 @@ class TransferPlanner
                 $stopsCount += $leg['j'] - $leg['i'];
                 $legs[] = [
                     'line' => (array) $lines[$dir['line']],
-                    'direction' => (array) $directions[$leg['dir']],
+                    'direction' => [
+                        ...(array) $directions[$leg['dir']],
+                        'schedules' => ($schedules[$leg['dir']] ?? collect())->map->summary()->values()->all(),
+                    ],
                     'board' => $stop($boardId, $boardWalk),
                     'alight' => $stop($alightId, $alightWalk),
                     'stops' => $leg['j'] - $leg['i'],
