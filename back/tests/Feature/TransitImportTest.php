@@ -118,6 +118,91 @@ class TransitImportTest extends TestCase
         $this->assertCount(2, $report->anomalies); // moins de 2 arrêts + SOTRA sans numéro
     }
 
+    /**
+     * Extrait au format de scraper/data/interior_bus.json : une ligne de Bouaké dont seuls les terminus sont connus,
+     * et une dont un terminus n'a pas encore de position.
+     */
+    private function interior(): array
+    {
+        $entry = fn (string $id, string $ref, string $from, string $to, array $stops) => [
+            'id' => $id, 'name' => "bus {$ref} : {$from} → {$to}", 'type' => 'sotra', 'ref' => $ref,
+            'from' => $from, 'to' => $to, 'category' => 'monbus', 'operator' => 'SOTRA', 'city' => 'bouake',
+            'fare' => 200, 'fare_type' => 'MONBUS', 'stops' => $stops, 'geometry' => null, 'partial' => true,
+        ];
+
+        return [
+            'cities' => [['slug' => 'bouake', 'name' => 'Bouaké', 'bbox' => [7.60, -5.12, 7.78, -4.95]]],
+            'stops' => [
+                ['id' => 1, 'name' => 'Terminus Ahougnanssou', 'lat' => 7.683119, 'lon' => -5.054179, 'city' => 'bouake'],
+                ['id' => 2, 'name' => 'Terminus Kennedy', 'lat' => 7.683397, 'lon' => -5.004097, 'city' => 'bouake'],
+            ],
+            'lines' => [
+                $entry('sotra-pdf:304:aller', '304', 'Ahougnanssou', 'Kennedy', [1, 2]),
+                $entry('sotra-pdf:304:retour', '304', 'Kennedy', 'Ahougnanssou', [2, 1]),
+                $entry('sotra-pdf:302:aller', '302', 'Kahankro', 'CIDT', []),
+                $entry('sotra-pdf:302:retour', '302', 'CIDT', 'Kahankro', []),
+            ],
+        ];
+    }
+
+    public function test_lines_of_another_city_are_imported_without_osm_ids(): void
+    {
+        $report = app(TransitImporter::class)->import($this->interior());
+
+        $this->assertSame([], $report->anomalies); // sens partiels : pas d'anomalie
+        $line = Line::where('ref', '304')->firstOrFail();
+        $this->assertSame('bouake', $line->city->slug);
+        $this->assertSame('bouake:sotra:304', $line->key);
+        $this->assertSame('304-ahougnanssou-kennedy-bouake', $line->slug);
+
+        $direction = LineDirection::where('external_id', 'sotra-pdf:304:aller')->firstOrFail();
+        $this->assertNull($direction->osm_relation_id);
+        $this->assertTrue($direction->is_partial);
+        $this->assertSame(['Terminus Ahougnanssou', 'Terminus Kennedy'], $direction->stops->pluck('name')->all());
+        $this->assertSame('terminus-kennedy-bouake', Stop::where('name', 'Terminus Kennedy')->firstOrFail()->slug);
+
+        // Sans position de terminus, la ligne existe quand même
+        $this->assertSame(0, LineDirection::where('external_id', 'sotra-pdf:302:aller')->firstOrFail()->stops_count);
+
+        $this->assertSame(0, app(TransitImporter::class)->import($this->interior())->directionsCreated);
+    }
+
+    public function test_abidjan_lines_keep_their_keys_and_belong_to_abidjan(): void
+    {
+        app(TransitImporter::class)->import($this->data());
+
+        $line = Line::where('ref', '201')->firstOrFail();
+        $this->assertSame('sotra:201', $line->key);
+        $this->assertSame('abidjan', $line->city->slug);
+        $this->assertSame('osm:10291017', LineDirection::where('osm_relation_id', 10291017)->value('external_id'));
+        $this->assertSame(0, Stop::whereNull('city_id')->count());
+    }
+
+    public function test_pruning_one_city_leaves_the_others_alone(): void
+    {
+        $importer = app(TransitImporter::class);
+        $importer->import($this->data());
+        $importer->import($this->interior());
+
+        $interior = $this->interior();
+        $interior['lines'] = array_slice($interior['lines'], 0, 2); // la 302 disparaît
+        $report = $importer->import($interior, prune: true);
+
+        $this->assertSame(2, $report->directionsDeleted);
+        $this->assertSame(1, $report->linesDeleted);
+        $this->assertSame(0, $report->stopsDeleted);
+        $this->assertSame(4, LineDirection::whereHas('line', fn ($q) => $q->whereHas('city', fn ($c) => $c->where('slug', 'abidjan')))->count());
+    }
+
+    public function test_an_unknown_city_is_refused(): void
+    {
+        $data = $this->interior();
+        unset($data['cities']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        app(TransitImporter::class)->import($data);
+    }
+
     public function test_the_command_imports_a_file(): void
     {
         $path = tempnam(sys_get_temp_dir(), 'transit');

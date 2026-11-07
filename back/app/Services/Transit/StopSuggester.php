@@ -17,7 +17,7 @@ class StopSuggester
     /**
      * @return list<array{name: string, lat: float, lng: float, stops: int}>
      */
-    public function suggest(string $query, int $limit = 8): array
+    public function suggest(string $query, int $limit = 8, ?string $city = null): array
     {
         $words = array_filter(explode(' ', TransitImporter::normalize($query)));
         if (! $words) {
@@ -25,6 +25,7 @@ class StopSuggester
         }
 
         $stops = Stop::query()
+            ->when($city, fn ($q) => $q->whereHas('city', fn ($c) => $c->where('slug', $city)))
             ->where(function ($q) use ($words) {
                 foreach ($words as $word) {
                     $q->where('search_name', 'like', '%'.$word.'%');

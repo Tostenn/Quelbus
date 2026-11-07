@@ -42,9 +42,10 @@ class SearchController extends Controller
     public function suggest(Request $request, StopSuggester $suggester): JsonResponse
     {
         $query = trim((string) $request->query('q'));
+        $city = $request->query('city');
 
         return response()->json([
-            'data' => mb_strlen($query) >= 2 ? $suggester->suggest(mb_substr($query, 0, 100)) : [],
+            'data' => mb_strlen($query) >= 2 ? $suggester->suggest(mb_substr($query, 0, 100), city: is_string($city) ? $city : null) : [],
         ]);
     }
 

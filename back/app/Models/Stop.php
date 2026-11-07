@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'search_name', 'slug', 'lat', 'lng', 'commune'])]
+#[Fillable(['city_id', 'name', 'search_name', 'slug', 'lat', 'lng', 'commune'])]
 class Stop extends Model
 {
     protected function casts(): array
@@ -15,6 +16,14 @@ class Stop extends Model
             'lat' => 'float',
             'lng' => 'float',
         ];
+    }
+
+    /**
+     * @return BelongsTo<City, $this>
+     */
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     /**

@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['line_id', 'osm_relation_id', 'name', 'origin_label', 'destination_label', 'is_loop', 'stops_count', 'geometry'])]
+#[Fillable(['line_id', 'external_id', 'osm_relation_id', 'name', 'origin_label', 'destination_label', 'is_loop', 'is_partial', 'stops_count', 'geometry'])]
 class LineDirection extends Model
 {
     protected function casts(): array
     {
         return [
             'is_loop' => 'boolean',
+            'is_partial' => 'boolean',
             'geometry' => 'array',
         ];
     }
