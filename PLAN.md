@@ -62,8 +62,11 @@ Bonus : verser les tracés validés dans OpenStreetMap (licence ODbL compatible)
 - [x] Front : avis « terminus seulement, arrêts en cours de relevé » sur la fiche ligne
 - [ ] Importer `interior_bus.json` en production : `php artisan transit:import ../scraper/data/interior_bus.json`
 - [ ] Compléter les 13 terminus sans position : Tchelekro, Kahankro, CIDT, Corridor Sud, Tolakouadiokro (Bouaké) ; Katiofi, Torgokaha (Korhogo) ; Mosquée de la cité (San-Pédro)
-- [ ] Front : choix de la ville sur l'accueil, autocomplétion limitée à la ville courante, textes « à Abidjan » de l'accueil
-- [ ] Admin : éditeur de ligne (ajouter / déplacer / ordonner des arrêts sur la carte, tracer le chemin)
+- [x] Front : choix de la ville dans le formulaire de recherche (gardé d'une visite à l'autre, changé tout seul par « Utiliser ma position »), autocomplétion limitée à cette ville
+- [ ] Front : textes « à Abidjan » de l'accueil et des partages (à réécrire quand les lignes de l'intérieur seront en ligne)
+- [x] Admin : onglet « Lignes », éditeur des arrêts d'un sens sur carte (ajouter, déplacer, renommer, ordonner, reprendre l'autre sens inversé, marquer « complet »). `PUT /api/admin/directions/{id}/stops`
+- [x] Import : un sens modifié dans le tableau de bord n'est plus écrasé ni purgé (`edited_at`, `edited_by`)
+- [ ] Admin : tracé du chemin entre les arrêts (pour l'instant une ligne droite d'arrêt en arrêt ; viendra des traces des voyageurs, lot 3)
 - [x] Tests : import des lignes de l'intérieur, purge par ville, filtre par ville
 
 ---
@@ -152,3 +155,4 @@ Niveaux de [VISION.md](VISION.md), on affiche toujours le niveau de confiance :
 |---|---|
 | 07/11/2026 | Plan écrit. Recherche des sources pour l'intérieur : rien à scraper, voir lot 1 |
 | 07/11/2026 | Lot 1, première partie : villes en base, 24 lignes de l'intérieur lues dans le PDF, API et front |
+| 07/11/2026 | Lot 1, deuxième partie : ville dans le formulaire de recherche, éditeur d'arrêts dans le tableau de bord |

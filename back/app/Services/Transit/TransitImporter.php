@@ -168,9 +168,16 @@ class TransitImporter
         }
 
         $existingDirections = array_flip(LineDirection::query()->whereNotNull('external_id')->pluck('external_id')->all());
+        // Arrêts saisis dans le tableau de bord : plus fiables que le fichier, on n'y touche pas
+        $edited = array_flip(LineDirection::query()->whereNotNull('edited_at')->whereNotNull('external_id')->pluck('external_id')->all());
         $directions = [];
         $sequences = [];
         foreach ($entries as $entry) {
+            if (isset($edited[self::externalId($entry['id'])])) {
+                $report->directionsKept++;
+
+                continue;
+            }
             $sequence = [];
             foreach ($entry['stops'] as $fileStopId) {
                 if (! isset($stopIds[$fileStopId])) {
@@ -242,6 +249,7 @@ class TransitImporter
         $report->directionsDeleted = LineDirection::query()
             ->whereHas('line', fn ($q) => $q->whereIn('city_id', $cities))
             ->whereNotIn('external_id', array_map(self::externalId(...), array_column($entries, 'id')))
+            ->whereNull('edited_at')
             ->delete();
         $report->linesDeleted = Line::query()->whereIn('city_id', $cities)->whereDoesntHave('directions')->delete();
         $report->stopsDeleted = Stop::query()->whereIn('city_id', $cities)->whereDoesntHave('directions')->delete();
