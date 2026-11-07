@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { ArrowLeft, Check, LinkSimple, MapPin, SpinnerGap, UsersThree, WhatsappLogo } from '@phosphor-icons/react'
 import PlaceInput from './PlaceInput'
 import { fetchNearestStop, type Place } from '../lib/api'
-import { isInAbidjan, rendezvousUrl } from '../lib/search'
+import { isInServedCity, rendezvousUrl } from '../lib/search'
 
 type Step = 'idle' | 'locating' | 'manual' | 'ready'
 
 const PROBLEMS = {
   denied: 'Position refusée. Choisissez le lieu du rendez-vous :',
   unavailable: 'Position introuvable. Choisissez le lieu du rendez-vous :',
-  outside: 'Vous semblez être hors d’Abidjan. Choisissez le lieu du rendez-vous :',
+  outside: 'Vous semblez être hors des villes couvertes par QuelBus. Choisissez le lieu du rendez-vous :',
 }
 
 // « Rejoins-moi ici » : partage la position actuelle, une seule fois, sans définir de trajet.
@@ -40,7 +40,7 @@ export default function MeetMeHere({ onActiveChange }: { onActiveChange?: (activ
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         const here = { name: 'la position partagée', lat: coords.latitude, lng: coords.longitude }
-        if (!isInAbidjan(here)) return fail('outside')
+        if (!isInServedCity(here)) return fail('outside')
         // L'arrêt le plus proche sert de repère ; sans lui, le lien marche quand même
         const stop = await fetchNearestStop(here.lat, here.lng).catch(() => null)
         setPlace(stop ? { ...here, name: `près de l’arrêt ${stop.name}` } : here)

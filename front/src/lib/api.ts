@@ -152,16 +152,29 @@ export type LineSummary = {
   type: LineType
   category: string | null
   directions_count: number
+  city: string | null
 }
 
 export type StopSummary = { id: number; name: string; slug: string; lat: number; lng: number }
 
-export type LineDetail = Omit<LineSummary, 'directions_count'> & {
+export type CityRef = { slug: string; name: string; bounds: [number, number, number, number] }
+
+export type LineDetail = Omit<LineSummary, 'directions_count' | 'city'> & {
   operator: string | null
-  directions: { id: number; name: string; is_loop: boolean; geometry?: [number, number][][]; stops: StopSummary[] }[]
+  city: CityRef | null
+  directions: {
+    id: number
+    name: string
+    is_loop: boolean
+    /** Seuls les terminus sont connus : arrêts intermédiaires et tracé restent à relever. */
+    is_partial: boolean
+    geometry?: [number, number][][]
+    stops: StopSummary[]
+  }[]
 }
 
 export type StopDetail = StopSummary & {
+  city: CityRef | null
   lines: { line: Pick<LineSummary, 'id' | 'ref' | 'name' | 'slug' | 'type'>; direction: { id: number; name: string } }[]
   nearby: { id: number; name: string; slug: string; walk: number }[]
 }

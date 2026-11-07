@@ -1674,6 +1674,14 @@ main {
   justify-items: start;
 }
 
+.partial-notice {
+  margin-bottom: 18px;
+}
+
+.partial-notice p {
+  margin: 0;
+}
+
 .notice-error {
   background: #fdf1f0;
   border-color: #f1c7c3;
@@ -1753,6 +1761,10 @@ main {
 
 .breadcrumb a {
   font-weight: 700;
+}
+
+.city-filter {
+  margin-top: 22px;
 }
 
 .line-filters {

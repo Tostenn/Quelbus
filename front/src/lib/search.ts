@@ -1,4 +1,5 @@
 import type { LineType, Place, SearchParams } from './api'
+import { cityAt } from './cities'
 
 export const RADII = [300, 500, 800] as const
 
@@ -16,11 +17,9 @@ export const TYPE_LABELS: Record<LineType, string> = {
   autre: 'Autre',
 }
 
-// Grand Abidjan
-const ABIDJAN = { minLat: 5.15, maxLat: 5.6, minLng: -4.3, maxLng: -3.7 }
-
-export function isInAbidjan({ lat, lng }: Place): boolean {
-  return lat >= ABIDJAN.minLat && lat <= ABIDJAN.maxLat && lng >= ABIDJAN.minLng && lng <= ABIDJAN.maxLng
+/** La position est-elle dans une ville où QuelBus a des lignes ? */
+export function isInServedCity(place: Place): boolean {
+  return cityAt(place) !== null
 }
 
 // 80 m par minute environ

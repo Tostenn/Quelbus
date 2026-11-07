@@ -47,3 +47,39 @@ Options : `--delay 1.5` (secondes entre requêtes), `--force` (tout re-télécha
 
 Les arrêts identiques (même nom + mêmes coordonnées) sont dédupliqués et partagés
 entre lignes. Chaque sens d'une ligne est une ligne distincte (A → B et B → A).
+
+## Villes de l'intérieur : `interior.py`
+
+OpenStreetMap n'a aucun tracé de bus à Bouaké, Korhogo, San-Pédro ni Yamoussoukro. On part du
+document SOTRA « Lignes et tarifs » (numéro, tarif, type, deux terminus), et on place les terminus
+avec Nominatim.
+
+```bash
+python interior.py "../Lignes et tarifs SOTRA_Juillet 2024.pdf"
+python interior.py <pdf> --no-geocode   # sans appel réseau (cache + corrections)
+```
+
+- Sortie : `data/interior_bus.json`, même format qu'`abidjan_bus.json`, avec `city`, `fare`,
+  `fare_type` et `partial: true` sur chaque sens (seuls les terminus sont connus).
+- Corrections à la main : `interior_terminus.json` (prioritaire sur Nominatim). Une ligne dont un
+  terminus n'a pas de position est importée sans arrêts.
+- Import : `php artisan transit:import ../scraper/data/interior_bus.json` (`--prune` ne touche
+  qu'aux villes du fichier).
+
+## Villes de l'intérieur : `interior.py`
+
+OpenStreetMap n'a aucun tracé de bus à Bouaké, Korhogo, San-Pédro ni Yamoussoukro. On part du
+document SOTRA « Lignes et tarifs » (numéro, tarif, type, deux terminus), et on place les terminus
+avec Nominatim.
+
+```bash
+python interior.py "../Lignes et tarifs SOTRA_Juillet 2024.pdf"
+python interior.py <pdf> --no-geocode   # sans appel réseau (cache + corrections)
+```
+
+- Sortie : `data/interior_bus.json`, même format qu'`abidjan_bus.json`, avec `city`, `fare`,
+  `fare_type` et `partial: true` sur chaque sens (seuls les terminus sont connus).
+- Corrections à la main : `interior_terminus.json`, prioritaire sur Nominatim. Une ligne dont un
+  terminus n'a pas de position est importée sans arrêts.
+- Import : `php artisan transit:import ../scraper/data/interior_bus.json` (`--prune` ne touche
+  qu'aux villes du fichier).

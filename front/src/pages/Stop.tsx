@@ -10,6 +10,7 @@ import type { StopDetail } from '../lib/api'
 import { breadcrumb } from '../lib/seo'
 import { useApi } from '../lib/useApi'
 import { usePageMeta } from '../lib/usePageMeta'
+import { cityName, inCity } from '../lib/cities'
 
 export default function Stop() {
   const { slug = '' } = useParams()
@@ -19,7 +20,7 @@ export default function Stop() {
   usePageMeta(
     stop ? `Arrêt ${stop.name} : quelles lignes de bus y passent ? | QuelBus` : 'Arrêt de bus | QuelBus',
     stop
-      ? `${stop.lines.length} ligne${stop.lines.length > 1 ? 's' : ''} passe${stop.lines.length > 1 ? 'nt' : ''} à l’arrêt ${stop.name} à Abidjan${refs.length ? ` : ${refs.slice(0, 8).join(', ')}` : ''}.`
+      ? `${stop.lines.length} ligne${stop.lines.length > 1 ? 's' : ''} passe${stop.lines.length > 1 ? 'nt' : ''} à l’arrêt ${stop.name} ${inCity(stop.city?.slug)}${refs.length ? ` : ${refs.slice(0, 8).join(', ')}` : ''}.`
       : undefined,
   )
 
@@ -44,7 +45,7 @@ export default function Stop() {
                   '@type': 'BusStop',
                   name: stop.name,
                   geo: { '@type': 'GeoCoordinates', latitude: stop.lat, longitude: stop.lng },
-                  address: { '@type': 'PostalAddress', addressLocality: 'Abidjan', addressCountry: 'CI' },
+                  address: { '@type': 'PostalAddress', addressLocality: cityName(stop.city?.slug), addressCountry: 'CI' },
                 },
                 breadcrumb([
                   { name: 'Lignes', path: '/lignes' },

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
-import { ArrowsLeftRight, Crosshair, NavigationArrow } from '@phosphor-icons/react'
+import { ArrowsLeftRight, Crosshair, MapTrifold, NavigationArrow } from '@phosphor-icons/react'
 import ArrivalDialog from '../components/ArrivalDialog'
 import JsonLd from '../components/JsonLd'
 import LineBadge from '../components/LineBadge'
@@ -9,6 +9,7 @@ import MeetingShare from '../components/MeetingShare'
 import NotFound from '../components/NotFound'
 import ReportForm from '../components/ReportForm'
 import type { LineDetail } from '../lib/api'
+import { inCity } from '../lib/cities'
 import { distance } from '../lib/geo'
 import { lastDestination, wasShared } from '../lib/meeting'
 import { lineTitle, TYPE_LABELS } from '../lib/search'
@@ -28,14 +29,17 @@ export default function Line() {
 
   const direction = line?.directions.find((d) => String(d.id) === query.get('sens')) ?? line?.directions[0]
   const stops = direction?.stops ?? []
+  const partial = direction?.is_partial ?? false
 
   usePageMeta(
     line ? `${lineTitle(line)} : ${line.name}, tous les arrêts | QuelBus` : 'Ligne de bus | QuelBus',
     line && direction
-      ? `${lineTitle(line)} (${TYPE_LABELS[line.type]}) à Abidjan, ${direction.name} : ${stops.length} arrêts, de ${stops
-          .slice(0, 4)
-          .map((s) => s.name)
-          .join(', ')}… jusqu’à ${stops.at(-1)?.name}.`
+      ? partial
+        ? `${lineTitle(line)} (${TYPE_LABELS[line.type]}) ${inCity(line.city?.slug)}, ${direction.name}. Arrêts en cours de relevé.`
+        : `${lineTitle(line)} (${TYPE_LABELS[line.type]}) ${inCity(line.city?.slug)}, ${direction.name} : ${stops.length} arrêts, de ${stops
+            .slice(0, 4)
+            .map((s) => s.name)
+            .join(', ')}… jusqu’à ${stops.at(-1)?.name}.`
       : undefined,
   )
 
@@ -115,7 +119,9 @@ export default function Line() {
                   <h1 className="line-title">{direction.name}</h1>
                   <p className="muted">
                     {TYPE_LABELS[line.type]}
-                    {line.category && line.type !== 'sotra' ? ` · ${line.category}` : ''} · {stops.length} arrêts
+                    {line.category && line.type !== 'sotra' ? ` · ${line.category}` : ''}
+                    {line.city && line.city.slug !== 'abidjan' ? ` · ${line.city.name}` : ''}
+                    {partial ? ' · terminus seulement' : ` · ${stops.length} arrêts`}
                     {direction.is_loop ? ' · boucle' : ''}
                   </p>
                 </div>
@@ -171,18 +177,20 @@ export default function Line() {
                 </div>
               )}
 
-              <Suspense fallback={<div className="line-map" />}>
-                <LineMap
-                  stops={stops}
-                  geometry={direction.geometry ?? NO_GEOMETRY}
-                  board={board}
-                  alight={alight}
-                  userLat={userLat}
-                  userLng={userLng}
-                  follow={tracking && position !== null}
-                  onBoard={onBoard}
-                />
-              </Suspense>
+              {stops.length > 0 && (
+                <Suspense fallback={<div className="line-map" />}>
+                  <LineMap
+                    stops={stops}
+                    geometry={direction.geometry ?? NO_GEOMETRY}
+                    board={board}
+                    alight={alight}
+                    userLat={userLat}
+                    userLng={userLng}
+                    follow={tracking && position !== null}
+                    onBoard={onBoard}
+                  />
+                </Suspense>
+              )}
 
               {(trip || userLat !== undefined) && (
                 <ul className="map-legend">
@@ -204,6 +212,17 @@ export default function Line() {
             </aside>
 
             <div className="line-main">
+              {partial && (
+                <div className="notice partial-notice">
+                  <MapTrifold aria-hidden="true" size={22} />
+                  <p>
+                    {stops.length
+                      ? 'On connaît seulement les terminus de cette ligne, et leur position est approximative. Les arrêts intermédiaires et le tracé sont en cours de relevé.'
+                      : 'Les arrêts de cette ligne sont en cours de relevé : on n’a pas encore la position de ses terminus.'}{' '}
+                    Vous la prenez&nbsp;? Signalez-nous ses arrêts ci-dessous.
+                  </p>
+                </div>
+              )}
               <ol className="stop-list">
                 {stops.map((stop, i) => {
                   const ride = trip && i > board && i < alight
@@ -242,9 +261,13 @@ export default function Line() {
 
               <p className="form-note">
                 Données&nbsp;:{' '}
-                <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-                  © OpenStreetMap contributors
-                </a>
+                {partial ? (
+                  'SOTRA, « Lignes et tarifs », juillet 2024 ; positions des terminus d’après OpenStreetMap'
+                ) : (
+                  <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+                    © OpenStreetMap contributors
+                  </a>
+                )}
                 . Elles peuvent être incomplètes ou dépassées.
               </p>
               <ReportForm lineId={line.id} />
