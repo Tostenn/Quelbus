@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { ArrowsLeftRight, Crosshair, MapTrifold, NavigationArrow } from '@phosphor-icons/react'
 import ArrivalDialog from '../components/ArrivalDialog'
@@ -10,6 +10,7 @@ import MeetingShare from '../components/MeetingShare'
 import NotFound from '../components/NotFound'
 import ReportForm from '../components/ReportForm'
 import ServiceHours from '../components/ServiceHours'
+import TripShare from '../components/TripShare'
 import type { LineDetail } from '../lib/api'
 import { inCity } from '../lib/cities'
 import { distance } from '../lib/geo'
@@ -18,6 +19,7 @@ import { lineTitle, TYPE_LABELS } from '../lib/search'
 import { breadcrumb } from '../lib/seo'
 import { useApi } from '../lib/useApi'
 import { useLiveLocation } from '../lib/useLiveLocation'
+import { seenLabel, useLiveBuses } from '../lib/trips'
 import { usePageMeta } from '../lib/usePageMeta'
 
 const LineMap = lazy(() => import('../components/LineMap'))
@@ -32,6 +34,20 @@ export default function Line() {
   const direction = line?.directions.find((d) => String(d.id) === query.get('sens')) ?? line?.directions[0]
   const stops = direction?.stops ?? []
   const partial = direction?.is_partial ?? false
+
+  // Bus en direct sur ce sens, et partage de position par l'usager à bord
+  const [sharing, setSharing] = useState(false)
+  const live = useLiveBuses(slug, stops.length > 1)
+  const buses = useMemo(() => live.filter((b) => b.direction_id === direction?.id), [live, direction?.id])
+  const busPins = useMemo(
+    () =>
+      buses.map((b) => ({
+        lat: b.lat,
+        lng: b.lng,
+        label: `Bus ${b.last_stop ? `passé à ${b.last_stop.name}` : 'au départ'} ${seenLabel(b.seen_seconds_ago)}`,
+      })),
+    [buses],
+  )
 
   usePageMeta(
     line ? `${lineTitle(line)} : ${line.name}, tous les arrêts | QuelBus` : 'Ligne de bus | QuelBus',
@@ -139,7 +155,10 @@ export default function Line() {
                       type="button"
                       className={d.id === direction.id ? 'is-selected' : ''}
                       aria-pressed={d.id === direction.id}
-                      onClick={() => setQuery({ sens: String(d.id) })}
+                      onClick={() => {
+                        setSharing(false)
+                        setQuery({ sens: String(d.id) })
+                      }}
                     >
                       {d.name}
                     </button>
@@ -191,6 +210,7 @@ export default function Line() {
                     userLng={userLng}
                     follow={tracking && position !== null}
                     onBoard={onBoard}
+                    buses={busPins}
                   />
                 </Suspense>
               )}
@@ -211,6 +231,16 @@ export default function Line() {
                     </li>
                   )}
                 </ul>
+              )}
+
+              {stops.length > 1 && (
+                <TripShare
+                  key={direction.id}
+                  directionId={direction.id}
+                  buses={buses}
+                  sharing={sharing}
+                  onSharingChange={setSharing}
+                />
               )}
             </aside>
 

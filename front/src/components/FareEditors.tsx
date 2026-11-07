@@ -216,7 +216,7 @@ export function ChangesList({ lineId, version }: { lineId: number; version: numb
           <li key={c.id}>
             <span>{describe(c)}</span>
             <span className="muted">
-              {c.user ?? 'Admin supprimé'} · {new Date(c.created_at).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
+              {c.user ?? 'Commande ou compte supprimé'} · {new Date(c.created_at).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
             </span>
           </li>
         ))}

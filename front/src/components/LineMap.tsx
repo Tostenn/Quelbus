@@ -13,6 +13,8 @@ type Props = {
   /** Suivi en direct : la carte suit l'utilisateur et la marche vers l'arrêt disparaît une fois à bord. */
   follow?: boolean
   onBoard?: boolean
+  /** Bus en direct sur ce sens */
+  buses?: { lat: number; lng: number; label: string }[]
 }
 
 const COLORS = { line: '#8a8175', ride: '#ce5b22', user: '#1f6fd1' }
@@ -24,9 +26,22 @@ function pin(className: string, html = '', size = 32) {
   return L.divIcon({ className: `map-pin ${className}`, html, iconSize: [size, size], iconAnchor: [size / 2, size / 2] })
 }
 
-export default function LineMap({ stops, geometry, board = -1, alight = -1, userLat, userLng, follow = false, onBoard = false }: Props) {
+const NO_BUSES: NonNullable<Props['buses']> = []
+
+export default function LineMap({
+  stops,
+  geometry,
+  board = -1,
+  alight = -1,
+  userLat,
+  userLng,
+  follow = false,
+  onBoard = false,
+  buses = NO_BUSES,
+}: Props) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
+  const busLayer = useRef<L.LayerGroup | null>(null)
   const userRef = useRef<{ marker: L.Marker; walk: L.Polyline } | null>(null)
   // Position au chargement : sert seulement à cadrer la carte
   const [firstUser] = useState<[number, number] | null>(() =>
@@ -82,12 +97,27 @@ export default function LineMap({ stops, geometry, board = -1, alight = -1, user
 
     map.fitBounds(L.latLngBounds(focus.length > 1 ? focus : route.flat()), { padding: [28, 28], maxZoom: 17 })
 
+    busLayer.current = L.layerGroup().addTo(map)
+
     return () => {
       map.remove()
       mapRef.current = null
       userRef.current = null
+      busLayer.current = null
     }
   }, [stops, geometry, board, alight, firstUser])
+
+  // Bus en direct : redessinés à chaque rafraîchissement, sans toucher au reste de la carte
+  useEffect(() => {
+    const layer = busLayer.current
+    if (!layer) return
+    layer.clearLayers()
+    buses.forEach((bus) =>
+      L.marker([bus.lat, bus.lng], { icon: pin('map-pin-bus', BUS, 30), zIndexOffset: 1500 })
+        .bindTooltip(bus.label, { direction: 'top', offset: [0, -14] })
+        .addTo(layer),
+    )
+  }, [buses, stops, geometry, board, alight, firstUser])
 
   // Position de l'utilisateur : déplacée sans reconstruire la carte
   useEffect(() => {

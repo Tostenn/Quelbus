@@ -93,7 +93,8 @@ Bonus : verser les tracés validés dans OpenStreetMap (licence ODbL compatible)
 - [x] Front : départs du terminus sur la fiche ligne, avec l'état du service à l'heure d'Abidjan (pas commencé / en service / plus de départ)
 - [x] Trajet avec correspondance : prix total quand le prix de chaque ligne est connu
 - [x] Tests
-- [ ] Carte étudiant : on ne sait pour aucune ligne, à renseigner dans le tableau de bord
+- [x] Carte étudiant : commande `php artisan transit:student-cards` (2 chiffres : oui, 3 chiffres : non ; exceptions avec `--refuse=` et `--accept=`, aperçu avec `--dry-run`)
+- [ ] Carte étudiant : lancer la commande en production avec la liste des exceptions
 - [ ] 23 lignes du PDF absentes des données OpenStreetMap (9, 65, 88, 98, 405 à 408, 412, 501 à 503, 600, 618, 623, 632, 633, 730 à 733, 776) : à créer, avec les lignes 603 et 604
 - [ ] Vérifier les 4 horaires rattachés sur un seul terminus (lignes 50 et 715)
 - [ ] Jours fériés : comptés comme des jours de semaine pour l'instant (pas de calendrier)
@@ -104,27 +105,29 @@ Bonus : verser les tracés validés dans OpenStreetMap (licence ODbL compatible)
 
 Principe : un voyageur appuie sur **« Je suis dans le bus »**, choisit ligne et sens (ou on les propose depuis sa recherche), et sa position est envoyée tant qu'il est à bord. Règles de vie privée de [VISION.md](VISION.md) : consentement, voyage anonyme, début et fin coupés, on garde des passages aux arrêts, pas des traces.
 
-### Choix techniques à valider
+### Choix techniques
 
-- **Transport des positions** : envoi HTTP toutes les 10-15 s (simple, marche partout) plutôt que WebSocket au départ. Diffusion aux autres utilisateurs par polling de l'API toutes les 15 s. On passera à Laravel Reverb si la charge le justifie.
-- **Stockage chaud** : positions récentes en cache (Redis ou table courte purgée), positions brutes jamais gardées plus de 2 h.
+- **Transport des positions** : envoi HTTP par lots toutes les 15 s (jusqu'à 120 points, renvoi sans risque après une coupure : les doublons sont ignorés). Les autres usagers interrogent `/lines/{slug}/live` toutes les 20 s. Laravel Reverb si la charge le justifie.
+- **Trajet de référence** : les arrêts du sens reliés en ligne droite (toujours ordonnés, contrairement aux tracés OSM). Écart toléré 250 m, 2,5 km pour une ligne dont on n'a que les terminus.
+- **Stockage** : dernière position sur le voyage (`trips`), passages aux arrêts gardés (`stop_passages`), points bruts (`trip_points`) effacés après 2 h, ou 30 jours pour une ligne sans tracé (pour le dessiner).
 - **Arrière-plan** : un site web ne peut pas envoyer la position écran éteint de façon fiable. Sur le site : écran allumé (Wake Lock API). L'app mobile, prévue après le back, prendra le relais pour l'envoi en arrière-plan.
 
 ### Tâches
 
-- [ ] Migration `trips` : id aléatoire, sens de ligne, début, fin, complet ou non
-- [ ] Migration `stop_passages` : voyage, arrêt, heure de passage, temps à l'arrêt, précision GPS
-- [ ] API `POST /trips` (démarrer), `POST /trips/{id}/positions` (lot de points), `POST /trips/{id}/end`, avec limite de débit
-- [ ] Filtrage côté serveur : précision GPS, vitesse plausible, distance au tracé de la ligne (rejeter les traces hors ligne)
-- [ ] Calage sur la ligne : projeter chaque point sur le tracé, détecter le passage à chaque arrêt
-- [ ] Coupure début / fin (premières et dernières centaines de mètres)
-- [ ] API `GET /lines/{slug}/live` : bus en cours (position arrondie, dernier arrêt passé, fraîcheur)
-- [ ] Front : bouton « Je suis dans le bus » + écran de voyage (arrêt suivant, bouton stop, consentement clair)
-- [ ] Front : bus en direct sur la carte de la ligne et de l'arrêt
-- [ ] Plusieurs voyageurs dans le même bus : regrouper (même ligne, même sens, positions proches) pour afficher un seul bus
-- [ ] Lignes de l'intérieur sans tracé : stocker les traces (consenties) pour proposer un tracé à l'admin (lot 1, couche 3)
-- [ ] Mention vie privée dans la page « À propos » (loi 2013-450, ARTCI)
-- [ ] Tests
+- [x] Migrations `trips` (id UUID, jeton haché, statut, avancement), `stop_passages`, `trip_points`
+- [x] API `POST /trips`, `POST /trips/{id}/positions` (en-tête `X-Trip-Token`), `POST /trips/{id}/end`, limites de débit. Même API pour le site et l'app (`client: web | app`)
+- [x] Filtrage : précision GPS (> 150 m écarté), vitesse plausible (fenêtre de recherche), écart au trajet ; 8 points hors ligne d'affilée : voyage marqué « hors ligne »
+- [x] Calage sur la ligne, passage à chaque arrêt avec heure interpolée, temps passé à l'arrêt, terminus atteint : voyage terminé
+- [x] Vie privée : 300 premiers et derniers mètres effacés à la fin du voyage ; position publique ramenée sur le trajet
+- [x] Commande planifiée `transit:trips-cleanup` (toutes les 5 min) : voyages silencieux depuis 10 min terminés, points bruts effacés
+- [x] API `GET /lines/{slug}/live` : bus en cours, voyageurs du même bus regroupés (moins de 200 m sur le même sens), dernier arrêt passé, arrêt suivant, fraîcheur
+- [x] Front : « Je suis dans ce bus » sur la fiche ligne (consentement par le bouton, écran maintenu allumé, envoi par lots, reprise après coupure, arrêt)
+- [x] Front : bus en direct sur la carte et dans la liste de la fiche ligne
+- [x] Tests
+- [ ] Front : bus en approche sur la fiche arrêt (avec le lot 4)
+- [ ] Admin : proposer le tracé d'une ligne sans arrêts à partir des traces gardées (lot 1, couche 3)
+- [ ] Mention vie privée dans la page « À propos » (loi 2013-450, ARTCI) : texte à valider par vous
+- [ ] App mobile : envoi en arrière-plan, même API
 
 ---
 

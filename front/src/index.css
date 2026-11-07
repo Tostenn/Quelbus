@@ -4043,3 +4043,78 @@ button.line-row {
   display: grid;
   gap: 2px;
 }
+
+/* Bus en direct */
+.map-pin-bus {
+  background: var(--ink);
+  animation: bus-pulse 2s ease-out infinite;
+}
+
+@keyframes bus-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(26, 22, 19, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(26, 22, 19, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-pin-bus {
+    animation: none;
+  }
+}
+
+/* Partage de position (« Je suis dans ce bus ») */
+.trip-share {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.trip-share-offer {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.trip-share-offer p {
+  margin: 0;
+}
+
+.trip-share-live {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.trip-share-live > span {
+  flex: 1;
+}
+
+.trip-share-live .muted {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.live-buses {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.live-buses li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-weight: 600;
+}
