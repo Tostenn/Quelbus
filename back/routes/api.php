@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\SearchedRouteController;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\SubscriberController;
 use App\Http\Controllers\Api\TransitController;
+use App\Http\Controllers\Api\TripController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/subscribers', [SubscriberController::class, 'store'])
@@ -27,6 +28,11 @@ Route::post('/visits', [StatsController::class, 'visit'])->middleware('throttle:
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
 Route::post('/password/forgot', [PasswordController::class, 'forgot'])->middleware('throttle:3,1')->name('password.forgot');
 Route::post('/password/reset', [PasswordController::class, 'reset'])->middleware('throttle:5,1')->name('password.update');
+
+// Voyages partagés : un envoi toutes les 10 à 15 s par téléphone, lots possibles après une coupure
+Route::post('/trips', [TripController::class, 'start'])->middleware('throttle:20,1')->name('trips.start');
+Route::post('/trips/{trip}/positions', [TripController::class, 'positions'])->middleware('throttle:30,1')->whereUuid('trip')->name('trips.positions');
+Route::post('/trips/{trip}/end', [TripController::class, 'end'])->middleware('throttle:20,1')->whereUuid('trip')->name('trips.end');
 
 Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/me', [AuthController::class, 'me'])->name('me');
@@ -57,6 +63,7 @@ Route::middleware('throttle:120,1')->group(function () {
     Route::get('/cities', [TransitController::class, 'cities'])->name('cities.index');
     Route::get('/lines', [TransitController::class, 'lines'])->name('lines.index');
     Route::get('/lines/{line:slug}', [TransitController::class, 'line'])->name('lines.show');
+    Route::get('/lines/{line:slug}/live', [TripController::class, 'live'])->name('lines.live');
     Route::get('/routes/{slug}', [SearchedRouteController::class, 'show'])->name('routes.show');
     Route::get('/stops/{stop:slug}', [TransitController::class, 'stop'])->name('stops.show');
 });

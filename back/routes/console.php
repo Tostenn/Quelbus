@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 // Nouveaux trajets souvent recherchés, lignes et arrêts importés : le sitemap suit.
 // Nécessite la tâche cron « * * * * * php artisan schedule:run » (voir README).
 Schedule::command('sitemap:generate')->hourly()->withoutOverlapping();
+
+// Voyages partagés silencieux terminés, points GPS bruts effacés (vie privée)
+Schedule::command('transit:trips-cleanup')->everyFiveMinutes()->withoutOverlapping();

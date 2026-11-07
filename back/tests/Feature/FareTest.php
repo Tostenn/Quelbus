@@ -143,6 +143,31 @@ class FareTest extends TestCase
             ->orderBy('id')->pluck('day_type')->all());
     }
 
+    public function test_student_cards_follow_the_two_digit_rule_with_exceptions(): void
+    {
+        Line::where('ref', '50')->update(['ref' => '05']); // « 05 » compte comme 2 chiffres
+        app(TransitImporter::class)->import([
+            'stops' => [['id' => 1, 'name' => 'A', 'lat' => 5.30, 'lon' => -4.00], ['id' => 2, 'name' => 'B', 'lat' => 5.31, 'lon' => -4.01]],
+            'lines' => [[
+                'id' => 99, 'name' => 'bus 201 : A → B', 'type' => 'sotra', 'ref' => '201', 'from' => 'A', 'to' => 'B',
+                'category' => 'express', 'operator' => 'SOTRA', 'stops' => [1, 2], 'geometry' => [],
+            ]],
+        ]);
+        Line::where('ref', '39')->update(['accepts_student_card' => false, 'fare_edited_at' => now()]);
+
+        $this->artisan('transit:student-cards', ['--dry-run' => true])->assertSuccessful();
+        $this->assertNull(Line::where('ref', '05')->value('accepts_student_card'));
+
+        $this->artisan('transit:student-cards', ['--accept' => ['201']])->assertSuccessful();
+        $this->assertTrue(Line::where('ref', '05')->value('accepts_student_card'));
+        $this->assertTrue(Line::where('ref', '201')->value('accepts_student_card'));
+        $this->assertFalse(Line::where('ref', '39')->value('accepts_student_card')); // saisi à la main : gardé
+
+        $this->artisan('transit:student-cards', ['--refuse' => ['5']])->assertSuccessful();
+        $this->assertFalse(Line::where('ref', '05')->value('accepts_student_card'));
+        $this->assertFalse(Line::where('ref', '201')->value('accepts_student_card'));
+    }
+
     public function test_guests_cannot_edit_fares_or_schedules(): void
     {
         $line = Line::firstOrFail();
