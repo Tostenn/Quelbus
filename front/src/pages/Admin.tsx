@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import { Check, PaperPlaneTilt, Trash, UserPlus, WarningCircle } from '@phosphor-icons/react'
 import DayChart from '../components/DayChart'
 import InsightsPanel from '../components/InsightsPanel'
+import LineEditorTab from '../components/LineEditorTab'
 import NewsletterTab from '../components/NewsletterTab'
 import {
   adminSend,
@@ -18,11 +19,12 @@ import { SITE_URL } from '../lib/config'
 import { useAdmin } from '../lib/useAdmin'
 import { usePageMeta } from '../lib/usePageMeta'
 
-type Tab = 'stats' | 'reports' | 'subscribers' | 'newsletter' | 'admins'
+type Tab = 'stats' | 'reports' | 'lines' | 'subscribers' | 'newsletter' | 'admins'
 
 const TABS: { value: Tab; label: string }[] = [
   { value: 'stats', label: 'Statistiques' },
   { value: 'reports', label: 'Signalements' },
+  { value: 'lines', label: 'Lignes' },
   { value: 'subscribers', label: 'Inscrits' },
   { value: 'newsletter', label: 'Newsletter' },
   { value: 'admins', label: 'Admins' },
@@ -70,6 +72,7 @@ export default function Admin() {
         <div id="panneau-admin" role="tabpanel" aria-labelledby={`onglet-${tab}`} className="admin-panel">
           {tab === 'stats' && <StatsTab />}
           {tab === 'reports' && <ReportsTab />}
+          {tab === 'lines' && <LineEditorTab />}
           {tab === 'subscribers' && <SubscribersTab />}
           {tab === 'newsletter' && <NewsletterTab />}
           {tab === 'admins' && <AdminsTab />}

@@ -93,8 +93,9 @@ export type SearchResponse = {
 
 export type SearchParams = { from: Place; to: Place; radius: number; types: LineType[] }
 
-export async function fetchSuggestions(query: string, signal?: AbortSignal): Promise<Suggestion[]> {
-  const response = await fetch(`${API_URL}/api/suggest?${new URLSearchParams({ q: query })}`, {
+export async function fetchSuggestions(query: string, city?: string, signal?: AbortSignal): Promise<Suggestion[]> {
+  const params = new URLSearchParams({ q: query, ...(city ? { city } : {}) })
+  const response = await fetch(`${API_URL}/api/suggest?${params}`, {
     headers: { Accept: 'application/json' },
     signal,
   })

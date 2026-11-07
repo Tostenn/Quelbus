@@ -5,6 +5,7 @@ import LineBadge from '../components/LineBadge'
 import LoadError from '../components/LoadError'
 import type { LineSummary, LineType } from '../lib/api'
 import { CITIES, cityName } from '../lib/cities'
+import { setCity, useCity } from '../lib/useCity'
 import { normalize, TYPE_FILTERS, TYPE_LABELS } from '../lib/search'
 import { useApi } from '../lib/useApi'
 import { usePageMeta } from '../lib/usePageMeta'
@@ -13,7 +14,16 @@ const ORDER: LineType[] = ['sotra', 'gbaka', 'woro-woro', 'autre']
 
 export default function Lines() {
   const [params, setParams] = useSearchParams()
-  const city = CITIES.find((c) => c.slug === params.get('ville'))?.slug ?? 'abidjan'
+  const saved = useCity()
+  const { data, error, loading, retry } = useApi<LineSummary[]>('/lines')
+  const [query, setQuery] = useState('')
+  const [type, setType] = useState<LineType | 'tous'>('tous')
+
+  // Villes qui ont au moins une ligne, dans l'ordre de CITIES
+  const served = CITIES.filter((c) => (data ?? []).some((line) => (line.city ?? 'abidjan') === c.slug))
+  const wanted = CITIES.find((c) => c.slug === params.get('ville'))?.slug ?? saved.slug
+  // Ville sans ligne pour l'instant : on montre Abidjan
+  const city = !data || served.some((c) => c.slug === wanted) ? wanted : 'abidjan'
   const abidjan = city === 'abidjan'
   const name = cityName(city)
   usePageMeta(
@@ -24,12 +34,6 @@ export default function Lines() {
       ? 'La liste des lignes de bus SOTRA, gbakas et wôrô-wôrôs d’Abidjan, avec leurs arrêts dans l’ordre.'
       : `La liste des lignes de bus SOTRA à ${name}, avec leurs terminus.`,
   )
-  const { data, error, loading, retry } = useApi<LineSummary[]>('/lines')
-  const [query, setQuery] = useState('')
-  const [type, setType] = useState<LineType | 'tous'>('tous')
-
-  // Villes qui ont au moins une ligne, dans l'ordre de CITIES
-  const served = CITIES.filter((c) => (data ?? []).some((line) => (line.city ?? 'abidjan') === c.slug))
   const inCity = (data ?? []).filter((line) => (line.city ?? 'abidjan') === city)
   const types = new Set(inCity.map((line) => line.type))
 
@@ -60,6 +64,7 @@ export default function Lines() {
                 aria-pressed={c.slug === city}
                 onClick={() => {
                   setType('tous')
+                  setCity(c.slug)
                   setParams(c.slug === 'abidjan' ? {} : { ville: c.slug }, { replace: true })
                 }}
               >
