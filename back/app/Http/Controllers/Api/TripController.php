@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Line;
 use App\Models\LineDirection;
 use App\Models\Trip;
+use App\Services\Live\ArrivalPredictor;
 use App\Services\Live\LiveBuses;
 use App\Services\Live\TripTracker;
 use Illuminate\Http\JsonResponse;
@@ -81,6 +82,23 @@ class TripController extends Controller
     public function all(LiveBuses $live): JsonResponse
     {
         return response()->json(['data' => $live->all(), 'fresh_seconds' => LiveBuses::FRESH_SECONDS]);
+    }
+
+    /**
+     * Prochains passages estimés près d'une position, pour les sens sans bus en direct :
+     * GET /api/arrivals?lat=&lng=[&direction=]
+     */
+    public function arrivals(Request $request, ArrivalPredictor $predictor): JsonResponse
+    {
+        $data = $request->validate([
+            'lat' => ['required', 'numeric', 'between:-90,90'],
+            'lng' => ['required', 'numeric', 'between:-180,180'],
+            'direction' => ['nullable', 'integer'],
+        ]);
+
+        return response()->json([
+            'data' => $predictor->near((float) $data['lat'], (float) $data['lng'], isset($data['direction']) ? (int) $data['direction'] : null),
+        ]);
     }
 
     /**
