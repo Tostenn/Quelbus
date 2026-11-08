@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import Creator from '../components/Creator'
+import LiveTeaser from '../components/LiveTeaser'
 import SearchForm from '../components/SearchForm'
 import MeetMeHere from '../components/MeetMeHere'
 import PresentationVideo from '../components/PresentationVideo'
@@ -12,7 +13,7 @@ import { usePageMeta } from '../lib/usePageMeta'
 const steps = [
   {
     title: 'Où êtes-vous ?',
-    text: 'Le téléphone trouve votre position, ou vous tapez un quartier, un carrefour, un arrêt.',
+    text: 'Le téléphone trouve votre position et la ville, ou vous tapez un quartier, un carrefour, un arrêt.',
   },
   {
     title: 'Où allez-vous ?',
@@ -20,7 +21,11 @@ const steps = [
   },
   {
     title: 'Montez dans le bon bus',
-    text: 'QuelBus affiche les lignes directes (SOTRA, gbakas, wôrô-wôrôs) qui passent près de vous et de votre destination, dans le bon sens. Pas de ligne directe ? Il vous dit où changer de bus.',
+    text: 'Les lignes qui y vont directement, dans le bon sens, avec le prix, la carte étudiant et l’heure du dernier départ. Pas de ligne directe ? QuelBus vous dit où changer.',
+  },
+  {
+    title: 'Suivez-le en direct',
+    text: 'Dans le bus, appuyez sur « Je suis dans ce bus » : sa position apparaît pour ceux qui l’attendent. C’est anonyme, et chaque voyage partagé aide tout le monde.',
   },
 ]
 
@@ -41,29 +46,24 @@ const contributions = [
 
 export default function Home() {
   const [meeting, setMeeting] = useState(false)
-  usePageMeta('Quel bus prendre à Abidjan ? | QuelBus')
+  usePageMeta(
+    'Quel bus prendre ? Abidjan, Bouaké, Yamoussoukro… | QuelBus',
+    'Quelle ligne prendre, où monter, combien ça coûte et où est le bus en ce moment. SOTRA, gbakas et wôrô-wôrôs, à Abidjan et dans quatre autres villes.',
+  )
 
   return (
     <>
       <section className="hero section-dark">
         <div className="container hero-inner">
           <div className="hero-copy">
-            <p className="eyebrow">
-              <span className="eyebrow-mark" aria-hidden="true">
-                <span className="em-from" />
-                <span className="em-line" />
-                <span className="em-to" />
-                <span className="em-bus" />
-              </span>
-              Projet open source · Abidjan
-            </p>
             <h1>
               Quel bus prendre&nbsp;? <span className="accent">On vous le dit.</span>
             </h1>
             <p className="lead">
-              Indiquez d’où vous partez et où vous allez&nbsp;: QuelBus vous montre les lignes qui y vont{' '}
-              <strong>directement</strong>, où monter et où descendre. Gratuit, libre, fait à Abidjan.
+              Dites d’où vous partez et où vous allez&nbsp;: QuelBus vous montre la ligne à prendre, où monter, combien
+              ça coûte, et <strong>où est le bus en ce moment</strong>.
             </p>
+            <p className="hero-cities">Abidjan · Bouaké · Korhogo · San-Pédro · Yamoussoukro</p>
           </div>
 
           <div className="hero-search">
@@ -72,6 +72,7 @@ export default function Home() {
                 <SearchForm />
               </div>
             )}
+            <LiveTeaser />
             <MeetMeHere onActiveChange={setMeeting} />
             <p className="hero-note">
               Une ligne fausse ou un arrêt manquant&nbsp;?{' '}
@@ -123,15 +124,18 @@ export default function Home() {
                 <li>Les lignes directes&nbsp;: SOTRA, gbakas, wôrô-wôrôs</li>
                 <li>Sinon, où changer de bus pour finir le trajet</li>
                 <li>Où monter, où descendre, et combien marcher</li>
-                <li>Le bon sens de la ligne, pas l’inverse</li>
+                <li>Le prix du trajet et la carte étudiant</li>
+                <li>Le premier et le dernier départ de chaque ligne</li>
+                <li>Les bus en direct, grâce aux voyageurs</li>
+                <li>Abidjan, Bouaké, Korhogo, San-Pédro et Yamoussoukro</li>
                 <li>Un lien à envoyer pour qu’on vous rejoigne</li>
-                <li>Fonctionne sur les petits téléphones et en 3G</li>
               </ul>
             </div>
             <div>
               <h3>Prochainement</h3>
               <ul className="next-list">
-                <li>Les horaires et le temps réel</li>
+                <li>Dans combien de minutes arrive votre bus</li>
+                <li>L’application mobile</li>
                 <li>Les bateaux-bus et le métro</li>
               </ul>
             </div>
@@ -141,7 +145,7 @@ export default function Home() {
 
       <section className="section section-dark" id="open-source">
         <div className="container">
-          <h2>Un bien commun pour Abidjan</h2>
+          <h2>Un bien commun, ville après ville</h2>
           <p className="lead lead-light">
             Le code est ouvert, les données viennent d’OpenStreetMap sous licence libre. Tout le monde peut vérifier,
             corriger et améliorer. Plus on est nombreux, plus les réponses sont justes.
@@ -180,7 +184,8 @@ export default function Home() {
           <div>
             <h2>Être prévenu des nouveautés</h2>
             <p className="lead">
-              Horaires, correspondances, nouvelles lignes&nbsp;: un email quand c’est en ligne, jamais pour autre chose.
+              Arrivée des bus en minutes, application mobile, nouvelles villes&nbsp;: un email quand c’est en ligne, jamais
+              pour autre chose.
             </p>
           </div>
           <Link className="btn btn-primary btn-lg" to="/contact">

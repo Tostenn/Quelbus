@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
-import { ArrowSquareOut, GithubLogo, SignOut } from '@phosphor-icons/react'
+import { ArrowSquareOut, GithubLogo, MagnifyingGlass, SignOut } from '@phosphor-icons/react'
 import Logo from './Logo'
 import { getToken, logout } from '../lib/admin'
 import { API_URL, REPO_URL } from '../lib/config'
@@ -12,6 +12,8 @@ export default function Layout() {
   const { pathname, hash } = useLocation()
   const navigate = useNavigate()
   const staff = STAFF_PAGES.some((p) => pathname.startsWith(p))
+  // Carte plein écran : ni pied de page ni défilement de la page
+  const fullscreen = pathname === '/en-direct'
 
   // Remonte en haut à chaque changement de page, ou descend jusqu'à l'ancre demandée.
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function Layout() {
   }, [])
 
   return (
-    <div className="page">
+    <div className={`page${fullscreen ? ' is-fullscreen' : ''}`}>
       <a className="skip-link" href="#contenu">
         Aller au contenu
       </a>
@@ -66,20 +68,19 @@ export default function Layout() {
             </nav>
           ) : (
             <nav className="nav" aria-label="Navigation principale">
+              <NavLink className="nav-link nav-live" to="/en-direct">
+                <span className="live-dot" aria-hidden="true" />
+                En direct
+              </NavLink>
               <NavLink className="nav-link" to="/lignes">
                 Lignes
               </NavLink>
-              <Link className="nav-link hide-sm" to="/#comment">
-                Comment ça marche
-              </Link>
-              <Link className="nav-link hide-sm" to="/#open-source">
-                Open source
-              </Link>
               <NavLink className="nav-link hide-sm" to="/contact">
-                Rejoindre
+                Contribuer
               </NavLink>
-              <NavLink className="btn btn-dark btn-sm" to="/recherche">
-                Rechercher
+              <NavLink className="btn btn-dark btn-sm nav-search" to="/recherche" aria-label="Rechercher un trajet">
+                <MagnifyingGlass size={18} weight="bold" aria-hidden="true" />
+                <span className="hide-xs">Rechercher</span>
               </NavLink>
             </nav>
           )}
@@ -90,15 +91,19 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {!staff && (
+      {!staff && !fullscreen && (
         <footer className="site-footer">
           <div className="container footer-inner">
             <div className="footer-brand">
               <Logo />
-              <p>Quel bus prendre à Abidjan&nbsp;? Un projet libre, gratuit et ouvert aux contributions.</p>
+              <p>
+                Quel bus prendre, et où il est&nbsp;: Abidjan, Bouaké, Korhogo, San-Pédro, Yamoussoukro. Un projet libre,
+                gratuit et ouvert aux contributions.
+              </p>
             </div>
             <div className="footer-links">
               <Link to="/lignes">Toutes les lignes</Link>
+              <Link to="/en-direct">Les bus en direct</Link>
               <Link to="/a-propos">À propos</Link>
               <Link to="/contact">Être prévenu des nouveautés</Link>
               <Link to="/contact?profil=contributeur">Contribuer</Link>

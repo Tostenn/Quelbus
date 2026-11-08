@@ -37,7 +37,7 @@ export default function Line() {
 
   // Bus en direct sur ce sens, et partage de position par l'usager à bord
   const [sharing, setSharing] = useState(false)
-  const live = useLiveBuses(slug, stops.length > 1)
+  const live = useLiveBuses(slug, line?.id, stops.length > 1)
   const buses = useMemo(() => live.filter((b) => b.direction_id === direction?.id), [live, direction?.id])
   const busPins = useMemo(
     () =>
@@ -235,11 +235,12 @@ export default function Line() {
 
               {stops.length > 1 && (
                 <TripShare
-                  key={direction.id}
-                  directionId={direction.id}
+                  lineId={line.id}
+                  fixedDirectionId={trip ? direction.id : null}
                   buses={buses}
                   sharing={sharing}
                   onSharingChange={setSharing}
+                  onDirection={(id) => setQuery({ sens: String(id) }, { replace: true })}
                 />
               )}
             </aside>
