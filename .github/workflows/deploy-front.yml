@@ -31,6 +31,9 @@ jobs:
       # Réglable dans Settings → Secrets and variables → Actions → Variables
       VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.quelbus.ci' }}
       VITE_REPO_URL: ${{ vars.VITE_REPO_URL || 'https://github.com/Tostenn/Quelbus' }}
+      # Temps réel des bus : clé publique Pusher (vide = rafraîchissement toutes les 20 s)
+      VITE_PUSHER_KEY: ${{ vars.VITE_PUSHER_KEY }}
+      VITE_PUSHER_CLUSTER: ${{ vars.VITE_PUSHER_CLUSTER || 'eu' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
