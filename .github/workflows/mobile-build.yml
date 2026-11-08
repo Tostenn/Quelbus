@@ -1,0 +1,58 @@
+name: Mobile build (EAS)
+
+# Lancé à la main depuis l'onglet Actions : compile l'app Android et/ou iOS sur les serveurs Expo.
+# Prérequis : le secret EXPO_TOKEN (expo.dev > Account settings > Access tokens)
+# et l'identifiant du projet EAS dans mobile/app.json (expo.extra.eas.projectId).
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "preview = APK à installer pour tester ; production = version pour les stores"
+        type: choice
+        options: [preview, production]
+        default: preview
+      platform:
+        description: Plateforme
+        type: choice
+        options: [android, ios, all]
+        default: android
+      submit:
+        description: Envoyer aux stores après la compilation (production seulement)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - name: Vérifier le jeton Expo
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Ajoutez le secret EXPO_TOKEN dans Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - name: Compiler
+        run: >-
+          eas build --non-interactive --no-wait
+          --profile ${{ inputs.profile }}
+          --platform ${{ inputs.platform }}
+          ${{ inputs.submit && inputs.profile == 'production' && '--auto-submit' || '' }}

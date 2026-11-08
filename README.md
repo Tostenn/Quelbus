@@ -49,6 +49,7 @@ La suite : prédire l'heure d'arrivée des bus grâce aux voyages des utilisateu
 | Dossier | Contenu |
 |---|---|
 | [`front/`](front) | Landing page et page contact (React, TypeScript, Vite) |
+| [`mobile/`](mobile) | App Android et iPhone (React Native, Expo) : voir son [README](mobile/README.md) |
 | [`back/`](back) | API Laravel : inscriptions, puis import des données et recherche |
 | [`Maquette/`](Maquette) | Maquettes de l'application et cahier des charges |
 
