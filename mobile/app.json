@@ -2,6 +2,7 @@
   "expo": {
     "name": "QuelBus",
     "slug": "quelbus",
+    "owner": "t_xox_t",
     "scheme": "quelbus",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -54,6 +55,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f645431e-eb3f-49d3-a657-564bdf7f1d23"
+      }
     }
   }
 }
