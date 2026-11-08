@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import type { StopSummary } from '../lib/api'
+import type { LineType, StopSummary } from '../lib/api'
+import { vehicleSvg } from '../lib/vehicles'
 
 type Props = {
   stops: StopSummary[]
@@ -15,11 +16,12 @@ type Props = {
   onBoard?: boolean
   /** Bus en direct sur ce sens */
   buses?: { lat: number; lng: number; label: string }[]
+  /** Type de la ligne : picto des bus en direct */
+  vehicle?: LineType
 }
 
 const COLORS = { line: '#8a8175', ride: '#ce5b22', user: '#1f6fd1' }
 
-const BUS = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="2"/><path d="M5 11h14M8 21v-3M16 21v-3"/></svg>'
 const FLAG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></svg>'
 
 function pin(className: string, html = '', size = 32) {
@@ -38,6 +40,7 @@ export default function LineMap({
   follow = false,
   onBoard = false,
   buses = NO_BUSES,
+  vehicle = 'sotra',
 }: Props) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -79,7 +82,7 @@ export default function LineMap({
     const focus: L.LatLngExpression[] = []
     if (board >= 0) {
       const b = stops[board]
-      L.marker([b.lat, b.lng], { icon: pin('map-pin-board', BUS), zIndexOffset: 1000 })
+      L.marker([b.lat, b.lng], { icon: pin('map-pin-board', vehicleSvg(vehicle, 16)), zIndexOffset: 1000 })
         .bindTooltip(`Montez à ${b.name}`, { direction: 'top', offset: [0, -14] })
         .addTo(map)
       focus.push([b.lat, b.lng])
@@ -105,7 +108,7 @@ export default function LineMap({
       userRef.current = null
       busLayer.current = null
     }
-  }, [stops, geometry, board, alight, firstUser])
+  }, [stops, geometry, board, alight, firstUser, vehicle])
 
   // Bus en direct : redessinés à chaque rafraîchissement, sans toucher au reste de la carte
   useEffect(() => {
@@ -113,11 +116,11 @@ export default function LineMap({
     if (!layer) return
     layer.clearLayers()
     buses.forEach((bus) =>
-      L.marker([bus.lat, bus.lng], { icon: pin('map-pin-bus', BUS, 30), zIndexOffset: 1500 })
-        .bindTooltip(bus.label, { direction: 'top', offset: [0, -14] })
+      L.marker([bus.lat, bus.lng], { icon: pin(`map-pin-bus map-pin-bus-${vehicle}`, vehicleSvg(vehicle, 18), 34), zIndexOffset: 1500 })
+        .bindTooltip(bus.label, { direction: 'top', offset: [0, -16] })
         .addTo(layer),
     )
-  }, [buses, stops, geometry, board, alight, firstUser])
+  }, [buses, vehicle, stops, geometry, board, alight, firstUser])
 
   // Position de l'utilisateur : déplacée sans reconstruire la carte
   useEffect(() => {

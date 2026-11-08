@@ -181,6 +181,8 @@ export type LineDetail = Omit<LineSummary, 'directions_count' | 'city'> & {
     /** Seuls les terminus sont connus : arrêts intermédiaires et tracé restent à relever. */
     is_partial: boolean
     schedules: Schedule[]
+    /** Des passages relevés : on peut estimer le prochain bus (lib/arrivals) */
+    has_history?: boolean
     geometry?: [number, number][][]
     stops: StopSummary[]
   }[]

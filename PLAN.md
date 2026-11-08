@@ -148,14 +148,23 @@ Niveaux de [VISION.md](VISION.md), on affiche toujours le niveau de confiance :
 | 2 | Temps appris par tronçon et créneau (`segment_stats`) | « Prochain bus dans 8 min environ » |
 | 3 | Bus en direct (lot 3) + temps des tronçons restants | « Passé à Pharmacie Angré, arrive dans 4 min » |
 
+### Première version (08/11/2026)
+
+Le niveau 2 commence sans table de statistiques : `ArrivalPredictor` lit directement `stop_passages`. Pour chaque sens qui passe à l'arrêt le plus proche de l'usager, il prend les heures de passage des 8 dernières semaines, le même type de jour (semaine, samedi, dimanche), et regroupe celles qui tombent à moins de 6 min d'écart : chaque groupe est un passage habituel, annoncé à l'heure médiane avec le nombre de jours où on l'a relevé. Les sens qui ont un bus en direct avant l'arrêt sont laissés au direct.
+
+Règles d'affichage : il faut la position de l'usager, des passages relevés pour la ligne, et pas de bus en direct sur ce sens.
+
 ### Tâches
 
+- [x] `ArrivalPredictor` (passages habituels) et `GET /api/arrivals?lat=&lng=[&direction=]` ; `has_history` par sens dans la fiche ligne
+- [x] Front : « Prochain bus estimé » sur la fiche ligne quand rien n'est en direct ; « Bientôt près de vous » (pliable, cartes à l'horizontale, pagination) sur la page En direct
+- [x] Tests (`ArrivalTest`)
 - [ ] Migration `segment_stats` : tronçon (arrêt → arrêt suivant), créneau de 15 min, type de jour, médiane, dispersion, nombre de voyages
 - [ ] Commande planifiée qui recalcule `segment_stats` depuis `stop_passages`
-- [ ] Service `ArrivalPredictor` : pour un arrêt et une ligne/sens, renvoie les 1 à 3 prochains passages avec niveau et marge
+- [ ] Niveau 3 : bus en direct + temps des tronçons restants (« arrive dans 4 min »)
 - [ ] Niveau 1 : vitesse moyenne par défaut (à calibrer avec les premiers voyages)
 - [ ] Mesure de l'erreur : comparer prédiction et passage réel, tableau de bord admin (écart médian par ligne)
-- [ ] API `GET /stops/{slug}/arrivals`
+- [ ] API `GET /stops/{slug}/arrivals` (fiche arrêt, sans position)
 - [ ] Front : prochains passages sur la fiche arrêt et dans les résultats de recherche
 - [ ] Front : « Je suis à cet arrêt » → alerte « ton bus arrive dans 5 min » (notification web)
 - [ ] Commencer par les lignes les plus recherchées (déjà comptées dans le tableau de bord)
@@ -172,3 +181,4 @@ Niveaux de [VISION.md](VISION.md), on affiche toujours le niveau de confiance :
 | 07/11/2026 | Lot 1, deuxième partie : ville dans le formulaire de recherche, éditeur d'arrêts dans le tableau de bord |
 | 07/11/2026 | Base de dev à jour (migrations, lignes de l'intérieur). Lot 2 : tarifs, carte étudiant, horaires, historique. Écrans vérifiés en local |
 | 08/11/2026 | Accueil : plus de liste des villes, la recherche couvre toutes les villes et la ville se déduit du lieu choisi. Après une recherche qui trouve des bus, invitation à partager sa position (une fois par semaine au plus, jamais si elle est déjà autorisée) |
+| 08/11/2026 | Lot 4, première version : prochains passages estimés d'après les passages relevés (fiche ligne, page En direct). Repères de carte avec le picto du véhicule (bus, gbaka, wôrô-wôrô), centrés sur la position. Accueil : accès au direct sous les villes sur ordinateur ; pied de page en colonnes |

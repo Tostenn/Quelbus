@@ -3,6 +3,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Crosshair, Minus, Plus } from '@phosphor-icons/react'
 import type { LiveBus } from '../lib/trips'
+import { vehicleSvg } from '../lib/vehicles'
 
 /** Ce que la carte doit montrer : une emprise (ville, tous les bus) ou un point (bus choisi, l'usager). */
 export type MapFocus =
@@ -20,14 +21,21 @@ type Props = {
   bottomInset: number
 }
 
+/**
+ * Repère d'un bus : picto du véhicule et numéro de ligne, dans une pastille centrée sur sa position.
+ * La boîte Leaflet a exactement la taille de la pastille ; l'agrandissement du bus choisi se fait à l'intérieur,
+ * sans toucher au positionnement de Leaflet.
+ */
 function busIcon(bus: LiveBus, selected: boolean) {
   const type = bus.line?.type ?? 'sotra'
-  const label = bus.line?.ref ?? (type === 'gbaka' ? 'G' : type === 'woro-woro' ? 'W' : 'Bus')
+  const ref = (bus.line?.ref ?? '').replace(/[<>&"]/g, '')
+  const height = 34
+  const width = ref ? 38 + ref.length * 9 : height
   return L.divIcon({
-    className: `live-chip live-chip-${type}${selected ? ' is-selected' : ''}`,
-    html: `<span>${label.replace(/[<>&"]/g, '')}</span>`,
-    iconSize: [44, 30],
-    iconAnchor: [22, 15],
+    className: 'live-marker',
+    html: `<span class="live-chip live-chip-${type}${selected ? ' is-selected' : ''}${ref ? '' : ' is-round'}">${vehicleSvg(type, 18)}${ref ? `<b>${ref}</b>` : ''}<i></i></span>`,
+    iconSize: [width, height],
+    iconAnchor: [width / 2, height / 2],
   })
 }
 
