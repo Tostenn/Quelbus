@@ -15,6 +15,8 @@ type Props = {
   onSubmitted?: () => void
   /** Lance la recherche dès que le départ est connu (lien de rendez-vous). */
   autoSubmit?: boolean
+  /** Sans liste des villes : on cherche partout et la ville se déduit du lieu choisi. */
+  cityPicker?: boolean
 }
 
 type GeoState = 'idle' | 'locating' | 'denied' | 'unavailable' | 'outside'
@@ -32,6 +34,7 @@ export default function SearchForm({
   types = [],
   onSubmitted,
   autoSubmit = false,
+  cityPicker = true,
 }: Props) {
   const navigate = useNavigate()
   const [from, setFrom] = useState<Place | null>(initialFrom)
@@ -40,7 +43,11 @@ export default function SearchForm({
   const [errors, setErrors] = useState<{ from?: string; to?: string }>({})
   const [swapKey, setSwapKey] = useState(0)
   const city = useCity()
-  const abidjan = city.slug === 'abidjan'
+  // Sans liste : chaque champ cherche dans la ville de l'autre lieu, ou partout s'il n'est pas choisi
+  const fromCity = cityPicker ? city.slug : to ? cityAt(to)?.slug : undefined
+  const toCity = cityPicker ? city.slug : from ? cityAt(from)?.slug : undefined
+  const abidjan = (toCity ?? city.slug) === 'abidjan'
+  const inputKey = cityPicker ? `${city.slug}-${swapKey}` : String(swapKey)
 
   // Recherche ouverte depuis un lien : on se place dans la ville du départ
   useEffect(() => {
@@ -53,9 +60,16 @@ export default function SearchForm({
     onSubmitted?.()
   }
 
+  /** Le lieu choisi donne la ville courante (formulaire sans liste des villes). */
+  function follow(place: Place) {
+    const here = cityAt(place)
+    if (!cityPicker && here && here.slug !== city.slug) setCity(here.slug)
+  }
+
   function chooseFrom(place: Place | null) {
     setFrom(place)
     if (!place) return
+    follow(place)
     setErrors((e) => ({ ...e, from: undefined }))
     if (autoSubmit && to) go(place, to)
   }
@@ -75,9 +89,9 @@ export default function SearchForm({
           return
         }
         setGeo('idle')
-        if (here.slug !== city.slug) {
-          // Autre ville : la destination tapée avant n'y est sûrement pas
-          setCity(here.slug)
+        if (here.slug !== city.slug) setCity(here.slug)
+        if (to && cityAt(to)?.slug !== here.slug) {
+          // Autre ville : la destination choisie avant n'y est pas
           setTo(null)
           setSwapKey((k) => k + 1)
         }
@@ -102,29 +116,31 @@ export default function SearchForm({
 
   return (
     <form className="search-form" onSubmit={submit} noValidate>
-      <label className="city-select">
-        <span>Ville</span>
-        <select
-          value={city.slug}
-          onChange={(e) => {
-            setCity(e.target.value)
-            setFrom(null)
-            setTo(null)
-            setErrors({})
-            setSwapKey((k) => k + 1)
-          }}
-        >
-          {CITIES.map((c) => (
-            <option key={c.slug} value={c.slug}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      {cityPicker && (
+        <label className="city-select">
+          <span>Ville</span>
+          <select
+            value={city.slug}
+            onChange={(e) => {
+              setCity(e.target.value)
+              setFrom(null)
+              setTo(null)
+              setErrors({})
+              setSwapKey((k) => k + 1)
+            }}
+          >
+            {CITIES.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <PlaceInput
-        key={`from-${city.slug}-${swapKey}`}
-        city={city.slug}
+        key={`from-${inputKey}`}
+        city={fromCity}
         label="Où êtes-vous ?"
         placeholder="Quartier, carrefour, arrêt…"
         pin="from"
@@ -163,15 +179,17 @@ export default function SearchForm({
       />
 
       <PlaceInput
-        key={`to-${city.slug}-${swapKey}`}
-        city={city.slug}
+        key={`to-${inputKey}`}
+        city={toCity}
         label="Où allez-vous ?"
         placeholder={abidjan ? 'Mosquée d’Adjamé, Gare Nord…' : 'Quartier, terminus…'}
         pin="to"
         value={to}
         onChange={(place) => {
           setTo(place)
-          if (place) setErrors((e) => ({ ...e, to: undefined }))
+          if (!place) return
+          follow(place)
+          setErrors((e) => ({ ...e, to: undefined }))
         }}
         error={errors.to}
       />

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * et seul le téléphone qui a reçu le jeton peut y envoyer des positions.
  */
 #[Fillable([
-    'line_direction_id', 'token_hash', 'client', 'status', 'complete', 'progress_m', 'lat', 'lng', 'last_sequence',
+    'line_id', 'line_direction_id', 'token_hash', 'client', 'status', 'complete', 'progress_m', 'lat', 'lng', 'last_sequence',
     'last_point_at', 'points_count', 'rejected_count', 'off_route_streak', 'state', 'started_at', 'ended_at',
 ])]
 class Trip extends Model
@@ -43,6 +43,14 @@ class Trip extends Model
     public function checkToken(?string $token): bool
     {
         return is_string($token) && hash_equals($this->token_hash, hash('sha256', $token));
+    }
+
+    /**
+     * @return BelongsTo<Line, $this>
+     */
+    public function line(): BelongsTo
+    {
+        return $this->belongsTo(Line::class);
     }
 
     /**

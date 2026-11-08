@@ -5,6 +5,7 @@ import SearchForm from '../components/SearchForm'
 import SearchResults from '../components/SearchResults'
 import MeetingShare from '../components/MeetingShare'
 import MeetMeHere from '../components/MeetMeHere'
+import LocationPrompt from '../components/LocationPrompt'
 import { rememberDestination } from '../lib/meeting'
 import { usePageMeta } from '../lib/usePageMeta'
 import { fetchSearch, type LineType, type SearchResponse } from '../lib/api'
@@ -84,6 +85,7 @@ export default function Search() {
   const data = loading ? undefined : state.data
   const error = loading ? undefined : state.error
   const activeType = params.types.length === 1 ? params.types[0] : 'tous'
+  const found = !!data && (data.results.length > 0 || (data.combinations?.length ?? 0) > 0)
 
   function update(changes: { radius?: number; types?: LineType[] }) {
     setQuery(searchToQuery({ ...params!, ...changes }))
@@ -187,6 +189,13 @@ export default function Search() {
 
           {data && <SearchResults data={data} from={params.from} to={params.to} radius={params.radius} filtered={activeType !== 'tous'} onAllTypes={() => update({ types: [] })} />}
         </div>
+
+        <LocationPrompt
+          ready={found}
+          usedPosition={params.from.name === 'Ma position'}
+          fromName={params.from.name}
+          onPosition={(place) => setQuery(searchToQuery({ ...params, from: place }))}
+        />
       </div>
     </section>
   )

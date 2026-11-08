@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Contact from './pages/Contact'
 import Search from './pages/Search'
 import Lines from './pages/Lines'
+import Live from './pages/Live'
 import Line from './pages/Line'
 import Stop from './pages/Stop'
 import Trip from './pages/Trip'
@@ -22,6 +23,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="recherche" element={<Search />} />
         <Route path="rejoindre" element={<Search />} />
+        <Route path="en-direct" element={<Live />} />
         <Route path="lignes" element={<Lines />} />
         <Route path="lignes/:slug" element={<Line />} />
         <Route path="arrets/:slug" element={<Stop />} />

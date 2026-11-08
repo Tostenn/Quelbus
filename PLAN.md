@@ -107,9 +107,11 @@ Principe : un voyageur appuie sur **« Je suis dans le bus »**, choisit ligne e
 
 ### Choix techniques
 
-- **Transport des positions** : envoi HTTP par lots toutes les 15 s (jusqu'à 120 points, renvoi sans risque après une coupure : les doublons sont ignorés). Les autres usagers interrogent `/lines/{slug}/live` toutes les 20 s. Laravel Reverb si la charge le justifie.
+- **Transport des positions** : envoi HTTP par lots toutes les 15 s (jusqu'à 120 points, renvoi sans risque après une coupure : les doublons sont ignorés).
+- **Diffusion** : Pusher (cluster `eu`). Chaque envoi accepté pousse les bus de la ligne sur les canaux `line.{id}` et `live` (événement `buses`). Sans clé Pusher côté front, rafraîchissement toutes les 20 s ; avec, une vérification de secours par minute.
 - **Trajet de référence** : les arrêts du sens reliés en ligne droite (toujours ordonnés, contrairement aux tracés OSM). Écart toléré 250 m, 2,5 km pour une ligne dont on n'a que les terminus.
-- **Stockage** : dernière position sur le voyage (`trips`), passages aux arrêts gardés (`stop_passages`), points bruts (`trip_points`) effacés après 2 h, ou 30 jours pour une ligne sans tracé (pour le dessiner).
+- **Stockage** : rien n'est effacé (décision du 08/11/2026) : voyages, passages aux arrêts et points bruts servent aux statistiques et à la prédiction. La position montrée au public reste ramenée sur le trajet.
+- **Sens** : « Je suis dans ce bus » depuis la fiche ligne démarre sans sens ; le serveur le déduit dès que l'avancement augmente de 60 m sur un sens, rejoue les premiers points dessus, et la page bascule sur ce sens.
 - **Arrière-plan** : un site web ne peut pas envoyer la position écran éteint de façon fiable. Sur le site : écran allumé (Wake Lock API). L'app mobile, prévue après le back, prendra le relais pour l'envoi en arrière-plan.
 
 ### Tâches
@@ -118,15 +120,19 @@ Principe : un voyageur appuie sur **« Je suis dans le bus »**, choisit ligne e
 - [x] API `POST /trips`, `POST /trips/{id}/positions` (en-tête `X-Trip-Token`), `POST /trips/{id}/end`, limites de débit. Même API pour le site et l'app (`client: web | app`)
 - [x] Filtrage : précision GPS (> 150 m écarté), vitesse plausible (fenêtre de recherche), écart au trajet ; 8 points hors ligne d'affilée : voyage marqué « hors ligne »
 - [x] Calage sur la ligne, passage à chaque arrêt avec heure interpolée, temps passé à l'arrêt, terminus atteint : voyage terminé
-- [x] Vie privée : 300 premiers et derniers mètres effacés à la fin du voyage ; position publique ramenée sur le trajet
-- [x] Commande planifiée `transit:trips-cleanup` (toutes les 5 min) : voyages silencieux depuis 10 min terminés, points bruts effacés
+- [x] Position publique ramenée sur le trajet ; rien n'est effacé
+- [x] Commande planifiée `transit:trips-cleanup` (toutes les 5 min) : voyages silencieux depuis 10 min terminés
+- [x] Détection automatique du sens (fiche ligne sans recherche) et bascule de la page sur le bon sens
+- [x] Temps réel Pusher (`BusesUpdated`), canaux `line.{id}` et `live`
+- [x] Page « En direct » (`/en-direct`) : tous les bus sur une carte plein écran, panneau en bas (recherche, villes, liste, fiche du bus, lien vers la ligne)
+- [x] Accueil mis à jour (villes, prix, horaires, direct) ; menu simplifié (En direct, Lignes, Contribuer, Rechercher)
 - [x] API `GET /lines/{slug}/live` : bus en cours, voyageurs du même bus regroupés (moins de 200 m sur le même sens), dernier arrêt passé, arrêt suivant, fraîcheur
 - [x] Front : « Je suis dans ce bus » sur la fiche ligne (consentement par le bouton, écran maintenu allumé, envoi par lots, reprise après coupure, arrêt)
 - [x] Front : bus en direct sur la carte et dans la liste de la fiche ligne
 - [x] Tests
 - [ ] Front : bus en approche sur la fiche arrêt (avec le lot 4)
 - [ ] Admin : proposer le tracé d'une ligne sans arrêts à partir des traces gardées (lot 1, couche 3)
-- [ ] Mention vie privée dans la page « À propos » (loi 2013-450, ARTCI) : texte à valider par vous
+- [ ] Mention vie privée dans la page « À propos » (loi 2013-450, ARTCI) et mise à jour de VISION.md (qui promettait d'effacer les traces) : texte à valider par vous
 - [ ] App mobile : envoi en arrière-plan, même API
 
 ---
@@ -165,3 +171,4 @@ Niveaux de [VISION.md](VISION.md), on affiche toujours le niveau de confiance :
 | 07/11/2026 | Lot 1, première partie : villes en base, 24 lignes de l'intérieur lues dans le PDF, API et front |
 | 07/11/2026 | Lot 1, deuxième partie : ville dans le formulaire de recherche, éditeur d'arrêts dans le tableau de bord |
 | 07/11/2026 | Base de dev à jour (migrations, lignes de l'intérieur). Lot 2 : tarifs, carte étudiant, horaires, historique. Écrans vérifiés en local |
+| 08/11/2026 | Accueil : plus de liste des villes, la recherche couvre toutes les villes et la ville se déduit du lieu choisi. Après une recherche qui trouve des bus, invitation à partager sa position (une fois par semaine au plus, jamais si elle est déjà autorisée) |

@@ -64,6 +64,7 @@ Route::middleware('throttle:120,1')->group(function () {
     Route::get('/lines', [TransitController::class, 'lines'])->name('lines.index');
     Route::get('/lines/{line:slug}', [TransitController::class, 'line'])->name('lines.show');
     Route::get('/lines/{line:slug}/live', [TripController::class, 'live'])->name('lines.live');
+    Route::get('/live', [TripController::class, 'all'])->name('live');
     Route::get('/routes/{slug}', [SearchedRouteController::class, 'show'])->name('routes.show');
     Route::get('/stops/{stop:slug}', [TransitController::class, 'stop'])->name('stops.show');
 });

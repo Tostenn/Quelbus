@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Events\BusesUpdated;
 use App\Models\Line;
 use App\Models\LineDirection;
 use App\Models\StopPassage;
@@ -10,6 +11,7 @@ use App\Models\TripPoint;
 use App\Services\Transit\TransitImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class TripTest extends TestCase
@@ -30,14 +32,15 @@ class TripTest extends TestCase
         foreach (self::STOPS as $i => [$lat, $lng]) {
             $stops[] = ['id' => $i + 1, 'name' => 'Arrêt '.($i + 1), 'lat' => $lat, 'lon' => $lng];
         }
+        $line = fn (int $id, string $from, string $to, array $stops) => [
+            'id' => $id, 'name' => "bus 81 : {$from} → {$to}", 'type' => 'sotra', 'ref' => '81', 'from' => $from, 'to' => $to,
+            'category' => 'monbus', 'operator' => 'SOTRA', 'stops' => $stops, 'geometry' => [],
+        ];
         app(TransitImporter::class)->import([
             'stops' => $stops,
-            'lines' => [[
-                'id' => 1, 'name' => 'bus 81 : Arrêt 1 → Arrêt 4', 'type' => 'sotra', 'ref' => '81', 'from' => 'Arrêt 1', 'to' => 'Arrêt 4',
-                'category' => 'monbus', 'operator' => 'SOTRA', 'stops' => [1, 2, 3, 4], 'geometry' => [],
-            ]],
+            'lines' => [$line(1, 'Arrêt 1', 'Arrêt 4', [1, 2, 3, 4]), $line(2, 'Arrêt 4', 'Arrêt 1', [4, 3, 2, 1])],
         ]);
-        $this->direction = LineDirection::firstOrFail();
+        $this->direction = LineDirection::where('osm_relation_id', 1)->firstOrFail();
     }
 
     protected function tearDown(): void
@@ -90,7 +93,7 @@ class TripTest extends TestCase
         $this->assertSame('07:00:55', $passages[1]->passed_at->format('H:i:s'));
     }
 
-    public function test_reaching_the_terminus_ends_the_trip_and_trims_its_start_and_end(): void
+    public function test_reaching_the_terminus_ends_the_trip_and_keeps_everything(): void
     {
         [$id, $token] = $this->start();
         Carbon::setTestNow('2026-11-09 07:10:00');
@@ -99,10 +102,55 @@ class TripTest extends TestCase
         $this->send($id, $token, $this->points($lngs))->assertOk()->assertJsonPath('data.status', 'ended')->assertJsonPath('data.complete', true);
 
         $this->assertSame(4, StopPassage::where('trip_id', $id)->count());
-        // Vie privée : rien dans les 300 premiers ni les 300 derniers mètres
-        $progress = TripPoint::where('trip_id', $id)->pluck('progress_m');
-        $this->assertGreaterThanOrEqual(300, $progress->min());
-        $this->assertLessThanOrEqual(3340 - 300, $progress->max());
+        // Rien n'est effacé : les points servent aux statistiques et à la prédiction
+        $this->assertSame(count($lngs), TripPoint::where('trip_id', $id)->count());
+        $this->artisan('transit:trips-cleanup')->assertSuccessful();
+        $this->assertSame(count($lngs), TripPoint::where('trip_id', $id)->count());
+    }
+
+    public function test_the_direction_is_detected_from_the_first_points(): void
+    {
+        $line = Line::firstOrFail();
+        $start = fn () => $this->postJson('/api/trips', ['line_id' => $line->id])->assertCreated()->assertJsonPath('data.line_direction_id', null);
+        // Les voyages démarrent à 07:00, les points arrivent ensuite
+        [$east, $west, $still] = [$start(), $start(), $start()];
+        Carbon::setTestNow('2026-11-09 07:05:00');
+
+        // Vers l'est : sens Arrêt 1 → Arrêt 4
+        $this->send($east->json('data.id'), $east->json('data.token'), $this->points([-4.0, -3.999]))
+            ->assertJsonPath('data.line_direction_id', null); // pas encore assez de points
+        $detected = $this->send($east->json('data.id'), $east->json('data.token'), $this->points([-3.997, -3.993, -3.989], 40));
+        $this->assertSame(5, $detected->json('data.accepted'), $detected->getContent());
+        $detected
+            ->assertJsonPath('data.line_direction_id', $this->direction->id)
+            ->assertJsonPath('data.last_sequence', 2);
+
+        // Vers l'ouest : l'autre sens
+        $this->send($west->json('data.id'), $west->json('data.token'), $this->points([-3.97, -3.973, -3.977, -3.981]))
+            ->assertJsonPath('data.line_direction_id', LineDirection::where('osm_relation_id', 2)->value('id'));
+
+        // Immobile à l'arrêt : on attend sans conclure
+        $this->send($still->json('data.id'), $still->json('data.token'), $this->points([-3.99, -3.99, -3.99, -3.99]))
+            ->assertJsonPath('data.line_direction_id', null)
+            ->assertJsonPath('data.status', 'active');
+    }
+
+    public function test_all_live_buses_are_listed_and_pushed(): void
+    {
+        Event::fake([BusesUpdated::class]);
+        [$id, $token] = $this->start();
+        Carbon::setTestNow('2026-11-09 07:02:00');
+        $this->send($id, $token, $this->points([-4.0, -3.997, -3.993]));
+
+        Event::assertDispatched(BusesUpdated::class, fn ($e) => $e->lineId === Line::firstOrFail()->id
+            && $e->buses[0]['line']['ref'] === '81' && $e->broadcastOn()[1]->name === 'live');
+
+        $this->getJson('/api/live')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.line.ref', '81')
+            ->assertJsonPath('data.0.direction.destination', 'Arrêt 4')
+            ->assertJsonPath('data.0.next_stop.name', 'Arrêt 2');
     }
 
     public function test_resending_a_batch_is_harmless(): void

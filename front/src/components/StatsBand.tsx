@@ -61,7 +61,7 @@ export default function StatsBand() {
     <section className="stats-band" aria-labelledby="chiffres">
       <div className="container">
         <h2 id="chiffres" className="stats-title">
-          Tout Abidjan, ligne par ligne
+          Cinq villes, ligne par ligne
         </h2>
         <ul className="stats-list">
           {items.map(({ icon: ItemIcon, value, label, mobileOnly }) => (

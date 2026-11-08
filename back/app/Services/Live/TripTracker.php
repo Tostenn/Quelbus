@@ -2,11 +2,13 @@
 
 namespace App\Services\Live;
 
+use App\Models\Line;
 use App\Models\LineDirection;
 use App\Models\StopPassage;
 use App\Models\Trip;
 use App\Models\TripPoint;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -16,6 +18,11 @@ use Illuminate\Support\Str;
  *
  * Les points arrivent par lots (le téléphone les garde quand le réseau coupe) : un point déjà vu
  * (même heure ou plus ancien) est ignoré, on peut donc renvoyer un lot sans risque.
+ *
+ * Le sens peut être inconnu au départ (« Je suis dans ce bus » depuis la fiche ligne) : les premiers
+ * points sont gardés tels quels, puis rejoués sur le sens où l'avancement augmente.
+ *
+ * Rien n'est effacé : voyages, passages et points servent aux statistiques et à la prédiction.
  */
 class TripTracker
 {
@@ -43,17 +50,27 @@ class TripTracker
     /** Un point plus vieux que ça n'est plus accepté (lot renvoyé très tard) */
     private const MAX_AGE_HOURS = 3;
 
+    /** Avancement minimal dans un sens pour l'adopter */
+    private const DETECT_MIN_GAIN_M = 60;
+
+    /** Part des points qui doivent coller au trajet du sens retenu */
+    private const DETECT_MIN_SHARE = 0.8;
+
+    /** Distance parcourue sans qu'aucun sens ne colle : l'usager n'est pas sur cette ligne */
+    private const DETECT_GIVE_UP_M = 600;
+
     /** @var array<int, RouteLine> */
     private array $routes = [];
 
     /**
      * @return array{trip: Trip, token: string}
      */
-    public function start(LineDirection $direction, string $client): array
+    public function start(Line $line, ?LineDirection $direction, string $client): array
     {
         $token = Str::random(48);
         $trip = Trip::query()->create([
-            'line_direction_id' => $direction->id,
+            'line_id' => $line->id,
+            'line_direction_id' => $direction?->id,
             'token_hash' => hash('sha256', $token),
             'client' => $client,
             'status' => Trip::ACTIVE,
@@ -72,9 +89,12 @@ class TripTracker
         if ($trip->status !== Trip::ACTIVE) {
             return ['accepted' => 0, 'rejected' => count($points)];
         }
+        if (! $trip->line_direction_id) {
+            return $this->ingestUndetected($trip, $points);
+        }
 
         $direction = $trip->direction;
-        $route = $this->routes[$direction->id] ??= RouteLine::forDirection($direction);
+        $route = $this->route($direction);
         $maxOffset = $direction->is_partial ? self::MAX_OFFSET_PARTIAL_M : self::MAX_OFFSET_M;
         usort($points, fn ($a, $b) => $a['t'] <=> $b['t']);
 
@@ -158,11 +178,119 @@ class TripTracker
             $trip->save();
         });
 
-        if ($trip->status !== Trip::ACTIVE) {
-            $this->trim($trip);
+        return ['accepted' => $accepted, 'rejected' => $rejected];
+    }
+
+    private function route(LineDirection $direction): RouteLine
+    {
+        return $this->routes[$direction->id] ??= RouteLine::forDirection($direction);
+    }
+
+    /**
+     * Sens encore inconnu : on garde les points, puis on cherche le sens où l'usager avance.
+     *
+     * @param  list<array{lat: float, lng: float, accuracy?: ?float, t: int}>  $points
+     * @return array{accepted: int, rejected: int}
+     */
+    private function ingestUndetected(Trip $trip, array $points): array
+    {
+        $last = TripPoint::query()->where('trip_id', $trip->id)->max('recorded_at');
+        $rows = [];
+        $rejected = 0;
+        foreach ($points as $point) {
+            $at = Carbon::createFromTimestampMs($point['t']);
+            if (($last && $at->lte(Carbon::parse($last))) || $at->gt(now()->addMinute()) || $at->lt($trip->started_at->copy()->subMinutes(2))) {
+                continue;
+            }
+            if (($point['accuracy'] ?? 0) > self::MAX_ACCURACY_M) {
+                $rejected++;
+
+                continue;
+            }
+            $rows[] = [
+                'trip_id' => $trip->id,
+                'lat' => round($point['lat'], 6),
+                'lng' => round($point['lng'], 6),
+                'accuracy_m' => isset($point['accuracy']) ? (int) min(65535, round($point['accuracy'])) : null,
+                'progress_m' => null,
+                'recorded_at' => $at,
+            ];
+        }
+        if ($rows) {
+            TripPoint::query()->insert($rows);
+        }
+        $trip->rejected_count += $rejected;
+        $trip->updated_at = now(); // l'usager est toujours là (voir transit:trips-cleanup)
+        $trip->save();
+
+        $stored = TripPoint::query()->where('trip_id', $trip->id)->orderBy('recorded_at')->get();
+        $direction = $this->detectDirection($trip, $stored);
+        if (! $direction) {
+            return ['accepted' => 0, 'rejected' => $rejected];
         }
 
-        return ['accepted' => $accepted, 'rejected' => $rejected];
+        // Sens trouvé : les points gardés sont rejoués sur ce sens, avec leur avancement
+        $trip->update(['line_direction_id' => $direction->id]);
+        $trip->setRelation('direction', $direction);
+        TripPoint::query()->where('trip_id', $trip->id)->delete();
+        $replay = $stored->map(fn (TripPoint $p) => [
+            'lat' => $p->lat, 'lng' => $p->lng, 'accuracy' => $p->accuracy_m, 't' => $p->recorded_at->getTimestampMs(),
+        ])->all();
+        $result = $this->ingest($trip, $replay);
+
+        return ['accepted' => $result['accepted'], 'rejected' => $result['rejected'] + $rejected];
+    }
+
+    /**
+     * Le sens où les points collent au trajet et où l'avancement augmente le plus.
+     * Abandonne (voyage « hors ligne ») si l'usager a bien bougé sans suivre aucun sens.
+     *
+     * @param  Collection<int, TripPoint>  $points
+     */
+    private function detectDirection(Trip $trip, Collection $points): ?LineDirection
+    {
+        if ($points->count() < 3) {
+            return null;
+        }
+
+        $best = null;
+        $bestGain = self::DETECT_MIN_GAIN_M;
+        foreach ($trip->line->directions as $direction) {
+            $route = $this->route($direction);
+            $maxOffset = $direction->is_partial ? self::MAX_OFFSET_PARTIAL_M : self::MAX_OFFSET_M;
+            $progress = [];
+            foreach ($points as $point) {
+                $hit = $route->project($point->lat, $point->lng);
+                if ($hit && $hit['offset'] <= $maxOffset) {
+                    $progress[] = $hit['progress'];
+                }
+            }
+            if (count($progress) < 3 || count($progress) / $points->count() < self::DETECT_MIN_SHARE) {
+                continue;
+            }
+            // Avancement net, et plus de pas en avant qu'en arrière
+            $gain = end($progress) - $progress[0];
+            $forward = 0;
+            for ($i = 1, $n = count($progress); $i < $n; $i++) {
+                $forward += $progress[$i] <=> $progress[$i - 1];
+            }
+            if ($gain > $bestGain && $forward > 0) {
+                [$best, $bestGain] = [$direction, $gain];
+            }
+        }
+
+        if (! $best) {
+            $first = $points->first();
+            $moved = (new RouteLine([
+                ['id' => 0, 'lat' => $first->lat, 'lng' => $first->lng],
+                ['id' => 0, 'lat' => $points->last()->lat, 'lng' => $points->last()->lng],
+            ]))->total();
+            if ($moved >= self::DETECT_GIVE_UP_M) {
+                $trip->update(['status' => Trip::OFF_ROUTE, 'ended_at' => now()]);
+            }
+        }
+
+        return $best;
     }
 
     /**
@@ -232,22 +360,5 @@ class TripTracker
         if ($trip->status === Trip::ACTIVE) {
             $trip->update(['status' => Trip::ENDED, 'ended_at' => now()]);
         }
-        $this->trim($trip);
-    }
-
-    /**
-     * Vie privée : début et fin du voyage effacés (on ne garde pas où l'usager est monté ni descendu
-     * à quelques mètres près). Les passages aux arrêts, lieux publics, sont gardés.
-     */
-    public function trim(Trip $trip, int $meters = 300): void
-    {
-        $range = TripPoint::query()->where('trip_id', $trip->id)
-            ->selectRaw('min(progress_m) as first, max(progress_m) as last')->first();
-        if ($range?->first === null) {
-            return;
-        }
-        TripPoint::query()->where('trip_id', $trip->id)
-            ->where(fn ($q) => $q->where('progress_m', '<', $range->first + $meters)->orWhere('progress_m', '>', $range->last - $meters))
-            ->delete();
     }
 }
