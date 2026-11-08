@@ -1,6 +1,7 @@
 import { useId, useRef, useState, type ReactNode } from 'react'
 import { MapPin } from '@phosphor-icons/react'
 import { fetchSuggestions, type Place, type Suggestion } from '../lib/api'
+import { cityAt } from '../lib/cities'
 
 type Props = {
   label: string
@@ -10,7 +11,7 @@ type Props = {
   pin: 'from' | 'to'
   error?: string
   action?: ReactNode
-  /** Ville où chercher les suggestions (slug) */
+  /** Ville où chercher les suggestions (slug). Sans ville : partout, avec le nom de la ville. */
   city?: string
 }
 
@@ -135,6 +136,7 @@ export default function PlaceInput({ label, placeholder, value, onChange, pin, e
                 <span>
                   {s.name}
                   {s.stops > 1 && <span className="place-meta"> · {s.stops} arrêts</span>}
+                  {!city && cityAt(s) && <span className="place-meta"> · {cityAt(s)!.name}</span>}
                 </span>
               </li>
             ))}

@@ -2829,6 +2829,15 @@ dialog.arrival h2 {
   color: #fff;
 }
 
+.location-prompt p {
+  margin: 0 0 10px;
+}
+
+.location-prompt .location-prompt-help {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .arrival-actions {
   display: grid;
   gap: 10px;

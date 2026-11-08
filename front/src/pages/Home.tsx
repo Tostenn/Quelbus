@@ -69,7 +69,7 @@ export default function Home() {
           <div className="hero-search">
             {!meeting && (
               <div className="search-card">
-                <SearchForm />
+                <SearchForm cityPicker={false} />
               </div>
             )}
             <LiveTeaser />

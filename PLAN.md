@@ -171,3 +171,4 @@ Niveaux de [VISION.md](VISION.md), on affiche toujours le niveau de confiance :
 | 07/11/2026 | Lot 1, première partie : villes en base, 24 lignes de l'intérieur lues dans le PDF, API et front |
 | 07/11/2026 | Lot 1, deuxième partie : ville dans le formulaire de recherche, éditeur d'arrêts dans le tableau de bord |
 | 07/11/2026 | Base de dev à jour (migrations, lignes de l'intérieur). Lot 2 : tarifs, carte étudiant, horaires, historique. Écrans vérifiés en local |
+| 08/11/2026 | Accueil : plus de liste des villes, la recherche couvre toutes les villes et la ville se déduit du lieu choisi. Après une recherche qui trouve des bus, invitation à partager sa position (une fois par semaine au plus, jamais si elle est déjà autorisée) |
