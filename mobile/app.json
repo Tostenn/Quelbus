@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "QuelBus",
+    "slug": "quelbus",
+    "scheme": "quelbus",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#faf7f2",
+    "primaryColor": "#ce5b22",
+    "ios": {
+      "bundleIdentifier": "ci.quelbus.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "ci.quelbus.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#1a1613",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "blockedPermissions": [
+        "ACCESS_BACKGROUND_LOCATION"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#faf7f2"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "QuelBus utilise votre position pour trouver les arrêts et les bus près de vous."
+        }
+      ],
+      "@maplibre/maplibre-react-native"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
