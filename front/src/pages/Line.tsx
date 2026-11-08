@@ -5,6 +5,7 @@ import ArrivalDialog from '../components/ArrivalDialog'
 import FareInfo from '../components/FareInfo'
 import JsonLd from '../components/JsonLd'
 import LineBadge from '../components/LineBadge'
+import LineForecast from '../components/LineForecast'
 import LoadError from '../components/LoadError'
 import MeetingShare from '../components/MeetingShare'
 import NotFound from '../components/NotFound'
@@ -211,6 +212,7 @@ export default function Line() {
                     follow={tracking && position !== null}
                     onBoard={onBoard}
                     buses={busPins}
+                    vehicle={line.type}
                   />
                 </Suspense>
               )}
@@ -231,6 +233,15 @@ export default function Line() {
                     </li>
                   )}
                 </ul>
+              )}
+
+              {/* Pas de bus en direct sur ce sens : le prochain passage estimé, s'il y a des passages relevés */}
+              {direction.has_history && stops.length > 1 && buses.length === 0 && !sharing && (
+                <LineForecast
+                  key={direction.id}
+                  directionId={direction.id}
+                  known={userLat !== undefined && userLng !== undefined ? { lat: userLat, lng: userLng } : null}
+                />
               )}
 
               {stops.length > 1 && (

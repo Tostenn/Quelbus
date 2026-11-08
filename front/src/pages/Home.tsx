@@ -9,6 +9,7 @@ import { ArrowRight, GithubLogo } from '@phosphor-icons/react'
 import { REPO_URL } from '../lib/config'
 import { useState } from 'react'
 import { usePageMeta } from '../lib/usePageMeta'
+import { useMediaQuery } from '../lib/useMediaQuery'
 
 const steps = [
   {
@@ -46,6 +47,8 @@ const contributions = [
 
 export default function Home() {
   const [meeting, setMeeting] = useState(false)
+  // En large, l'accès au direct passe sous le titre, à gauche ; sur téléphone il suit la recherche
+  const wide = useMediaQuery('(min-width: 980px)')
   usePageMeta(
     'Quel bus prendre ? Abidjan, Bouaké, Yamoussoukro… | QuelBus',
     'Quelle ligne prendre, où monter, combien ça coûte et où est le bus en ce moment. SOTRA, gbakas et wôrô-wôrôs, à Abidjan et dans quatre autres villes.',
@@ -64,6 +67,7 @@ export default function Home() {
               ça coûte, et <strong>où est le bus en ce moment</strong>.
             </p>
             <p className="hero-cities">Abidjan · Bouaké · Korhogo · San-Pédro · Yamoussoukro</p>
+            {wide && <LiveTeaser />}
           </div>
 
           <div className="hero-search">
@@ -72,7 +76,7 @@ export default function Home() {
                 <SearchForm cityPicker={false} />
               </div>
             )}
-            <LiveTeaser />
+            {!wide && <LiveTeaser />}
             <MeetMeHere onActiveChange={setMeeting} />
             <p className="hero-note">
               Une ligne fausse ou un arrêt manquant&nbsp;?{' '}

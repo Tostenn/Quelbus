@@ -2,8 +2,10 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, Broadcast, CaretRight, MagnifyingGlass, UsersThree, X } from '@phosphor-icons/react'
 import LineBadge from '../components/LineBadge'
+import NearbyArrivals from '../components/NearbyArrivals'
 import type { MapFocus } from '../components/LiveMap'
 import type { LineSummary } from '../lib/api'
+import { useArrivals, usePosition } from '../lib/arrivals'
 import { CITIES, cityAt, type City } from '../lib/cities'
 import { normalize } from '../lib/search'
 import { ageSeconds, seenLabel, useAllLiveBuses, useNow, type LiveBus } from '../lib/trips'
@@ -47,6 +49,11 @@ export default function Live() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [snap, setSnap] = useState<Snap>('half')
   const [user, setUser] = useState<[number, number] | null>(null)
+  const [geo, setGeo] = useState<'idle' | 'locating' | 'denied'>('idle')
+  // Position déjà autorisée : elle arrive seule, sans recadrer la carte
+  const granted = usePosition()
+  const here = user ?? (granted.position ? ([granted.position.lat, granted.position.lng] as [number, number]) : null)
+  const { arrivals } = useArrivals(here ? { lat: here[0], lng: here[1] } : null)
   // Chaque demande de recadrage a sa clé, même vers le même endroit
   const focusCount = useRef(0)
   const [focus, setFocus] = useState<MapFocus>(() => ({ bounds: cityBounds(saved), key: `ville-${saved.slug}` }))
@@ -135,8 +142,14 @@ export default function Live() {
   }
 
   function locate() {
-    navigator.geolocation?.getCurrentPosition(
+    if (!('geolocation' in navigator)) {
+      setGeo('denied')
+      return
+    }
+    setGeo('locating')
+    navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
+        setGeo('idle')
         const here: [number, number] = [coords.latitude, coords.longitude]
         setUser(here)
         setFocus({ point: here, zoom: 15, key: `moi-${++focusCount.current}` })
@@ -146,7 +159,7 @@ export default function Live() {
           setCity(where.slug)
         }
       },
-      () => {},
+      (error) => setGeo(error.code === error.PERMISSION_DENIED ? 'denied' : 'idle'),
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
     )
   }
@@ -158,7 +171,7 @@ export default function Live() {
           buses={inCity}
           selected={selectedId}
           focus={focus}
-          user={user}
+          user={here}
           onSelect={(id) => {
             setSelectedId(id)
             if (id) setSnap('half')
@@ -236,6 +249,17 @@ export default function Live() {
                   ? `${inCity.length} bus en direct${city ? ` à ${city.name}` : ''}`
                   : `Aucun bus en direct${city ? ` à ${city.name}` : ''} pour l’instant`}
             </p>
+
+            {!words.length && (
+              <NearbyArrivals
+                arrivals={arrivals}
+                located={here !== null}
+                locating={geo === 'locating'}
+                denied={geo === 'denied'}
+                now={now}
+                onLocate={locate}
+              />
+            )}
 
             {shown.length > 0 && (
               <ul className="sheet-list">

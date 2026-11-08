@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Models\Line;
 use App\Models\Stop;
+use App\Services\Live\ArrivalPredictor;
 use App\Services\Stats;
 use App\Services\Transit\RouteSearchService;
 use Illuminate\Http\JsonResponse;
@@ -41,10 +42,11 @@ class TransitController extends Controller
         return response()->json(['data' => $lines]);
     }
 
-    public function line(Line $line): JsonResponse
+    public function line(Line $line, ArrivalPredictor $predictor): JsonResponse
     {
         Stats::lineView($line->id);
         $line->load(['city', 'directions' => fn ($q) => $q->orderBy('id'), 'directions.stops:id,name,slug,lat,lng', 'directions.schedules']);
+        $history = $predictor->withHistory($line->directions->modelKeys());
 
         return response()->json(['data' => [
             'id' => $line->id,
@@ -62,6 +64,8 @@ class TransitController extends Controller
                 'is_loop' => $direction->is_loop,
                 'is_partial' => $direction->is_partial,
                 'schedules' => $direction->schedules->map->summary(),
+                // Des passages relevés : on peut estimer le prochain bus (GET /api/arrivals)
+                'has_history' => isset($history[$direction->id]),
                 'geometry' => $direction->geometry ?? [],
                 'stops' => $direction->stops->map(fn ($stop) => $stop->only(['id', 'name', 'slug', 'lat', 'lng'])),
             ]),

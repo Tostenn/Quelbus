@@ -101,19 +101,42 @@ export default function Layout() {
                 gratuit et ouvert aux contributions.
               </p>
             </div>
-            <div className="footer-links">
-              <Link to="/lignes">Toutes les lignes</Link>
-              <Link to="/en-direct">Les bus en direct</Link>
-              <Link to="/a-propos">À propos</Link>
-              <Link to="/contact">Être prévenu des nouveautés</Link>
-              <Link to="/contact?profil=contributeur">Contribuer</Link>
-              {REPO_URL && (
-                <a className="icon-link" href={REPO_URL} target="_blank" rel="noreferrer">
-                  <GithubLogo size={18} />
-                  Code source
-                </a>
-              )}
-            </div>
+            <nav className="footer-col" aria-labelledby="footer-deplacer">
+              <h2 id="footer-deplacer">Se déplacer</h2>
+              <ul>
+                <li>
+                  <Link to="/recherche">Trouver mon bus</Link>
+                </li>
+                <li>
+                  <Link to="/lignes">Toutes les lignes</Link>
+                </li>
+                <li>
+                  <Link to="/en-direct">Les bus en direct</Link>
+                </li>
+              </ul>
+            </nav>
+            <nav className="footer-col" aria-labelledby="footer-projet">
+              <h2 id="footer-projet">Le projet</h2>
+              <ul>
+                <li>
+                  <Link to="/a-propos">À propos</Link>
+                </li>
+                <li>
+                  <Link to="/contact?profil=contributeur">Contribuer</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Être prévenu des nouveautés</Link>
+                </li>
+                {REPO_URL && (
+                  <li>
+                    <a className="icon-link" href={REPO_URL} target="_blank" rel="noreferrer">
+                      <GithubLogo size={18} aria-hidden="true" />
+                      Code source
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </nav>
             <p className="footer-legal">
               Site indépendant, non affilié à la SOTRA. Données de lignes et d'arrêts&nbsp;:{' '}
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
